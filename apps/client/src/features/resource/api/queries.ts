@@ -14,7 +14,7 @@ export const useResourceQueries = () => {
       },
     }),
     getById: (id: string) => {
-      queryOptions({
+      return queryOptions({
         queryKey: ["resources", id],
         queryFn: async () => {
           const { data, error } = await serverClient.api

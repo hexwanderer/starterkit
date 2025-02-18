@@ -36,4 +36,4 @@ export const app = new Elysia({ prefix: "/api" })
 
 export type App = typeof app;
 
-export type { Resource } from "./resource";
+export type { ResourceGet } from "./resource";
