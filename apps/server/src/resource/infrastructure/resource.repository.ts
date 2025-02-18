@@ -6,13 +6,17 @@ import {
   users,
 } from "@repo/database";
 import { eq, sql } from "drizzle-orm";
-import type { Resource } from "../domain/resource.type";
+import type {
+  ResourceGet,
+  ResourceCreate,
+  ResourceUpdate,
+} from "../domain/resource.type";
 
 export interface ResourceRepository {
-  getAll(): Promise<Resource[]>;
-  getById(id: string): Promise<Resource | null>;
-  create(resource: Resource): Promise<Resource>;
-  update(resource: Resource): Promise<Resource>;
+  getAll(): Promise<ResourceGet[]>;
+  getById(id: string): Promise<ResourceGet | null>;
+  create(resource: ResourceCreate): Promise<ResourceGet>;
+  update(resource: ResourceUpdate): Promise<ResourceGet>;
   delete(id: string): Promise<void>;
 }
 
@@ -23,15 +27,17 @@ export class ResourcePostgresImpl implements ResourceRepository {
     this.db = db;
   }
 
-  async getAll(): Promise<Resource[]> {
+  async getAll(): Promise<ResourceGet[]> {
     const resources = await this.db
       .select({
         id: resourceTable.id,
         title: resourceTable.title,
         description: resourceTable.description,
         tags: sql<
-          string[]
-        >`COALESCE(array_agg(${resourceTagsTable.tag}), '{}')`.as("tags"),
+          { id: string; name: string }[]
+        >`COALESCE(json_agg(json_build_object('id', ${resourceTagsTable.id}, 'name', ${resourceTagsTable.tag})), '[]')`.as(
+          "tags",
+        ),
       })
       .from(resourceTable)
       .leftJoin(
@@ -53,15 +59,17 @@ export class ResourcePostgresImpl implements ResourceRepository {
     }));
   }
 
-  async getById(id: string): Promise<Resource | null> {
+  async getById(id: string): Promise<ResourceGet | null> {
     const [result] = await this.db
       .select({
         id: resourceTable.id,
         title: resourceTable.title,
         description: resourceTable.description,
         tags: sql<
-          string[]
-        >`COALESCE(array_agg(${resourceTagsTable.tag}), '{}')`.as("tags"),
+          { id: string; name: string }[]
+        >`COALESCE(json_agg(json_build_object('id', ${resourceTagsTable.id}, 'name', ${resourceTagsTable.tag})), '[]')`.as(
+          "tags",
+        ),
       })
       .from(resourceTable)
       .leftJoin(
@@ -85,7 +93,7 @@ export class ResourcePostgresImpl implements ResourceRepository {
     };
   }
 
-  async create(resource: Resource): Promise<Resource> {
+  async create(resource: ResourceCreate): Promise<ResourceGet> {
     const [result] = await this.db
       .insert(resourceTable)
       .values({
@@ -125,12 +133,12 @@ export class ResourcePostgresImpl implements ResourceRepository {
     }
 
     return {
-      ...resource,
+      ...result,
       tags: newTagsWithIds,
     };
   }
 
-  update(resource: Resource): Promise<Resource> {
+  update(resource: ResourceUpdate): Promise<ResourceGet> {
     console.log("update", resource);
     throw new Error("Method not implemented.");
   }

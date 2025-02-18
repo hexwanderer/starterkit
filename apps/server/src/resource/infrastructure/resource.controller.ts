@@ -1,6 +1,11 @@
 import { db } from "@repo/database";
 import { Elysia, t } from "elysia";
-import { ResourceSchema } from "../domain/resource.type";
+import {
+  ResourceCreate,
+  ResourceUpdate,
+  ResourceGet,
+  ResourceSchema,
+} from "../domain/resource.type";
 import { ResourcePostgresImpl } from "./resource.repository";
 
 export const ResourceController = new Elysia({ prefix: "/resources" })
@@ -19,8 +24,7 @@ export const ResourceController = new Elysia({ prefix: "/resources" })
     {
       response: {
         200: t.Object({
-          status: t.String(),
-          data: t.Array(ResourceSchema),
+          data: t.Array(ResourceSchema.get),
         }),
         500: t.String(),
       },
@@ -40,7 +44,7 @@ export const ResourceController = new Elysia({ prefix: "/resources" })
         id: t.String(),
       }),
       response: {
-        200: ResourceSchema,
+        200: ResourceSchema.get,
         404: t.String(),
       },
     },
@@ -53,7 +57,32 @@ export const ResourceController = new Elysia({ prefix: "/resources" })
       return response;
     },
     {
-      body: ResourceSchema,
-      response: ResourceSchema,
+      body: ResourceSchema.create,
+      response: ResourceSchema.get,
+    },
+  )
+  .patch(
+    "/:id",
+    async ({ repository, params: { id }, body, error }) => {
+      try {
+        const response = await repository.update({
+          ...body,
+          id,
+        });
+        return;
+      } catch (e) {
+        return error(500, "Internal server error");
+      }
+    },
+    {
+      params: t.Object({
+        id: t.String(),
+      }),
+      body: ResourceSchema.create,
+      response: {
+        200: t.Void(),
+        404: t.String(),
+        500: t.String(),
+      },
     },
   );

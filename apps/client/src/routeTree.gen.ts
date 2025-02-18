@@ -19,6 +19,7 @@ import { Route as AuthOrgsImport } from './routes/auth/orgs'
 import { Route as LandingFeaturesImport } from './routes/_landing/features'
 import { Route as LandingAboutImport } from './routes/_landing/about'
 import { Route as AuthenticatedDashboardImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedResourcesIndexImport } from './routes/_authenticated/resources/index'
 import { Route as AuthenticatedUserSettingsIndexImport } from './routes/_authenticated/user/settings/index'
 import { Route as AuthenticatedOrganizationsOrganizationIdSettingsImport } from './routes/_authenticated/organizations/$organizationId/settings'
 
@@ -69,6 +70,13 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+
+const AuthenticatedResourcesIndexRoute =
+  AuthenticatedResourcesIndexImport.update({
+    id: '/resources/',
+    path: '/resources/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 const AuthenticatedUserSettingsIndexRoute =
   AuthenticatedUserSettingsIndexImport.update({
@@ -144,6 +152,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthIndexImport
       parentRoute: typeof rootRoute
     }
+    '/_authenticated/resources/': {
+      id: '/_authenticated/resources/'
+      path: '/resources'
+      fullPath: '/resources'
+      preLoaderRoute: typeof AuthenticatedResourcesIndexImport
+      parentRoute: typeof AuthenticatedImport
+    }
     '/_authenticated/organizations/$organizationId/settings': {
       id: '/_authenticated/organizations/$organizationId/settings'
       path: '/organizations/$organizationId/settings'
@@ -165,12 +180,14 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedResourcesIndexRoute: typeof AuthenticatedResourcesIndexRoute
   AuthenticatedOrganizationsOrganizationIdSettingsRoute: typeof AuthenticatedOrganizationsOrganizationIdSettingsRoute
   AuthenticatedUserSettingsIndexRoute: typeof AuthenticatedUserSettingsIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedResourcesIndexRoute: AuthenticatedResourcesIndexRoute,
   AuthenticatedOrganizationsOrganizationIdSettingsRoute:
     AuthenticatedOrganizationsOrganizationIdSettingsRoute,
   AuthenticatedUserSettingsIndexRoute: AuthenticatedUserSettingsIndexRoute,
@@ -203,6 +220,7 @@ export interface FileRoutesByFullPath {
   '/auth/orgs': typeof AuthOrgsRoute
   '/': typeof LandingIndexRoute
   '/auth': typeof AuthIndexRoute
+  '/resources': typeof AuthenticatedResourcesIndexRoute
   '/organizations/$organizationId/settings': typeof AuthenticatedOrganizationsOrganizationIdSettingsRoute
   '/user/settings': typeof AuthenticatedUserSettingsIndexRoute
 }
@@ -215,6 +233,7 @@ export interface FileRoutesByTo {
   '/auth/orgs': typeof AuthOrgsRoute
   '/': typeof LandingIndexRoute
   '/auth': typeof AuthIndexRoute
+  '/resources': typeof AuthenticatedResourcesIndexRoute
   '/organizations/$organizationId/settings': typeof AuthenticatedOrganizationsOrganizationIdSettingsRoute
   '/user/settings': typeof AuthenticatedUserSettingsIndexRoute
 }
@@ -229,6 +248,7 @@ export interface FileRoutesById {
   '/auth/orgs': typeof AuthOrgsRoute
   '/_landing/': typeof LandingIndexRoute
   '/auth/': typeof AuthIndexRoute
+  '/_authenticated/resources/': typeof AuthenticatedResourcesIndexRoute
   '/_authenticated/organizations/$organizationId/settings': typeof AuthenticatedOrganizationsOrganizationIdSettingsRoute
   '/_authenticated/user/settings/': typeof AuthenticatedUserSettingsIndexRoute
 }
@@ -243,6 +263,7 @@ export interface FileRouteTypes {
     | '/auth/orgs'
     | '/'
     | '/auth'
+    | '/resources'
     | '/organizations/$organizationId/settings'
     | '/user/settings'
   fileRoutesByTo: FileRoutesByTo
@@ -254,6 +275,7 @@ export interface FileRouteTypes {
     | '/auth/orgs'
     | '/'
     | '/auth'
+    | '/resources'
     | '/organizations/$organizationId/settings'
     | '/user/settings'
   id:
@@ -266,6 +288,7 @@ export interface FileRouteTypes {
     | '/auth/orgs'
     | '/_landing/'
     | '/auth/'
+    | '/_authenticated/resources/'
     | '/_authenticated/organizations/$organizationId/settings'
     | '/_authenticated/user/settings/'
   fileRoutesById: FileRoutesById
@@ -305,6 +328,7 @@ export const routeTree = rootRoute
       "filePath": "_authenticated.tsx",
       "children": [
         "/_authenticated/dashboard",
+        "/_authenticated/resources/",
         "/_authenticated/organizations/$organizationId/settings",
         "/_authenticated/user/settings/"
       ]
@@ -338,6 +362,10 @@ export const routeTree = rootRoute
     },
     "/auth/": {
       "filePath": "auth/index.tsx"
+    },
+    "/_authenticated/resources/": {
+      "filePath": "_authenticated/resources/index.tsx",
+      "parent": "/_authenticated"
     },
     "/_authenticated/organizations/$organizationId/settings": {
       "filePath": "_authenticated/organizations/$organizationId/settings.tsx",
