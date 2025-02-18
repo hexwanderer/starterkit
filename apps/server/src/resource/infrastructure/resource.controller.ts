@@ -7,10 +7,27 @@ import {
   ResourceSchema,
 } from "../domain/resource.type";
 import { ResourcePostgresImpl } from "./resource.repository";
+import { hasPermission } from "@repo/auth";
+import { auth } from "../../shared/state/auth";
 
 export const ResourceController = new Elysia({ prefix: "/resources" })
   .decorate({
     repository: new ResourcePostgresImpl(db),
+  })
+  .derive(async ({ request }) => {
+    const session = await auth.api.getSession({ headers: request.headers });
+
+    if (!session || !session.user || !session.session) {
+      return {
+        user: null,
+        session: null,
+      };
+    }
+
+    return {
+      user: session.user,
+      session: session.session,
+    };
   })
   .get(
     "/all",
@@ -51,14 +68,30 @@ export const ResourceController = new Elysia({ prefix: "/resources" })
   )
   .put(
     "/",
-    async ({ repository, body, error }) => {
+    async ({ headers, repository, body, error, user, session }) => {
+      if (
+        !hasPermission(
+          {
+            id: user?.id ?? "",
+            active_organization_id: session?.activeOrganizationId ?? "",
+            roles: ["user"],
+          },
+          "resource",
+          "create",
+        )
+      ) {
+        error(401, "Unauthorized");
+      }
       const response = await repository.create(body);
       if (error) throw error;
       return response;
     },
     {
       body: ResourceSchema.create,
-      response: ResourceSchema.get,
+      response: {
+        200: ResourceSchema.get,
+        401: t.String(),
+      },
     },
   )
   .patch(

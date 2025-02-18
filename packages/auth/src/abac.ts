@@ -17,10 +17,9 @@ type Resource = {
 
 type Role = "owner" | "admin" | "user";
 type User = {
-  blockedBy: string[];
   roles: Role[];
   id: string;
-  organizational_unit_id: string;
+  active_organization_id?: string;
 };
 
 type PermissionCheck<Key extends keyof Permissions> =
@@ -82,12 +81,7 @@ const ROLES = {
     },
     resource: {
       view: (user, resource) => {
-        let id = resource.organizational_unit_id;
-        while (id) {
-          if (user.organizational_unit_id === id) return true;
-          id = user.organizational_unit_id;
-        }
-        return false;
+        return user.active_organization_id === resource.organizational_unit_id;
       },
       create: true,
       update: (user, resource) => resource.created_by === user.id,
