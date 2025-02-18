@@ -1,0 +1,10 @@
+{
+  "name": "starterkit-bun",
+  "version": "0.0.0",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"],
+  "dependencies": {
+    "@biomejs/biome": "^1.9.4"
+  },
+  "packageManager": "bun@1.1.39"
+}

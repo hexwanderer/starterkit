@@ -1,0 +1,29 @@
+{
+  "name": "@repo/database",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "drizzle:push": "drizzle-kit push",
+    "drizzle:generate": "drizzle-kit generate"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^22.13.0",
+    "@types/pg": "^8.11.11",
+    "drizzle-kit": "^0.30.4",
+    "tsx": "^4.19.2",
+    "typescript": "latest"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.39.1",
+    "pg": "^8.13.1",
+    "uuid": "^11.0.5"
+  }
+}
