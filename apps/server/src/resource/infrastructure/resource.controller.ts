@@ -1,13 +1,9 @@
 import { db } from "@repo/database";
 import { Elysia, t } from "elysia";
-import { state } from "../../main";
 import { ResourceSchema } from "../domain/resource.type";
 import { ResourcePostgresImpl } from "./resource.repository";
 
 export const ResourceController = new Elysia({ prefix: "/resources" })
-  .state({
-    db,
-  })
   .decorate({
     repository: new ResourcePostgresImpl(db),
   })

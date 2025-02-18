@@ -6,7 +6,7 @@ export function ResourceList() {
 
   return (
     <div>
-      {resourceListQuery.data?.map((resource) => (
+      {resourceListQuery.data?.data.map((resource) => (
         <div key={resource.id}>{resource.title}</div>
       ))}
     </div>

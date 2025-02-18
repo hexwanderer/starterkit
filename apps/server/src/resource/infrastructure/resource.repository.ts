@@ -93,6 +93,7 @@ export class ResourcePostgresImpl implements ResourceRepository {
         description: resource.description,
       })
       .returning();
+    if (!result) throw new Error("Failed to create resource");
 
     const existingTags = resource.tags.filter((tag) => typeof tag !== "string");
     for (const tag of existingTags) {
@@ -111,6 +112,7 @@ export class ResourcePostgresImpl implements ResourceRepository {
           tag: tag,
         })
         .returning();
+      if (!tagResult) throw new Error("Failed to create tag");
 
       await this.db.insert(resourceTagPairsTable).values({
         resourceId: result.id,
@@ -129,10 +131,12 @@ export class ResourcePostgresImpl implements ResourceRepository {
   }
 
   update(resource: Resource): Promise<Resource> {
+    console.log("update", resource);
     throw new Error("Method not implemented.");
   }
 
   delete(id: string): Promise<void> {
+    console.log("delete", id);
     throw new Error("Method not implemented.");
   }
 }

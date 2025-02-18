@@ -1,5 +1,4 @@
 import { cors } from "@elysiajs/cors";
-import { node } from "@elysiajs/node";
 import { db } from "@repo/database";
 import { type Context, Elysia } from "elysia";
 import { ResourceController } from "./resource/infrastructure/resource.controller";
