@@ -1,6 +1,6 @@
 import { useAuth } from "@/features/auth/hooks/use-auth";
 
-export const profileMutations = () => {
+export const useProfileMutations = () => {
   const { authClient } = useAuth();
 
   return {

@@ -15,7 +15,7 @@ import { SaveIcon } from "lucide-react";
 import { Form, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { profileMutations } from "../api/mutations";
+import { useProfileMutations } from "../api/mutations";
 
 const profileSchema = z.object({
   name: z.string().min(1).max(255),
@@ -45,7 +45,7 @@ export function ProfileCard() {
 
   const userUpdateMutation = useMutation({
     mutationKey: ["auth", "userUpdate"],
-    mutationFn: profileMutations().update,
+    mutationFn: useProfileMutations().update,
     onSuccess: () => {
       toast.success("Profile updated successfully");
     },

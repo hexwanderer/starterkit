@@ -16,7 +16,7 @@ import { useMutation } from "@tanstack/react-query";
 import { TrashIcon } from "lucide-react";
 import { toast } from "sonner";
 import { SettingsCard } from "../../settings-card";
-import { organizationManagementMutations } from "../api/mutations";
+import { useOrganizationManagementMutations } from "../api/mutations";
 
 export interface OrganizationDeleteProps {
   organization: {
@@ -29,7 +29,7 @@ export interface OrganizationDeleteProps {
 export function OrganizationDelete({ organization }: OrganizationDeleteProps) {
   const deleteOrgMutation = useMutation({
     mutationKey: ["auth", "organizationDelete"],
-    mutationFn: organizationManagementMutations().organizationDelete,
+    mutationFn: useOrganizationManagementMutations().organizationDelete,
     onSuccess: () => {
       toast.success("Organization deleted successfully");
     },

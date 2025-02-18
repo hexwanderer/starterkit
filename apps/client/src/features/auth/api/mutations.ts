@@ -5,7 +5,7 @@ import type {
   SignUpFormSchema,
 } from "../components/sign-state";
 
-export const organizationManagementMutations = () => {
+export const useOrganizationManagementMutations = () => {
   const { authClient } = useAuth();
 
   return {
@@ -31,7 +31,7 @@ export const organizationManagementMutations = () => {
   };
 };
 
-export const userManagementMutations = () => {
+export const useUserManagementMutations = () => {
   const { authClient } = useAuth();
 
   return {

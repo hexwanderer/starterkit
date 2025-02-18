@@ -14,7 +14,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { SettingsCard } from "../../settings-card";
-import { organizationManagementMutations } from "../api/mutations";
+import { useOrganizationManagementMutations } from "../api/mutations";
 
 interface Organization {
   id: string;
@@ -51,7 +51,7 @@ export function OrganizationManage({ organization }: OrganizationManageProps) {
 
   const updateOrgMutation = useMutation({
     mutationKey: ["auth", "organizationUpdate"],
-    mutationFn: organizationManagementMutations().organizationUpdate,
+    mutationFn: useOrganizationManagementMutations().organizationUpdate,
     onSuccess: () => {
       toast.success("Organization updated successfully");
     },

@@ -30,7 +30,7 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { userManagementMutations } from "@/features/auth/api/mutations";
+import { useUserManagementMutations } from "@/features/auth/api/mutations";
 import { useAuth } from "@/features/auth/hooks/use-auth";
 import { useMutation } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -380,7 +380,7 @@ export function NavUser({
   const navigate = useNavigate();
   const logOutMutation = useMutation({
     mutationKey: ["auth", "signOut"],
-    mutationFn: userManagementMutations().signOut,
+    mutationFn: useUserManagementMutations().signOut,
     onSuccess: () => {
       toast.success("You have been logged out successfully");
       navigate({ to: "/" });

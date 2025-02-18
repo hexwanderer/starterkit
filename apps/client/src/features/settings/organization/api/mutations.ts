@@ -1,7 +1,7 @@
 import { useAuth } from "@/features/auth/hooks/use-auth";
 import type { OrganizationUpdate } from "../components/organization-management";
 
-export const organizationManagementMutations = () => {
+export const useOrganizationManagementMutations = () => {
   const { authClient } = useAuth();
 
   return {

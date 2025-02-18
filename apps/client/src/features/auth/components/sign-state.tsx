@@ -16,7 +16,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { userManagementMutations } from "../api/mutations";
+import { useUserManagementMutations } from "../api/mutations";
 
 export function SignState() {
   const [tab, setTab] = useState<"signin" | "signup">("signin");
@@ -90,7 +90,7 @@ function SignIn() {
 
   const signInMutation = useMutation({
     mutationKey: ["auth", "signIn"],
-    mutationFn: userManagementMutations().signIn,
+    mutationFn: useUserManagementMutations().signIn,
     onSuccess: () => {
       navigate({ to: "/auth/orgs" });
     },
@@ -176,7 +176,7 @@ function SignUp() {
 
   const signUpMutation = useMutation({
     mutationKey: ["auth", "signUp"],
-    mutationFn: userManagementMutations().signUp,
+    mutationFn: useUserManagementMutations().signUp,
     onSuccess: () => {
       navigate({ to: "/auth/orgs" });
     },

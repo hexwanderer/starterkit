@@ -1,6 +1,6 @@
 import { useServer } from "@/hooks/use-server";
 
-export const resourceMutations = () => {
+export const useResourceMutations = () => {
   const { serverClient } = useServer();
 
   return {

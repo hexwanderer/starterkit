@@ -19,7 +19,7 @@ import { Loader2, Plus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { organizationManagementMutations } from "../api/mutations";
+import { useOrganizationManagementMutations } from "../api/mutations";
 
 interface Organization {
   id: string;
@@ -46,7 +46,7 @@ export function OrganizationSelect() {
 
   const createOrgMutation = useMutation({
     mutationKey: ["auth", "organizationCreate"],
-    mutationFn: organizationManagementMutations().organizationCreate,
+    mutationFn: useOrganizationManagementMutations().organizationCreate,
     onSuccess: () => {
       toast.success("Organization created successfully");
       navigate({ to: "/dashboard" });
@@ -55,7 +55,7 @@ export function OrganizationSelect() {
 
   const selectOrgMutation = useMutation({
     mutationKey: ["auth", "organizationSelect"],
-    mutationFn: organizationManagementMutations().organizationSelect,
+    mutationFn: useOrganizationManagementMutations().organizationSelect,
     onSuccess: () => {
       toast.success("Organization selected successfully");
       navigate({ to: "/dashboard" });
