@@ -8,7 +8,6 @@ import { OrganizationController } from "./organization/infrastructure/organizati
 console.log(`DATABASE_URL: ${process.env.DATABASE_URL}`);
 
 async function betterAuthMiddleware(context: Context) {
-  console.log("betterAuthMiddleware");
   return await auth.handler(context.request);
 }
 

@@ -2,7 +2,7 @@
   "name": "@repo/server",
   "type": "module",
   "scripts": {
-    "dev": "bun run src/main.ts",
+    "dev": "bun run src/main.ts --watch",
     "start": "bun run src/main.ts",
     "typecheck": "tsc"
   },

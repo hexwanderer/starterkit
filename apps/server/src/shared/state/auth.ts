@@ -3,11 +3,14 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { organization } from "better-auth/plugins";
 
+console.log(`BETTER_AUTH_SECRET: ${process.env.BETTER_AUTH_SECRET}`);
+
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg", // or "mysql", "sqlite"
     usePlural: true,
   }),
+  secret: process.env.BETTER_AUTH_SECRET,
   trustedOrigins: ["http://localhost:3001"],
   emailAndPassword: {
     enabled: true,
