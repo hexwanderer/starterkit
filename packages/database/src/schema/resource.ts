@@ -1,5 +1,6 @@
 import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { v7 } from "uuid";
+import { teams } from "./team";
 
 export const resources = pgTable("resources", {
   id: text()
@@ -7,6 +8,9 @@ export const resources = pgTable("resources", {
     .$defaultFn(() => v7()),
   title: text().notNull(),
   description: text().notNull(),
+  teamId: text()
+    .notNull()
+    .references(() => teams.id),
   createdAt: timestamp("created_at", { withTimezone: true }),
   updatedAt: timestamp("updated_at", { withTimezone: true }),
 });

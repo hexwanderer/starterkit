@@ -10,10 +10,11 @@ import type {
   ResourceGet,
   ResourceCreate,
   ResourceUpdate,
+  ResourceQueryGetAll,
 } from "../domain/resource.type";
 
 export interface ResourceRepository {
-  getAll(): Promise<ResourceGet[]>;
+  getAll(options: ResourceQueryGetAll): Promise<ResourceGet[]>;
   getById(id: string): Promise<ResourceGet | null>;
   create(resource: ResourceCreate): Promise<ResourceGet>;
   update(resource: ResourceUpdate): Promise<ResourceGet>;
@@ -27,12 +28,14 @@ export class ResourcePostgresImpl implements ResourceRepository {
     this.db = db;
   }
 
-  async getAll(): Promise<ResourceGet[]> {
+  async getAll(options: ResourceQueryGetAll | null): Promise<ResourceGet[]> {
+    const teamId = options?.filter?.teamId ?? null;
     const resourcesList = await this.db
       .select({
         id: resources.id,
         title: resources.title,
         description: resources.description,
+        teamId: resources.teamId,
         tags: sql<
           { id: string; name: string }[]
         >`COALESCE(json_agg(json_build_object('id', ${resourceTags.id}, 'name', ${resourceTags.tag})), '[]')`.as(
@@ -42,6 +45,7 @@ export class ResourcePostgresImpl implements ResourceRepository {
       .from(resources)
       .leftJoin(resourceTagPairs, eq(resources.id, resourceTagPairs.resourceId))
       .leftJoin(resourceTags, eq(resourceTagPairs.tagId, resourceTags.id))
+      .where(teamId ? eq(resources.teamId, teamId) : undefined)
       .groupBy(resources.id)
       .orderBy(resources.title);
 
@@ -49,6 +53,7 @@ export class ResourcePostgresImpl implements ResourceRepository {
       id: r.id,
       title: r.title,
       description: r.description,
+      teamId: r.teamId,
       tags: r.tags ?? [], // Ensure it's an array
     }));
   }
@@ -59,6 +64,7 @@ export class ResourcePostgresImpl implements ResourceRepository {
         id: resources.id,
         title: resources.title,
         description: resources.description,
+        teamId: resources.teamId,
         tags: sql<
           { id: string; name: string }[]
         >`COALESCE(json_agg(json_build_object('id', ${resourceTags.id}, 'name', ${resourceTags.tag})), '[]')`.as(
@@ -77,6 +83,7 @@ export class ResourcePostgresImpl implements ResourceRepository {
       id: result.id,
       title: result.title,
       description: result.description,
+      teamId: result.teamId,
       tags: result.tags ?? [], // Ensure it's an array
     };
   }
@@ -87,6 +94,7 @@ export class ResourcePostgresImpl implements ResourceRepository {
       .values({
         title: resource.title,
         description: resource.description,
+        teamId: resource.teamId,
       })
       .returning();
     if (!result) throw new Error("Failed to create resource");

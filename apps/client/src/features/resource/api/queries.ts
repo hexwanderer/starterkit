@@ -5,14 +5,18 @@ export const useResourceQueries = () => {
   const { serverClient } = useServer();
 
   return {
-    getAll: queryOptions({
-      queryKey: ["resources"],
-      queryFn: async () => {
-        const { data, error } = await serverClient.api.resources.all.get();
-        if (error) throw error;
-        return data;
-      },
-    }),
+    getAll: (teamId?: string) => {
+      return queryOptions({
+        queryKey: ["resources", teamId],
+        queryFn: async () => {
+          const { data, error } = await serverClient.api.resources.index.get({
+            filter: teamId ? { teamId } : undefined,
+          });
+          if (error) throw error;
+          return data;
+        },
+      });
+    },
     getById: (id: string) => {
       return queryOptions({
         queryKey: ["resources", id],

@@ -1,11 +1,6 @@
 import { db } from "@repo/database";
 import { Elysia, t } from "elysia";
-import {
-  ResourceCreate,
-  ResourceUpdate,
-  ResourceGet,
-  ResourceSchema,
-} from "../domain/resource.type";
+import { ResourceSchema, ResourceQuery } from "../domain/resource.type";
 import { ResourcePostgresImpl } from "./resource.repository";
 import { hasPermission } from "@repo/auth";
 import { auth } from "../../shared/state/auth";
@@ -30,15 +25,20 @@ export const ResourceController = new Elysia({ prefix: "/resources" })
     };
   })
   .get(
-    "/all",
-    async ({ repository }) => {
-      const response = await repository.getAll();
-      return {
-        status: "success",
-        data: response,
-      };
+    "/",
+    async ({ repository, body, error }) => {
+      try {
+        const response = await repository.getAll(body);
+        return {
+          status: "success",
+          data: response,
+        };
+      } catch (e) {
+        return error(500, "Internal server error");
+      }
     },
     {
+      body: t.Optional(ResourceQuery.getAll),
       response: {
         200: t.Object({
           data: t.Array(ResourceSchema.get),

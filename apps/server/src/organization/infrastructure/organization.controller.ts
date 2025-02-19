@@ -1,9 +1,6 @@
 import { Elysia, t } from "elysia";
 import { auth } from "../../shared/state/auth";
-import {
-  OrganizationSchema,
-  type OrganizationGet,
-} from "../domain/organization.type";
+import { OrganizationSchema } from "../domain/organization.type";
 import { OrganizationBetterAuthImpl } from "./organization.repository";
 import { TeamPostgresImpl } from "../../team/infrastructure/team.repository";
 import { db } from "@repo/database";

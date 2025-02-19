@@ -34,7 +34,7 @@ declare module "@tanstack/react-router" {
   }
 }
 
-const serverClient = treaty<App>("/api");
+const serverClient = treaty<App>("http://localhost:7505");
 const queryClient = new QueryClient();
 export const authClient = createAuthClient({
   baseURL: "",

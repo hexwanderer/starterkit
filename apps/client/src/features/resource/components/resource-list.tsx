@@ -24,7 +24,7 @@ type ResourceRow = {
 };
 
 export function ResourceList() {
-  const resourceListQuery = useQuery(useResourceQueries().getAll);
+  const resourceListQuery = useQuery(useResourceQueries().getAll());
   const columns = useMemo<ColumnDef<ResourceRow>[]>(
     () => [
       {
