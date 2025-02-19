@@ -1,7 +1,7 @@
 import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { v7 } from "uuid";
 
-export const resourceTable = pgTable("resources", {
+export const resources = pgTable("resources", {
   id: text()
     .primaryKey()
     .$defaultFn(() => v7()),
@@ -11,7 +11,7 @@ export const resourceTable = pgTable("resources", {
   updatedAt: timestamp("updated_at", { withTimezone: true }),
 });
 
-export const resourceTagsTable = pgTable("resource_tags", {
+export const resourceTags = pgTable("resource_tags", {
   id: text()
     .primaryKey()
     .$defaultFn(() => v7()),
@@ -20,16 +20,16 @@ export const resourceTagsTable = pgTable("resource_tags", {
   updatedAt: timestamp("updated_at", { withTimezone: true }),
 });
 
-export const resourceTagPairsTable = pgTable("resource_tag_pairs", {
+export const resourceTagPairs = pgTable("resource_tag_pairs", {
   id: text()
     .primaryKey()
     .$defaultFn(() => v7()),
   resourceId: text()
     .notNull()
-    .references(() => resourceTable.id),
+    .references(() => resources.id),
   tagId: text()
     .notNull()
-    .references(() => resourceTagsTable.id),
+    .references(() => resourceTags.id),
   createdAt: timestamp("created_at", { withTimezone: true }),
   updatedAt: timestamp("updated_at", { withTimezone: true }),
 });

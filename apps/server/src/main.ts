@@ -3,6 +3,7 @@ import { db } from "@repo/database";
 import { type Context, Elysia } from "elysia";
 import { ResourceController } from "./resource/infrastructure/resource.controller";
 import { auth } from "./shared/state/auth";
+import { OrganizationController } from "./organization/infrastructure/organization.controller";
 
 console.log(`DATABASE_URL: ${process.env.DATABASE_URL}`);
 
@@ -23,6 +24,7 @@ export const app = new Elysia({ prefix: "/api" })
   })
   .all("/auth/*", betterAuthMiddleware)
   .use(ResourceController)
+  .use(OrganizationController)
   .get("/", () => "Hello Elysia")
   .listen(
     {
@@ -37,3 +39,4 @@ export const app = new Elysia({ prefix: "/api" })
 export type App = typeof app;
 
 export type { ResourceGet } from "./resource";
+export type { OrganizationGet, OrganizationCreate } from "./organization";

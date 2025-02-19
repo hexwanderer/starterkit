@@ -1,10 +1,3 @@
-type Comment = {
-  id: string;
-  body: string;
-  authorId: string;
-  createdAt: Date;
-};
-
 type Resource = {
   id: string;
   title: string;

@@ -4,13 +4,15 @@ import type {
   SignInFormSchema,
   SignUpFormSchema,
 } from "../components/sign-state";
+import { useServer } from "@/hooks/use-server";
 
 export const useOrganizationManagementMutations = () => {
   const { authClient } = useAuth();
+  const { serverClient } = useServer();
 
   return {
     organizationCreate: async (params: OrganizationCreate) => {
-      const { data, error } = await authClient.organization.create({
+      const { data, error } = await serverClient.api.organizations.index.put({
         name: params.name,
         slug: params.slug,
       });

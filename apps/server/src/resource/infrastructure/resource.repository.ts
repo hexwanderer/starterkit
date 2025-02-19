@@ -1,8 +1,8 @@
 import {
   type DatabaseHandler,
-  resourceTable,
-  resourceTagPairsTable,
-  resourceTagsTable,
+  resources,
+  resourceTagPairs,
+  resourceTags,
   users,
 } from "@repo/database";
 import { eq, sql } from "drizzle-orm";
@@ -28,30 +28,24 @@ export class ResourcePostgresImpl implements ResourceRepository {
   }
 
   async getAll(): Promise<ResourceGet[]> {
-    const resources = await this.db
+    const resourcesList = await this.db
       .select({
-        id: resourceTable.id,
-        title: resourceTable.title,
-        description: resourceTable.description,
+        id: resources.id,
+        title: resources.title,
+        description: resources.description,
         tags: sql<
           { id: string; name: string }[]
-        >`COALESCE(json_agg(json_build_object('id', ${resourceTagsTable.id}, 'name', ${resourceTagsTable.tag})), '[]')`.as(
+        >`COALESCE(json_agg(json_build_object('id', ${resourceTags.id}, 'name', ${resourceTags.tag})), '[]')`.as(
           "tags",
         ),
       })
-      .from(resourceTable)
-      .leftJoin(
-        resourceTagPairsTable,
-        eq(resourceTable.id, resourceTagPairsTable.resourceId),
-      )
-      .leftJoin(
-        resourceTagsTable,
-        eq(resourceTagPairsTable.tagId, resourceTagsTable.id),
-      )
-      .groupBy(resourceTable.id)
-      .orderBy(resourceTable.title);
+      .from(resources)
+      .leftJoin(resourceTagPairs, eq(resources.id, resourceTagPairs.resourceId))
+      .leftJoin(resourceTags, eq(resourceTagPairs.tagId, resourceTags.id))
+      .groupBy(resources.id)
+      .orderBy(resources.title);
 
-    return resources.map((r) => ({
+    return resourcesList.map((r) => ({
       id: r.id,
       title: r.title,
       description: r.description,
@@ -62,25 +56,19 @@ export class ResourcePostgresImpl implements ResourceRepository {
   async getById(id: string): Promise<ResourceGet | null> {
     const [result] = await this.db
       .select({
-        id: resourceTable.id,
-        title: resourceTable.title,
-        description: resourceTable.description,
+        id: resources.id,
+        title: resources.title,
+        description: resources.description,
         tags: sql<
           { id: string; name: string }[]
-        >`COALESCE(json_agg(json_build_object('id', ${resourceTagsTable.id}, 'name', ${resourceTagsTable.tag})), '[]')`.as(
+        >`COALESCE(json_agg(json_build_object('id', ${resourceTags.id}, 'name', ${resourceTags.tag})), '[]')`.as(
           "tags",
         ),
       })
-      .from(resourceTable)
-      .leftJoin(
-        resourceTagPairsTable,
-        eq(resourceTable.id, resourceTagPairsTable.resourceId),
-      )
-      .leftJoin(
-        resourceTagsTable,
-        eq(resourceTagPairsTable.tagId, resourceTagsTable.id),
-      )
-      .where(eq(resourceTable.id, id))
+      .from(resources)
+      .leftJoin(resourceTagPairs, eq(resources.id, resourceTagPairs.resourceId))
+      .leftJoin(resourceTags, eq(resourceTagPairs.tagId, resourceTags.id))
+      .where(eq(resources.id, id))
       .limit(1);
 
     if (!result) return null;
@@ -95,7 +83,7 @@ export class ResourcePostgresImpl implements ResourceRepository {
 
   async create(resource: ResourceCreate): Promise<ResourceGet> {
     const [result] = await this.db
-      .insert(resourceTable)
+      .insert(resources)
       .values({
         title: resource.title,
         description: resource.description,
@@ -105,7 +93,7 @@ export class ResourcePostgresImpl implements ResourceRepository {
 
     const existingTags = resource.tags.filter((tag) => typeof tag !== "string");
     for (const tag of existingTags) {
-      await this.db.insert(resourceTagPairsTable).values({
+      await this.db.insert(resourceTagPairs).values({
         resourceId: result.id,
         tagId: tag.id,
       });
@@ -115,14 +103,14 @@ export class ResourcePostgresImpl implements ResourceRepository {
     const newTags = resource.tags.filter((tag) => typeof tag === "string");
     for (const tag of newTags) {
       const [tagResult] = await this.db
-        .insert(resourceTagsTable)
+        .insert(resourceTags)
         .values({
           tag: tag,
         })
         .returning();
       if (!tagResult) throw new Error("Failed to create tag");
 
-      await this.db.insert(resourceTagPairsTable).values({
+      await this.db.insert(resourceTagPairs).values({
         resourceId: result.id,
         tagId: tagResult.id,
       });
