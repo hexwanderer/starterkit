@@ -1,7 +1,7 @@
 import { db, organizations } from "@repo/database"; // your drizzle instance
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { organization } from "better-auth/plugins";
+import { bearer, organization } from "better-auth/plugins";
 
 console.log(`BETTER_AUTH_SECRET: ${process.env.BETTER_AUTH_SECRET}`);
 
@@ -26,15 +26,7 @@ export const auth = betterAuth({
       },
     },
   },
-  plugins: [
-    organization({
-      schema: {
-        organization: {
-          fields: {},
-        },
-      },
-    }),
-  ],
+  plugins: [organization(), bearer()],
 });
 
 export type AuthService = typeof auth;

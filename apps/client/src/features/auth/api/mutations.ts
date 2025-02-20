@@ -38,10 +38,19 @@ export const useUserManagementMutations = () => {
 
   return {
     signIn: async (params: SignInFormSchema) => {
-      const { data, error } = await authClient.signIn.email({
-        email: params.email,
-        password: params.password,
-      });
+      const { data, error } = await authClient.signIn.email(
+        {
+          email: params.email,
+          password: params.password,
+        },
+        {
+          onSuccess(ctx) {
+            const authToken = ctx.response.headers.get("set-auth-token");
+            if (!authToken) throw new Error("No auth token");
+            localStorage.setItem("authToken", authToken);
+          },
+        },
+      );
 
       if (error) throw error;
 

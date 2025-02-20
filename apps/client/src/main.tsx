@@ -51,16 +51,14 @@ export const authClient = createAuthClient({
 
 const serverClient = treaty<App>("http://localhost:7505", {
   onRequest: async (_path, options) => {
-    const session = await authClient.getSession();
-    if (session.data?.session) {
-      return {
-        headers: {
-          ...options.headers,
-          Authorization: `${session.data.session.token}`,
-        },
-      };
-    }
-    return options.headers;
+    const token = localStorage.getItem("authToken");
+    if (!token) return;
+    return {
+      headers: {
+        ...options.headers,
+        Authorization: `Bearer ${token}`,
+      },
+    };
   },
 });
 

@@ -11,6 +11,7 @@ export const ResourceController = new Elysia({ prefix: "/resources" })
   })
   .derive(async ({ request }) => {
     const session = await auth.api.getSession({ headers: request.headers });
+    console.log(`session ${session?.session} user ${session?.user}`);
 
     if (!session || !session.user || !session.session) {
       return {
