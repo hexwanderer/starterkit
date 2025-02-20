@@ -31,7 +31,6 @@ export const ResourceController = new Elysia({ prefix: "/resources" })
       try {
         const response = await repository.getAll(body);
         return {
-          status: "success",
           data: response,
         };
       } catch (e) {

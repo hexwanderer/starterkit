@@ -1,14 +1,30 @@
+type Team = {
+  id: string;
+  name: string;
+  description: string;
+  visibility: "public" | "private";
+  createdBy: string;
+  members: {
+    id: string;
+    user: {
+      id: string;
+      name: string;
+    };
+  }[];
+};
+
 type Resource = {
   id: string;
   title: string;
   description: string;
   tags: string[];
-  created_by: string;
-  organizational_unit_id: string;
+  createdBy: string;
+  teamId: string;
   privacy: "public" | "private";
 };
 
-type Role = "owner" | "admin" | "user";
+export type Role = "owner" | "admin" | "user";
+
 type User = {
   roles: Role[];
   id: string;
@@ -28,9 +44,9 @@ type RolesWithPermissions = {
 };
 
 type Permissions = {
-  comments: {
-    dataType: Comment;
-    action: "view" | "create" | "update";
+  team: {
+    dataType: Team;
+    action: "view" | "create" | "update" | "delete";
   };
   resource: {
     // Can do something like Pick<Todo, "userId"> to get just the rows you use
@@ -41,10 +57,11 @@ type Permissions = {
 
 const ROLES = {
   owner: {
-    comments: {
+    team: {
       view: true,
       create: true,
       update: true,
+      delete: true,
     },
     resource: {
       view: true,
@@ -54,10 +71,11 @@ const ROLES = {
     },
   },
   admin: {
-    comments: {
+    team: {
       view: true,
       create: true,
       update: true,
+      delete: true,
     },
     resource: {
       view: true,
@@ -67,10 +85,16 @@ const ROLES = {
     },
   },
   user: {
-    comments: {
-      view: false,
-      create: true,
+    team: {
+      view: (user, team) => {
+        return (
+          team.visibility === "public" ||
+          team.members.some((member) => member.id === user.id)
+        );
+      },
+      create: false,
       update: false,
+      delete: false,
     },
     resource: {
       view: (user, resource) => {

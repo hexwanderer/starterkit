@@ -1,6 +1,6 @@
 import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { v7 } from "uuid";
-import { users } from "./auth";
+import { organizations, users } from "./auth";
 
 export const teams = pgTable("teams", {
   id: text()
@@ -9,6 +9,9 @@ export const teams = pgTable("teams", {
   name: text().notNull(),
   description: text().notNull(),
   isPublic: boolean("is_public").notNull(),
+  organizationId: text()
+    .notNull()
+    .references(() => organizations.id),
   createdBy: text().notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
