@@ -4,6 +4,7 @@ import { type Context, Elysia } from "elysia";
 import { ResourceController } from "./resource/infrastructure/resource.controller";
 import { auth } from "./shared/state/auth";
 import { OrganizationController } from "./organization/infrastructure/organization.controller";
+import { TeamController } from "./team/infrastructure/team.controller";
 
 console.log(`DATABASE_URL: ${process.env.DATABASE_URL}`);
 
@@ -24,6 +25,7 @@ export const app = new Elysia({ prefix: "/api" })
   .all("/auth/*", betterAuthMiddleware)
   .use(ResourceController)
   .use(OrganizationController)
+  .use(TeamController)
   .get("/", () => "Hello Elysia")
   .listen(
     {

@@ -5,99 +5,104 @@ import { auth } from "../../shared/state/auth";
 import { hasPermission, type Role } from "@repo/auth";
 import { TeamSchema } from "../domain/team.type";
 
-export const TeamController = new Elysia({ prefix: "/teams" })
-  .decorate({
-    repository: new TeamPostgresImpl(db),
-  })
-  .derive(async ({ request }) => {
-    const session = await auth.api.getSession({ headers: request.headers });
+export const TeamControllerSetup = new Elysia({ prefix: "/teams" }).decorate({
+  repository: new TeamPostgresImpl(db),
+});
 
-    if (!session || !session.user || !session.session) {
-      return {
-        user: null,
-        session: null,
-      };
-    }
+export function addTeamRoutes(app: typeof TeamControllerSetup) {
+  return app
+    .derive(async ({ request }) => {
+      const session = await auth.api.getSession({ headers: request.headers });
 
-    const organizationId = session.session.activeOrganizationId;
-    if (!organizationId) {
-      return {
-        user: {
-          ...session.user,
-          roles: [] as Role[],
-        },
-        session: session.session,
-      };
-    }
-
-    const member = await auth.api.getActiveMember();
-    if (!member) {
-      return {
-        user: {
-          ...session.user,
-          roles: [] as Role[],
-        },
-        session: session.session,
-      };
-    }
-
-    return {
-      user: {
-        ...session.user,
-        roles: [member?.role] as Role[],
-      },
-      session: session.session,
-    };
-  })
-  .get(
-    "/",
-    async ({ repository, user, session, error }) => {
-      try {
-        if (!user || !user.roles || !session.activeOrganizationId) {
-          return error(401, "Unauthorized");
-        }
-        if (!hasPermission(user, "team", "view")) {
-          error(401, "Unauthorized");
-        }
-        const response = await repository.getAll({
-          filter: {
-            organizationId: session.activeOrganizationId,
-          },
-        });
+      if (!session || !session.user || !session.session) {
         return {
-          data: response,
+          user: null,
+          session: null,
         };
-      } catch (e) {
-        return error(500, "Internal server error");
       }
-    },
-    {
-      response: {
-        200: t.Object({
-          data: t.Array(TeamSchema.get),
-        }),
-        401: t.String(),
-        500: t.String(),
+
+      const organizationId = session.session.activeOrganizationId;
+      if (!organizationId) {
+        return {
+          user: {
+            ...session.user,
+            roles: [] as Role[],
+          },
+          session: session.session,
+        };
+      }
+
+      const member = await auth.api.getActiveMember();
+      if (!member) {
+        return {
+          user: {
+            ...session.user,
+            roles: [] as Role[],
+          },
+          session: session.session,
+        };
+      }
+
+      return {
+        user: {
+          ...session.user,
+          roles: [member?.role] as Role[],
+        },
+        session: session.session,
+      };
+    })
+    .get(
+      "/",
+      async ({ repository, user, session, error }) => {
+        try {
+          if (!user || !user.roles || !session.activeOrganizationId) {
+            return error(401, "Unauthorized");
+          }
+          if (!hasPermission(user, "team", "view")) {
+            error(401, "Unauthorized");
+          }
+          const response = await repository.getAll({
+            filter: {
+              organizationId: session.activeOrganizationId,
+            },
+          });
+          return {
+            data: response,
+          };
+        } catch (e) {
+          return error(500, "Internal server error");
+        }
       },
-    },
-  )
-  .get(
-    "/:id",
-    async ({ repository, params: { id }, user, session, body, error }) => {
-      try {
-        if (!user || !user.roles || !session.activeOrganizationId) {
-          return error(401, "Unauthorized");
+      {
+        response: {
+          200: t.Object({
+            data: t.Array(TeamSchema.get),
+          }),
+          401: t.String(),
+          500: t.String(),
+        },
+      },
+    )
+    .get(
+      "/:id",
+      async ({ repository, params: { id }, user, session, body, error }) => {
+        try {
+          if (!user || !user.roles || !session.activeOrganizationId) {
+            return error(401, "Unauthorized");
+          }
+          const response = await repository.getById(id);
+          if (!response) {
+            return error(404, "Team not found");
+          }
+          if (!hasPermission(user, "team", "view", response)) {
+            error(401, "Unauthorized");
+          }
+          return response;
+        } catch (e) {
+          return error(500, "Internal server error");
         }
-        const response = await repository.getById(id);
-        if (!response) {
-          return error(404, "Team not found");
-        }
-        if (!hasPermission(user, "team", "view", response)) {
-          error(401, "Unauthorized");
-        }
-        return response;
-      } catch (e) {
-        return error(500, "Internal server error");
-      }
-    },
-  );
+      },
+    );
+}
+
+export const TeamController = addTeamRoutes(TeamControllerSetup);

@@ -6,14 +6,15 @@ import { TeamPostgresImpl } from "../../team/infrastructure/team.repository";
 import { db } from "@repo/database";
 import { TeamSchema } from "../../team";
 
-export const OrganizationController = new Elysia({
+export const OrganizationControllerSetup = new Elysia({
   prefix: "/organizations",
-})
-  .decorate({
-    repository: new OrganizationBetterAuthImpl(auth),
-    teamRepository: new TeamPostgresImpl(db),
-  })
-  .put(
+}).decorate({
+  repository: new OrganizationBetterAuthImpl(auth),
+  teamRepository: new TeamPostgresImpl(db),
+});
+
+export function addOrganizationRoutes(app: typeof OrganizationControllerSetup) {
+  return app.put(
     "/",
     async ({ repository, teamRepository, body, error }) => {
       try {
@@ -21,6 +22,7 @@ export const OrganizationController = new Elysia({
         const responseTeam = await teamRepository.create({
           name: "Default Team",
           description: "Default team for the organization",
+          organizationId: responseOrg.id,
           visibility: "public",
           createdBy: responseOrg.id,
         });
@@ -44,3 +46,8 @@ export const OrganizationController = new Elysia({
       },
     },
   );
+}
+
+export const OrganizationController = addOrganizationRoutes(
+  OrganizationControllerSetup,
+);
