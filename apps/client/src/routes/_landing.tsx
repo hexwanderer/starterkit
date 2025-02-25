@@ -1,4 +1,6 @@
 import { Button } from "@/components/ui/button";
+import { useTRPC } from "@/main";
+import { useQuery } from "@tanstack/react-query";
 import { Link, Outlet, createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_landing")({
@@ -6,6 +8,9 @@ export const Route = createFileRoute("/_landing")({
 });
 
 function RouteComponent() {
+  const trpc = useTRPC();
+  const healthCheck = useQuery(trpc.index.queryOptions());
+
   return (
     <div className="w-screen">
       <div className="justify-between flex items-center">
@@ -24,6 +29,8 @@ function RouteComponent() {
         </div>
       </div>
       <hr />
+      {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
+      <button>{`Check Health: ${healthCheck.data}`}</button>
       <Outlet />
     </div>
   );

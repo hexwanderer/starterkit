@@ -1,4 +1,4 @@
-import { useAuth } from "@/features/auth/hooks/use-auth";
+import { authClient } from "@/main";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -6,7 +6,6 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 });
 
 function RouteComponent() {
-  const { authClient } = useAuth();
   const activeOrg = authClient.useActiveOrganization();
 
   return (

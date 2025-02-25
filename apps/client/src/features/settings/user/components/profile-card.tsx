@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/card";
 import { FormField, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useAuth } from "@/features/auth/hooks/use-auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { SaveIcon } from "lucide-react";
@@ -16,6 +15,7 @@ import { Form, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useProfileMutations } from "../api/mutations";
+import { authClient } from "@/main";
 
 const profileSchema = z.object({
   name: z.string().min(1).max(255),
@@ -26,7 +26,6 @@ const profileSchema = z.object({
 export type Profile = z.infer<typeof profileSchema>;
 
 export function ProfileCard() {
-  const { authClient } = useAuth();
   const user = authClient.useSession();
 
   const form = useForm<Profile>({

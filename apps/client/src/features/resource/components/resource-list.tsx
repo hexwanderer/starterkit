@@ -5,7 +5,6 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { useResourceQueries } from "../api/queries";
 import { useMemo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -16,6 +15,7 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table";
+import { useTRPC } from "@/main";
 
 type ResourceRow = {
   id?: string;
@@ -24,7 +24,9 @@ type ResourceRow = {
 };
 
 export function ResourceList() {
-  const resourceListQuery = useQuery(useResourceQueries().getAll());
+  const trpc = useTRPC();
+  const resourceListQuery = useQuery(trpc.resource.getAll.queryOptions());
+
   const columns = useMemo<ColumnDef<ResourceRow>[]>(
     () => [
       {
@@ -40,7 +42,7 @@ export function ResourceList() {
   );
 
   const table = useReactTable({
-    data: resourceListQuery.data?.data ?? [],
+    data: resourceListQuery.data ?? [],
     columns,
     getCoreRowModel: getCoreRowModel(),
   });

@@ -31,7 +31,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useUserManagementMutations } from "@/features/auth/api/mutations";
-import { useAuth } from "@/features/auth/hooks/use-auth";
+import { authClient } from "@/main";
 import { useMutation } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
@@ -260,7 +260,6 @@ export function TeamSwitcher({
   }[];
 }) {
   const { isMobile } = useSidebar();
-  const { authClient } = useAuth();
   const activeOrganization = authClient.useActiveOrganization();
   const [activeTeam] = useState({
     name: "Acme Inc",
@@ -375,7 +374,6 @@ export function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
-  const { authClient } = useAuth();
   const activeSession = authClient.useSession();
   const navigate = useNavigate();
   const logOutMutation = useMutation({

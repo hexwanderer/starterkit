@@ -1,4 +1,4 @@
-import { useResourceQueries } from "../api/queries";
+import { useTRPC } from "@/main";
 import { useQuery } from "@tanstack/react-query";
 
 export interface ResourceViewProps {
@@ -6,7 +6,8 @@ export interface ResourceViewProps {
 }
 
 export function ResourceView({ id }: ResourceViewProps) {
-  const resourceQuery = useQuery(useResourceQueries().getById(id));
+  const trpc = useTRPC();
+  const resourceQuery = useQuery(trpc.resource.getById.queryOptions({ id }));
 
   return (
     <div>

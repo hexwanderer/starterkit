@@ -11,7 +11,6 @@ import { Form, FormField, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AuthSplitGrid } from "@/features/auth/components/auth-split-grid";
-import { useAuth } from "@/features/auth/hooks/use-auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
@@ -20,6 +19,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useOrganizationManagementMutations } from "../api/mutations";
+import { authClient } from "@/main";
 
 interface Organization {
   id: string;
@@ -35,7 +35,6 @@ const orgCreateSchema = z.object({
 export type OrganizationCreate = z.infer<typeof orgCreateSchema>;
 
 export function OrganizationSelect() {
-  const { authClient } = useAuth();
   const organizationsQuery = authClient.useListOrganizations();
 
   const form = useForm<OrganizationCreate>({

@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useResourceMutations } from "../api/mutations";
 import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
@@ -17,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTRPC } from "@/main";
 
 const resourceCreateSchema = z.object({
   title: z.string().min(1).max(255),
@@ -52,15 +52,16 @@ export function ResourceCreate({ id }: ResourceCreateProps) {
   });
 
   const navigate = useNavigate();
+  const trpc = useTRPC();
 
-  const resourceCreateMutation = useMutation({
-    mutationKey: ["resources", "create"],
-    mutationFn: useResourceMutations().create,
-    onSuccess: () => {
-      toast.success("Resource created successfully");
-      navigate({ to: "/dashboard" });
-    },
-  });
+  const resourceCreateMutation = useMutation(
+    trpc.resource.create.mutationOptions({
+      onSuccess: () => {
+        toast.success("Resource created successfully");
+        navigate({ to: "/dashboard" });
+      },
+    }),
+  );
 
   function handleSubmit(data: z.infer<typeof resourceCreateSchema>) {
     resourceCreateMutation.mutate(data);

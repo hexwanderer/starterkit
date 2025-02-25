@@ -5,8 +5,6 @@ import "./App.css";
 import "./theme.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { AuthProvider } from "@/features/auth/hooks/use-auth";
-import { ServerStateProvider } from "@/hooks/use-server";
 import { buildProvidersTree } from "@/lib/providersTree";
 import { treaty } from "@elysiajs/eden";
 import { ac, admin, member, owner } from "@repo/auth";
@@ -16,8 +14,11 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { organizationClient } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 import { Toaster } from "sonner";
+import { createTRPCContext } from "@trpc/tanstack-react-query";
+import type { AppRouter } from "@repo/trpc";
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
+import { createTRPCClient, httpBatchLink } from "@trpc/client";
 
 // Create a new router instance
 const router = createRouter({
@@ -50,7 +51,7 @@ export const authClient = createAuthClient({
   ],
 });
 
-const serverClient = treaty<App>("http://localhost:7505", {
+export const serverClient = treaty<App>("http://localhost:7505", {
   onRequest: async (_path, options) => {
     const token = localStorage.getItem("authToken");
     if (!token) return;
@@ -63,13 +64,34 @@ const serverClient = treaty<App>("http://localhost:7505", {
   },
 });
 
+export const { TRPCProvider, useTRPC } = createTRPCContext<AppRouter>();
+
+const trpcClient = createTRPCClient<AppRouter>({
+  links: [
+    httpBatchLink({
+      url: "http://localhost:7506/api",
+      headers() {
+        const token = localStorage.getItem("authToken");
+        return {
+          Authorization: token ? `Bearer ${token}` : undefined,
+        };
+      },
+    }),
+  ],
+});
+
 const rootElement = document.getElementById("root");
 if (!rootElement) throw new Error("No root element found");
 
 const ProviderTree = buildProvidersTree([
   [QueryClientProvider, { client: queryClient }],
-  [ServerStateProvider, { serverClient }],
-  [AuthProvider, { authClient }],
+  [
+    TRPCProvider,
+    {
+      trpcClient: trpcClient,
+      queryClient: queryClient,
+    },
+  ],
   [SidebarProvider, {}],
   [ThemeProvider, {}],
 ]);
