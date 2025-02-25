@@ -4,9 +4,12 @@ import type {
   OrganizationCreate,
   OrganizationGet,
   OrganizationMemberAdd,
+  OrganizationMemberGet,
+  OrganizationMemberQueryGetMembers,
   OrganizationMemberRemove,
   OrganizationUpdate,
 } from "@repo/types";
+import { TRPCError } from "@trpc/server";
 
 export interface OrganizationRepository {
   create(
@@ -23,6 +26,11 @@ export interface OrganizationRepository {
 
   addMember(params: OrganizationMemberAdd, headers?: Headers): Promise<void>;
 
+  getMembers(
+    params: OrganizationMemberQueryGetMembers,
+    headers?: Headers,
+  ): Promise<OrganizationMemberGet[]>;
+
   removeMember(
     params: OrganizationMemberRemove,
     headers?: Headers,
@@ -34,6 +42,26 @@ export class OrganizationBetterAuthImpl implements OrganizationRepository {
 
   constructor(client: typeof auth) {
     this.client = client;
+  }
+
+  async getMembers(
+    params: OrganizationMemberQueryGetMembers,
+    headers?: Headers,
+  ): Promise<OrganizationMemberGet[]> {
+    if (!headers) throw new Error("No headers provided");
+    const org = await this.client.api.getFullOrganization({
+      headers,
+      query: {
+        organizationId: params.organizationId,
+      },
+    });
+    if (!org) throw new TRPCError({ code: "NOT_FOUND" });
+    return org.members.map((member) => ({
+      id: member.user.id,
+      name: member.user.name,
+      email: member.user.email,
+      role: member.role,
+    }));
   }
 
   async addMember(

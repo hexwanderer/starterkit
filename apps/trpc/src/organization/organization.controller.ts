@@ -71,6 +71,21 @@ export function addOrganizationRoutes({
         await repository.addMember(input, ctx.headers);
         return;
       }),
+    getMembers: organizationProcedure
+      .input(z.object({ organizationId: z.string() }))
+      .output(
+        z.object({
+          organizationId: z.string(),
+          users: z.array(OrganizationMemberSchema.get),
+        }),
+      )
+      .query(async ({ input, ctx }) => {
+        const result = await repository.getMembers(input, ctx.headers);
+        return {
+          organizationId: input.organizationId,
+          users: result,
+        };
+      }),
     removeMember: organizationProcedure
       .input(OrganizationMemberSchema.removeMember)
       .mutation(async ({ input, ctx }) => {
