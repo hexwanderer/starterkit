@@ -6,22 +6,21 @@ const Direction = {
 } as const;
 
 export const ResourceQuery = {
-  getAll: z
-    .object({
-      filter: z.optional(
-        z.object({
-          teamId: z.string().optional(),
-          organizationId: z.string().optional(),
-        }),
-      ),
-      sort: z.optional(
-        z.object({
-          field: z.string(),
-          direction: z.nativeEnum(Direction),
-        }),
-      ),
-    })
-    .optional(),
+  getAll: z.object({
+    userId: z.string(),
+    filter: z.optional(
+      z.object({
+        teamId: z.string().optional(),
+        organizationId: z.string().optional(),
+      }),
+    ),
+    sort: z.optional(
+      z.object({
+        field: z.string(),
+        direction: z.nativeEnum(Direction),
+      }),
+    ),
+  }),
 };
 
 export const ResourceSchema = {

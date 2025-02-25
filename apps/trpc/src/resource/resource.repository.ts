@@ -3,10 +3,11 @@ import {
   resources,
   resourceTagPairs,
   resourceTags,
+  teamMembers,
   teams,
   users,
 } from "@repo/database";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import type {
   ResourceGet,
   ResourceCreate,
@@ -48,12 +49,16 @@ export class ResourcePostgresImpl implements ResourceRepository {
       .leftJoin(resourceTagPairs, eq(resources.id, resourceTagPairs.resourceId))
       .leftJoin(resourceTags, eq(resourceTagPairs.tagId, resourceTags.id))
       .leftJoin(teams, eq(resources.teamId, teams.id))
+      .leftJoin(teamMembers, eq(teams.id, teamMembers.teamId))
       .where(
-        teamId
-          ? eq(resources.teamId, teamId)
-          : organizationId
-            ? eq(teams.organizationId, organizationId)
-            : undefined,
+        and(
+          teamId
+            ? eq(resources.teamId, teamId)
+            : organizationId
+              ? eq(teams.organizationId, organizationId)
+              : undefined,
+          eq(teamMembers.userId, options?.userId),
+        ),
       )
       .groupBy(resources.id)
       .orderBy(resources.title);

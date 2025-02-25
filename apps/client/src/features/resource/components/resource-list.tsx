@@ -30,18 +30,20 @@ import { Title } from "@/components/header";
 
 export function ResourceList({ teamId }: { teamId?: string }) {
   const trpc = useTRPC();
+  const session = authClient.useSession();
   const organization = authClient.useActiveOrganization();
 
   const resourceListQuery = useQuery(
     trpc.resource.getAll.queryOptions(
       {
+        userId: session.data?.user.id ?? "",
         filter: {
           organizationId: organization.data?.id,
           teamId: teamId || undefined,
         },
       },
       {
-        enabled: !!organization.data?.id,
+        enabled: !!organization.data?.id && !!session.data?.user.id,
       },
     ),
   );
