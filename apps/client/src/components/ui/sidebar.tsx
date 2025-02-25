@@ -1,6 +1,6 @@
 import { Slot } from "@radix-ui/react-slot";
 import { type VariantProps, cva } from "class-variance-authority";
-import { ChevronsLeft, EqualIcon } from "lucide-react";
+import { ChevronsRight, EqualIcon } from "lucide-react";
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
@@ -289,7 +289,7 @@ const SidebarTrigger = React.forwardRef<
           className={`transition-transform duration-350 ${open ? "rotate-90" : "rotate-0"}`}
         />
       ) : (
-        <ChevronsLeft
+        <ChevronsRight
           className={`transition-transform duration-350 ${open ? "rotate-180" : "rotate-0"}`}
         />
       )}

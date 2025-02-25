@@ -41,8 +41,6 @@ import {
   Bell,
   BookOpen,
   ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
   ChevronsUpDown,
   Command,
   CreditCard,
@@ -59,7 +57,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { open, toggleSidebar } = useSidebar();
   const trpc = useTRPC();
   const teamsQuery = useQuery(
     trpc.team.getAll.queryOptions(
@@ -177,14 +174,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton onClick={() => toggleSidebar()}>
-              {open ? <ChevronsLeft /> : <ChevronsRight />}
-              {open ? "Close" : "Open"}
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
         <NavUser user={data.user} />
       </SidebarFooter>
       <SidebarRail />

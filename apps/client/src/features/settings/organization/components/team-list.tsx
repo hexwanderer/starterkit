@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -9,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useTRPC } from "@/main";
+import { authClient, useTRPC } from "@/main";
 import type { TeamGet } from "@repo/types";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -19,6 +20,7 @@ import {
   type ColumnDef,
   getFilteredRowModel,
 } from "@tanstack/react-table";
+import { Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
 export function TeamList() {
@@ -62,13 +64,26 @@ export function TeamList() {
     onGlobalFilterChange: setGlobalFilter,
   });
 
+  const organization = authClient.useActiveOrganization();
+
   return (
     <>
-      <Input
-        value={(table.getState().globalFilter as string) ?? ""}
-        onChange={(event) => table.setGlobalFilter(String(event.target.value))}
-        placeholder="Search teams.."
-      />
+      <div className="flex items-center gap-2">
+        <Input
+          className="flex-[4]"
+          value={(table.getState().globalFilter as string) ?? ""}
+          onChange={(event) =>
+            table.setGlobalFilter(String(event.target.value))
+          }
+          placeholder="Search teams.."
+        />
+        <Link
+          to="/organizations/$organizationId/teams/create"
+          params={{ organizationId: organization.data?.id ?? "undefined" }}
+        >
+          <Button className="flex-[1]">Create Team</Button>
+        </Link>
+      </div>
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
