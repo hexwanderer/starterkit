@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
@@ -16,7 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useTRPC } from "@/main";
+import { authClient, useTRPC } from "@/main";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const resourceCreateSchema = z.object({
   title: z.string().min(1).max(255),
@@ -61,6 +62,21 @@ export function ResourceCreate({ id }: ResourceCreateProps) {
         navigate({ to: "/dashboard" });
       },
     }),
+  );
+
+  const organization = authClient.useActiveOrganization();
+  const teamsQuery = useQuery(
+    trpc.team.getAll.queryOptions(
+      {
+        filter: {
+          // biome-ignore lint/style/noNonNullAssertion: <explanation>
+          organizationId: organization.data?.id!,
+        },
+      },
+      {
+        enabled: !!organization.data?.id,
+      },
+    ),
   );
 
   function handleSubmit(data: z.infer<typeof resourceCreateSchema>) {
@@ -140,13 +156,31 @@ export function ResourceCreate({ id }: ResourceCreateProps) {
             <FormField
               name="teamId"
               render={({ field }) => (
-                <Input
-                  {...field}
-                  value={field.value ?? ""}
-                  className="w-full"
-                  placeholder="Team"
-                  required
-                />
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select team" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {teamsQuery.isLoading ? (
+                      Array.from({ length: 5 }).map((_, index) => (
+                        // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                        <SelectItem key={index} value="Loading...">
+                          <Skeleton />
+                        </SelectItem>
+                      ))
+                    ) : teamsQuery.data?.length ? (
+                      teamsQuery.data.map((team) => (
+                        <SelectItem key={team.id} value={team.id}>
+                          {team.name}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="No teams found">
+                        No teams found
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
               )}
             />
             {form.formState.errors.teamId && (
