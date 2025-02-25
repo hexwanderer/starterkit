@@ -1,6 +1,6 @@
 import { Slot } from "@radix-ui/react-slot";
 import { type VariantProps, cva } from "class-variance-authority";
-import { PanelLeft } from "lucide-react";
+import { ChevronsLeft, EqualIcon } from "lucide-react";
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
@@ -269,7 +269,7 @@ const SidebarTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
   React.ComponentProps<typeof Button>
 >(({ className, onClick, ...props }, ref) => {
-  const { toggleSidebar } = useSidebar();
+  const { open, isMobile, toggleSidebar } = useSidebar();
 
   return (
     <Button
@@ -284,7 +284,15 @@ const SidebarTrigger = React.forwardRef<
       }}
       {...props}
     >
-      <PanelLeft />
+      {isMobile ? (
+        <EqualIcon
+          className={`transition-transform duration-350 ${open ? "rotate-90" : "rotate-0"}`}
+        />
+      ) : (
+        <ChevronsLeft
+          className={`transition-transform duration-350 ${open ? "rotate-180" : "rotate-0"}`}
+        />
+      )}
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   );

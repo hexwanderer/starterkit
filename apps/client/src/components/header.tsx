@@ -1,137 +1,68 @@
-import React, { useContext, createContext } from "react";
-import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import { ChevronDown } from "lucide-react";
+  createContext,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { SidebarTrigger } from "./ui/sidebar";
-import { cn } from "@/lib/utils";
+import { Separator } from "./ui/separator";
+import { Skeleton } from "./ui/skeleton";
 
-export interface HeaderProps {
-  children?: React.ReactNode;
-}
-
-export function Header({ children }: HeaderProps) {
+export function Header() {
+  const { title } = useTitle();
   return (
-    <div className="w-full pb-4 mb-4 border-b flex items-center justify-between min-h-[64px]">
-      {children}
-    </div>
-  );
-}
-
-export interface DefaultHeaderTitleProps {
-  children: React.ReactNode;
-}
-
-export function DefaultHeaderTitle({ children }: DefaultHeaderTitleProps) {
-  return (
-    <h1 className="text-xl font-semibold flex items-center space-x-2">
-      <SidebarTrigger />
-      {children}
-    </h1>
-  );
-}
-
-const HeaderActionContext = createContext({ isInDropdown: false });
-
-export interface HeaderActionProps {
-  type?: "button" | "submit" | "reset";
-  children?: React.ReactNode;
-  icon?: React.ReactNode;
-  onClick?: (e: React.MouseEvent) => void;
-  className?: string;
-  disabled?: boolean;
-  variant?:
-    | "default"
-    | "destructive"
-    | "outline"
-    | "secondary"
-    | "ghost"
-    | "link";
-}
-
-export function HeaderAction({
-  type,
-  children,
-  icon,
-  onClick,
-  className,
-  disabled,
-  variant,
-}: HeaderActionProps) {
-  const { isInDropdown } = useContext(HeaderActionContext);
-
-  if (isInDropdown) {
-    return (
-      <DropdownMenuItem
-        onClick={onClick}
-        disabled={disabled}
-        className={cn(
-          className,
-          variant === "destructive" && "text-destructive",
+    <header className="flex h-16 w-full items-center border-b border-border/40 bg-background px-4 shadow-sm">
+      <div className="flex items-center gap-1">
+        <SidebarTrigger className="text-muted-foreground hover:text-foreground transition-colors" />
+        {title ? (
+          <>
+            <Separator orientation="vertical" className="h-6 opacity-30" />
+            <h1 className="text-xl font-medium tracking-tight">{title}</h1>
+          </>
+        ) : (
+          <Skeleton className="h-6 w-32" />
         )}
-        onSelect={(e) => {
-          e.preventDefault();
-        }}
-      >
-        {icon && <span className="mr-2">{icon}</span>}
-        {children}
-      </DropdownMenuItem>
-    );
-  }
-
-  return (
-    <Button
-      onClick={onClick}
-      disabled={disabled}
-      variant={variant}
-      type={type}
-      className={className}
-    >
-      {icon && <span className="mr-2">{icon}</span>}
-      {children}
-    </Button>
+      </div>
+      <div className="ml-auto flex items-center gap-4">
+        {/* You can add actions, notifications, profile, etc. here */}
+      </div>
+    </header>
   );
 }
 
-export function HeaderActions({ children }: { children: React.ReactNode }) {
-  const actions = React.Children.toArray(children);
+interface TitleContextType {
+  title?: string;
+  setTitle: (title?: string) => void;
+}
 
-  if (!actions.length) return null;
+const TitleContext = createContext<TitleContextType | undefined>(undefined);
+
+export function TitleProvider({ children }: { children: ReactNode }) {
+  const [title, setTitle] = useState<string | undefined>(undefined);
 
   return (
-    <div className="flex items-center space-x-2">
-      {/* Always show first action */}
-      <div className="flex">{actions[0]}</div>
-
-      {/* Show second action on desktop only */}
-      {actions.length > 1 && <div className="hidden md:flex">{actions[1]}</div>}
-
-      {/* Show dropdown if there are additional actions */}
-      {actions.length > 1 && (
-        <div className={`md:${actions.length > 2 ? "flex" : "hidden"}`}>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <HeaderActionContext.Provider value={{ isInDropdown: true }}>
-                {actions.slice(1).map((action, index) => (
-                  // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-                  <div key={index} className={index === 0 ? "md:hidden" : ""}>
-                    {action}
-                  </div>
-                ))}
-              </HeaderActionContext.Provider>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      )}
-    </div>
+    <TitleContext.Provider value={{ title, setTitle }}>
+      {children}
+    </TitleContext.Provider>
   );
+}
+
+export function useTitle() {
+  const context = useContext(TitleContext);
+  if (context === undefined) {
+    throw new Error("useTitle must be used within a TitleProvider");
+  }
+  return context;
+}
+
+export function Title({ children }: { children?: string }) {
+  const { setTitle } = useTitle();
+
+  useEffect(() => {
+    setTitle(children);
+    return () => setTitle(undefined); // Clean up on unmount
+  }, [children, setTitle]);
+
+  return null; // No UI, only updates context
 }

@@ -25,6 +25,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Title } from "@/components/header";
 
 export function ResourceList({ teamId }: { teamId?: string }) {
   const trpc = useTRPC();
@@ -61,12 +63,26 @@ export function ResourceList({ teamId }: { teamId?: string }) {
   const columns = useMemo<ColumnDef<ResourceGet>[]>(
     () => [
       {
-        accessorKey: "title",
-        header: "Title",
+        accessorKey: "id",
+        header: "ID",
+        maxSize: 250,
       },
       {
-        accessorKey: "tags",
+        accessorKey: "title",
+        header: "Title",
+        size: 500,
+      },
+      {
         header: "Tags",
+        cell: ({ row }) => {
+          return (
+            <div className="flex flex-wrap gap-2">
+              {row.original.tags.map((tag) => (
+                <Badge key={tag.id}>{tag.name}</Badge>
+              ))}
+            </div>
+          );
+        },
       },
     ],
     [],
@@ -82,7 +98,7 @@ export function ResourceList({ teamId }: { teamId?: string }) {
 
   return (
     <>
-      <h1>Resources</h1>
+      <Title>Resources</Title>
       <Select
         value={teamId}
         onValueChange={(value) =>
@@ -146,9 +162,16 @@ export function ResourceList({ teamId }: { teamId?: string }) {
             Array.from({ length: 10 }).map((_, index) => (
               // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
               <TableRow key={index}>
-                {columns.map((_column, cellIndex) => (
-                  // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-                  <TableCell key={cellIndex}>
+                {columns.map((column, cellIndex) => (
+                  <TableCell
+                    // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                    key={cellIndex}
+                    style={{
+                      minWidth: column.minSize,
+                      width: column.size,
+                      maxWidth: column.maxSize,
+                    }}
+                  >
                     <Skeleton
                       className={
                         cellIndex === 0
@@ -171,7 +194,10 @@ export function ResourceList({ teamId }: { teamId?: string }) {
                 data-state={row.getIsSelected() ? "selected" : ""}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  <TableCell
+                    key={cell.id}
+                    style={{ width: cell.column.getSize() }}
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}

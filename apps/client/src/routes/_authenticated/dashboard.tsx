@@ -1,3 +1,4 @@
+import { Title } from "@/components/header";
 import { authClient } from "@/main";
 import { createFileRoute } from "@tanstack/react-router";
 
@@ -10,6 +11,7 @@ function RouteComponent() {
 
   return (
     <>
+      <Title>{activeOrg.data?.name}</Title>
       <div>{`Hello! Active organziation is ${activeOrg.data?.id ?? "unknown"}`}</div>
     </>
   );

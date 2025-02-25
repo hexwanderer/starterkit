@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import { authClient, useTRPC } from "@/main";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Title } from "@/components/header";
 
 const resourceCreateSchema = z.object({
   title: z.string().min(1).max(255),
@@ -85,7 +86,7 @@ export function ResourceCreate({ id }: ResourceCreateProps) {
 
   return (
     <>
-      <h1>Create Resource</h1>
+      <Title>Create Resource</Title>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)}>
           <div
