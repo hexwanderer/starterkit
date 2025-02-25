@@ -40,7 +40,7 @@ export function OrganizationDelete({ organization }: OrganizationDeleteProps) {
   });
   return (
     <AlertDialog>
-      <SettingsCard title="Delete Organization">
+      <SettingsCard title="Delete Organization" variant="destructive">
         <p className="text-red-500 mb-4">
           Deleting an organization is irreversible. Please be careful.
         </p>

@@ -8,6 +8,7 @@ export const teams = pgTable("teams", {
     .$defaultFn(() => v7()),
   name: text().notNull(),
   description: text().notNull(),
+  slug: text().notNull(),
   isPublic: boolean("is_public").notNull(),
   organizationId: text()
     .notNull()

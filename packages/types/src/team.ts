@@ -33,12 +33,14 @@ export const TeamSchema = {
   create: z.object({
     name: z.string(),
     description: z.string(),
+    slug: z.string(),
     organizationId: z.string(),
     visibility: z.nativeEnum(Visibility),
     createdBy: z.string(),
   }),
   update: z.object({
     name: z.string(),
+    slug: z.string(),
     description: z.string(),
     visibility: z.nativeEnum(Visibility),
   }),
@@ -46,6 +48,7 @@ export const TeamSchema = {
     id: z.string(),
     name: z.string(),
     description: z.string(),
+    slug: z.string(),
     organizationId: z.string(),
     visibility: z.nativeEnum(Visibility),
     members: z.array(

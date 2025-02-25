@@ -41,6 +41,7 @@ export function addOrganizationRoutes({
         const responseTeam = await teamRepository.create({
           name: "Default Team",
           description: "Default team for the organization",
+          slug: "my-team",
           organizationId: responseOrg.id,
           visibility: "public",
           createdBy: responseOrg.id,

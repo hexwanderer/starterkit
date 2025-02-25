@@ -4,7 +4,9 @@
   "scripts": {
     "build": "tsc",
     "drizzle:push": "drizzle-kit push",
+    "drizzle:pull": "drizzle-kit pull",
     "drizzle:generate": "drizzle-kit generate",
+    "drizzle:migrate": "drizzle-kit migrate",
     "drizzle:studio": "drizzle-kit studio"
   },
   "exports": {

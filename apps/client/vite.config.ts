@@ -16,6 +16,9 @@ export default defineConfig({
       },
     },
   },
+  optimizeDeps: {
+    exclude: ["react-hook-form"],
+  },
 
   resolve: {
     alias: {

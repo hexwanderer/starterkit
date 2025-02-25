@@ -7,6 +7,7 @@ import {
 } from "../../settings-tabs";
 import { OrganizationDelete } from "./organization-delete";
 import { OrganizationManage } from "./organization-management";
+import { Title } from "@/components/header";
 
 export interface OrganizationSettingsPageProps {
   organization: {
@@ -22,7 +23,7 @@ export function OrganizationSettingsPage({
   const isMobile = useIsMobile();
   return (
     <>
-      <h2>Settings</h2>
+      <Title>{`${organization.name} Settings`}</Title>
       <SettingsTabs defaultValue="tab-1" isMobile={isMobile}>
         <SettingsTabsList>
           <SettingsTabsTrigger value="tab-1">General</SettingsTabsTrigger>

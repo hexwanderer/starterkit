@@ -49,6 +49,12 @@ export const authClient = createAuthClient({
       },
     }),
   ],
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 60 * 10,
+    },
+  },
 });
 
 export const serverClient = treaty<App>("http://localhost:7505", {

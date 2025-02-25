@@ -6,12 +6,13 @@ import {
   SettingsTabsTrigger,
 } from "../../settings-tabs";
 import { ProfileCard } from "./profile-card";
+import { Title } from "@/components/header";
 
 export function UserSettingsPage() {
   const isMobile = useIsMobile();
   return (
     <>
-      <h2>Settings</h2>
+      <Title>User Settings</Title>
       <SettingsTabs defaultValue="tab-1" isMobile={isMobile}>
         <SettingsTabsList>
           <SettingsTabsTrigger value="tab-1">Profile</SettingsTabsTrigger>

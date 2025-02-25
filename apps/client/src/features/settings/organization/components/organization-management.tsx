@@ -14,7 +14,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { SettingsCard } from "../../settings-card";
-import { useOrganizationManagementMutations } from "../api/mutations";
+import { useTRPC } from "@/main";
 
 interface Organization {
   id: string;
@@ -49,17 +49,18 @@ export function OrganizationManage({ organization }: OrganizationManageProps) {
     },
   });
 
-  const updateOrgMutation = useMutation({
-    mutationKey: ["auth", "organizationUpdate"],
-    mutationFn: useOrganizationManagementMutations().organizationUpdate,
-    onSuccess: () => {
-      toast.success("Organization updated successfully");
-    },
-    onError: (err) => {
-      toast.error("Error updating organization");
-      throw err;
-    },
-  });
+  const trpc = useTRPC();
+  const updateOrgMutation = useMutation(
+    trpc.organization.edit.mutationOptions({
+      onSuccess: () => {
+        toast.success("Organization updated successfully");
+      },
+      onError: (err) => {
+        toast.error("Error updating organization");
+        throw err;
+      },
+    }),
+  );
 
   function handleSubmit(data: OrganizationUpdate) {
     updateOrgMutation.mutate(data);
@@ -67,7 +68,7 @@ export function OrganizationManage({ organization }: OrganizationManageProps) {
 
   return (
     <>
-      <SettingsCard title="Organization Settings">
+      <SettingsCard title="Details">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)}>
             <div className="flex flex-col gap-4">
