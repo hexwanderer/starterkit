@@ -16,18 +16,13 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { useTRPC } from "@/main";
-
-type ResourceRow = {
-  id?: string;
-  title: string;
-  tags: { id: string; name: string }[];
-};
+import type { ResourceGet } from "@repo/types";
 
 export function ResourceList() {
   const trpc = useTRPC();
   const resourceListQuery = useQuery(trpc.resource.getAll.queryOptions());
 
-  const columns = useMemo<ColumnDef<ResourceRow>[]>(
+  const columns = useMemo<ColumnDef<ResourceGet>[]>(
     () => [
       {
         accessorKey: "title",

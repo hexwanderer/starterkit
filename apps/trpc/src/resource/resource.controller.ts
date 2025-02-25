@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { router, publicProcedure } from "../trpc";
 import type { ResourceRepository } from "./resource.repository";
-import { ResourceQuery, ResourceSchema } from "./resource.type";
+import { ResourceQuery, ResourceSchema } from "@repo/types";
 import { z } from "zod";
 
 export interface ResourceControllerProps {

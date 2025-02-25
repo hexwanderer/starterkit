@@ -7,10 +7,15 @@ import { db } from "@repo/database";
 import cors from "cors";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./auth";
+import { addOrganizationRoutes } from "./organization/organization.controller";
+import { OrganizationBetterAuthImpl } from "./organization/organization.repository";
 
 const appRouter = router({
   resource: addResourceRoutes({
     repository: new ResourcePostgresImpl(db),
+  }),
+  organization: addOrganizationRoutes({
+    repository: new OrganizationBetterAuthImpl(auth),
   }),
   index: publicProcedure.query(async () => {
     return "OK";

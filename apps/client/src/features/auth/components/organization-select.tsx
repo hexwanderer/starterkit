@@ -17,9 +17,9 @@ import { useNavigate } from "@tanstack/react-router";
 import { Loader2, Plus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 import { useOrganizationManagementMutations } from "../api/mutations";
-import { authClient } from "@/main";
+import { authClient, useTRPC } from "@/main";
+import { type OrganizationCreate, OrganizationSchema } from "@repo/types";
 
 interface Organization {
   id: string;
@@ -27,30 +27,24 @@ interface Organization {
   slug: string;
 }
 
-const orgCreateSchema = z.object({
-  name: z.string().min(1).max(255),
-  slug: z.string().min(1).max(255),
-});
-
-export type OrganizationCreate = z.infer<typeof orgCreateSchema>;
-
 export function OrganizationSelect() {
   const organizationsQuery = authClient.useListOrganizations();
 
   const form = useForm<OrganizationCreate>({
-    resolver: zodResolver(orgCreateSchema),
+    resolver: zodResolver(OrganizationSchema.create),
   });
 
   const navigate = useNavigate();
+  const trpc = useTRPC();
 
-  const createOrgMutation = useMutation({
-    mutationKey: ["auth", "organizationCreate"],
-    mutationFn: useOrganizationManagementMutations().organizationCreate,
-    onSuccess: () => {
-      toast.success("Organization created successfully");
-      navigate({ to: "/dashboard" });
-    },
-  });
+  const createOrgMutation = useMutation(
+    trpc.organization.create.mutationOptions({
+      onSuccess: () => {
+        toast.success("Organization created successfully");
+        navigate({ to: "/dashboard" });
+      },
+    }),
+  );
 
   const selectOrgMutation = useMutation({
     mutationKey: ["auth", "organizationSelect"],

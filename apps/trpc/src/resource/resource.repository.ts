@@ -11,7 +11,7 @@ import type {
   ResourceCreate,
   ResourceUpdate,
   ResourceQueryGetAll,
-} from "./resource.type";
+} from "@repo/types";
 
 export interface ResourceRepository {
   getAll(options: ResourceQueryGetAll): Promise<ResourceGet[]>;

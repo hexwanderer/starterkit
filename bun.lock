@@ -44,6 +44,7 @@
         "@repo/database": "workspace:*",
         "@repo/server": "workspace:*",
         "@repo/trpc": "workspace:*",
+        "@repo/types": "workspace:*",
         "@tailwindcss/vite": "^4.0.6",
         "@tanstack/react-query": "^5.66.9",
         "@tanstack/react-router": "^1.105.0",
@@ -122,6 +123,7 @@
       "name": "@repo/trpc",
       "dependencies": {
         "@repo/database": "workspace:*",
+        "@repo/types": "workspace:*",
         "@trpc/client": "^11.0.0-rc.808",
         "@trpc/server": "^11.0.0-rc.808",
         "@types/cors": "^2.8.17",
@@ -167,6 +169,12 @@
         "drizzle-kit": "^0.30.4",
         "tsx": "^4.19.2",
         "typescript": "latest",
+      },
+    },
+    "packages/types": {
+      "name": "@repo/types",
+      "dependencies": {
+        "zod": "^3.24.2",
       },
     },
     "packages/typescript-config": {
@@ -536,6 +544,8 @@
     "@repo/server": ["@repo/server@workspace:apps/server"],
 
     "@repo/trpc": ["@repo/trpc@workspace:apps/trpc"],
+
+    "@repo/types": ["@repo/types@workspace:packages/types"],
 
     "@repo/typescript-config": ["@repo/typescript-config@workspace:packages/typescript-config"],
 

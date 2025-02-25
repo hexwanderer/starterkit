@@ -1,0 +1,12 @@
+{
+  "configurations": [
+    {
+      "name": "Launch Program",
+      "type": "node-terminal",
+      "command": "bun run dev",
+      "cwd": "${workspaceFolder}/apps/trpc",
+      "request": "launch",
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
+}

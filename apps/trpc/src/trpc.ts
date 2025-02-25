@@ -8,6 +8,7 @@ import type { Session, User } from "better-auth";
 type Context = {
   user?: User;
   session?: Session;
+  headers: Headers;
 };
 
 export const createContext = async ({
@@ -22,10 +23,13 @@ export const createContext = async ({
       return {
         user: session.user,
         session: session.session,
+        headers: fromNodeHeaders(req.headers),
       };
     }
   }
-  return {};
+  return {
+    headers: fromNodeHeaders(req.headers),
+  };
 };
 
 const t = initTRPC.context<Context>().create();
