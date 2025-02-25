@@ -1,10 +1,13 @@
-import { OrganizationSchema, TeamSchema } from "@repo/types";
+import {
+  OrganizationMemberSchema,
+  OrganizationSchema,
+  TeamSchema,
+} from "@repo/types";
 import { publicProcedure, router } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import type { OrganizationRepository } from "./organization.repository";
 import type { TeamRepository } from "../team/team.repository";
 import { z } from "zod";
-import { fromNodeHeaders } from "better-auth/node";
 
 const organizationProcedure = publicProcedure.use(async ({ ctx, next }) => {
   if (!ctx.user) {
@@ -47,6 +50,31 @@ export function addOrganizationRoutes({
           organization: responseOrg,
           team: responseTeam,
         };
+      }),
+    edit: organizationProcedure
+      .input(OrganizationSchema.update)
+      .output(OrganizationSchema.get)
+      .mutation(async ({ input, ctx }) => {
+        const response = await repository.update(input, ctx.headers);
+        return response;
+      }),
+    delete: organizationProcedure
+      .input(z.object({ id: z.string() }))
+      .mutation(async ({ input, ctx }) => {
+        await repository.delete(input.id, ctx.headers);
+        return;
+      }),
+    addMember: organizationProcedure
+      .input(OrganizationMemberSchema.addMember)
+      .mutation(async ({ input, ctx }) => {
+        await repository.addMember(input, ctx.headers);
+        return;
+      }),
+    removeMember: organizationProcedure
+      .input(OrganizationMemberSchema.removeMember)
+      .mutation(async ({ input, ctx }) => {
+        await repository.removeMember(input, ctx.headers);
+        return;
       }),
   });
 }

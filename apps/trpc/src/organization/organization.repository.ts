@@ -3,6 +3,8 @@ import type { auth } from "../auth";
 import type {
   OrganizationCreate,
   OrganizationGet,
+  OrganizationMemberAdd,
+  OrganizationMemberRemove,
   OrganizationUpdate,
 } from "@repo/types";
 
@@ -18,6 +20,13 @@ export interface OrganizationRepository {
   ): Promise<OrganizationGet>;
 
   delete(id: string, headers?: Headers): Promise<void>;
+
+  addMember(params: OrganizationMemberAdd, headers?: Headers): Promise<void>;
+
+  removeMember(
+    params: OrganizationMemberRemove,
+    headers?: Headers,
+  ): Promise<void>;
 }
 
 export class OrganizationBetterAuthImpl implements OrganizationRepository {
@@ -25,6 +34,37 @@ export class OrganizationBetterAuthImpl implements OrganizationRepository {
 
   constructor(client: typeof auth) {
     this.client = client;
+  }
+
+  async addMember(
+    params: OrganizationMemberAdd,
+    headers?: Headers,
+  ): Promise<void> {
+    if (!headers) throw new Error("No headers provided");
+    const x = await this.client.api.createInvitation({
+      headers,
+      body: {
+        organizationId: params.organizationId,
+        role: "member",
+        email: params.email,
+      },
+    });
+    return;
+  }
+
+  async removeMember(
+    params: OrganizationMemberRemove,
+    headers?: Headers,
+  ): Promise<void> {
+    if (!headers) throw new Error("No headers provided");
+    await this.client.api.removeMember({
+      headers,
+      body: {
+        organizationId: params.organizationId,
+        memberIdOrEmail: params.userId,
+      },
+    });
+    return;
   }
 
   async create(
