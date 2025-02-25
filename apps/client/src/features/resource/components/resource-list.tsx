@@ -15,12 +15,48 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table";
-import { useTRPC } from "@/main";
+import { authClient, useTRPC } from "@/main";
 import type { ResourceGet } from "@repo/types";
+import { useNavigate } from "@tanstack/react-router";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-export function ResourceList() {
+export function ResourceList({ teamId }: { teamId?: string }) {
   const trpc = useTRPC();
-  const resourceListQuery = useQuery(trpc.resource.getAll.queryOptions());
+  const organization = authClient.useActiveOrganization();
+
+  const resourceListQuery = useQuery(
+    trpc.resource.getAll.queryOptions(
+      {
+        filter: {
+          organizationId: organization.data?.id,
+          teamId: teamId || undefined,
+        },
+      },
+      {
+        enabled: !!organization.data?.id,
+      },
+    ),
+  );
+
+  const teamsQuery = useQuery(
+    trpc.team.getAll.queryOptions(
+      {
+        filter: {
+          // biome-ignore lint/style/noNonNullAssertion: <explanation>
+          organizationId: organization.data?.id!,
+        },
+      },
+      {
+        enabled: !!organization.data?.id,
+      },
+    ),
+  );
 
   const columns = useMemo<ColumnDef<ResourceGet>[]>(
     () => [
@@ -42,9 +78,52 @@ export function ResourceList() {
     getCoreRowModel: getCoreRowModel(),
   });
 
+  const navigate = useNavigate();
+
   return (
     <>
       <h1>Resources</h1>
+      <Select
+        value={teamId}
+        onValueChange={(value) =>
+          navigate({
+            to: "/resources",
+            search: {
+              teamId: value,
+            },
+          })
+        }
+      >
+        {teamsQuery.isLoading ? (
+          <SelectTrigger className="w-full" disabled>
+            <SelectValue placeholder="Select team" />
+          </SelectTrigger>
+        ) : (
+          <>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select team" />
+            </SelectTrigger>
+            <SelectContent>
+              {teamsQuery.isLoading ? (
+                Array.from({ length: 5 }).map((_, index) => (
+                  // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                  <SelectItem key={index} value="Loading...">
+                    <Skeleton />
+                  </SelectItem>
+                ))
+              ) : teamsQuery.data?.length ? (
+                teamsQuery.data.map((team) => (
+                  <SelectItem key={team.id} value={team.id}>
+                    {team.name}
+                  </SelectItem>
+                ))
+              ) : (
+                <SelectItem value="No teams found">No teams found</SelectItem>
+              )}
+            </SelectContent>
+          </>
+        )}
+      </Select>
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (

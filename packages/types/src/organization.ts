@@ -6,8 +6,9 @@ export const OrganizationSchema = {
     slug: z.string(),
   }),
   update: z.object({
-    name: z.string(),
-    slug: z.string(),
+    id: z.string(),
+    name: z.string().optional(),
+    slug: z.string().optional(),
   }),
   get: z.object({
     id: z.string(),

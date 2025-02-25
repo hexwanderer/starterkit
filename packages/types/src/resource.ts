@@ -10,7 +10,8 @@ export const ResourceQuery = {
     .object({
       filter: z.optional(
         z.object({
-          teamId: z.string(),
+          teamId: z.string().optional(),
+          organizationId: z.string().optional(),
         }),
       ),
       sort: z.optional(

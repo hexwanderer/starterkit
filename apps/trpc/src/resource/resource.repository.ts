@@ -3,6 +3,7 @@ import {
   resources,
   resourceTagPairs,
   resourceTags,
+  teams,
   users,
 } from "@repo/database";
 import { eq, sql } from "drizzle-orm";
@@ -28,8 +29,9 @@ export class ResourcePostgresImpl implements ResourceRepository {
     this.db = db;
   }
 
-  async getAll(options: ResourceQueryGetAll | null): Promise<ResourceGet[]> {
+  async getAll(options: ResourceQueryGetAll): Promise<ResourceGet[]> {
     const teamId = options?.filter?.teamId ?? null;
+    const organizationId = options?.filter?.organizationId ?? null;
     const resourcesList = await this.db
       .select({
         id: resources.id,
@@ -45,7 +47,14 @@ export class ResourcePostgresImpl implements ResourceRepository {
       .from(resources)
       .leftJoin(resourceTagPairs, eq(resources.id, resourceTagPairs.resourceId))
       .leftJoin(resourceTags, eq(resourceTagPairs.tagId, resourceTags.id))
-      .where(teamId ? eq(resources.teamId, teamId) : undefined)
+      .leftJoin(teams, eq(resources.teamId, teams.id))
+      .where(
+        teamId
+          ? eq(resources.teamId, teamId)
+          : organizationId
+            ? eq(teams.organizationId, organizationId)
+            : undefined,
+      )
       .groupBy(resources.id)
       .orderBy(resources.title);
 

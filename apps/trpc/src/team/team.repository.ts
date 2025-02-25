@@ -11,7 +11,6 @@ import type {
   TeamUpdate,
 } from "@repo/types";
 import { eq, sql } from "drizzle-orm";
-import { organization } from "better-auth/plugins";
 
 export interface TeamRepository {
   getAll(params: TeamQueryGetAll): Promise<TeamGet[]>;
@@ -58,7 +57,8 @@ export class TeamPostgresImpl implements TeamRepository {
         params?.filter?.organizationId
           ? eq(teams.organizationId, params?.filter?.organizationId)
           : undefined,
-      );
+      )
+      .groupBy(teams.id, teams.name, teams.description, teams.organizationId);
 
     const results = await query.execute();
     return results.map((result) => ({

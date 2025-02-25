@@ -9,17 +9,17 @@ const Direction = {
 export const TeamQuery = {
   getAll: z
     .object({
-      filter: z.optional(
-        z.object({
+      filter: z
+        .object({
           organizationId: z.string(),
-        }),
-      ),
-      sort: z.optional(
-        z.object({
+        })
+        .optional(),
+      sort: z
+        .object({
           field: z.string(),
           direction: z.nativeEnum(Direction),
-        }),
-      ),
+        })
+        .optional(),
     })
     .optional(),
 };
