@@ -3,19 +3,14 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  SelectValue,
-} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { authClient, useTRPC } from "@/main";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type TeamCreate, TeamSchema } from "@repo/types";
@@ -130,23 +125,34 @@ export function TeamCreatePage() {
               name="visibility"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Visibility</FormLabel>
-                  <FormControl>
-                    <Select {...field}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select visibility" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="public">Public</SelectItem>
-                        <SelectItem value="private">Private</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  {form.formState.errors.visibility && (
-                    <FormMessage>
-                      {form.formState.errors.visibility.message}
-                    </FormMessage>
-                  )}
+                  <div className="border-input has-data-[state=checked]:border-ring relative flex w-full items-start gap-2 rounded-md border p-4 shadow-xs outline-none">
+                    <div className="grid grow gap-2">
+                      <FormLabel>Private Team</FormLabel>
+                      <FormDescription>
+                        {field.value === "public"
+                          ? "Public teams can be viewed and joined to everyone in the organization."
+                          : "Private teams are only visible to those who are invited to the team."}
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        {...field}
+                        checked={field.value !== "public"}
+                        onCheckedChange={(e) => {
+                          if (!e.valueOf()) {
+                            field.onChange("public");
+                          } else {
+                            field.onChange("private");
+                          }
+                        }}
+                      />
+                    </FormControl>
+                    {form.formState.errors.visibility && (
+                      <FormMessage>
+                        {form.formState.errors.visibility.message}
+                      </FormMessage>
+                    )}
+                  </div>
                 </FormItem>
               )}
             />
