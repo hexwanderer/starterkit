@@ -4,48 +4,62 @@ import {
   SettingsTabsList,
   SettingsTabsTrigger,
 } from "../../settings-tabs";
-import { OrganizationDelete } from "./organization-delete";
-import { OrganizationManage } from "./organization-management";
 import { Title } from "@/components/header";
 import { useTRPC } from "@/main";
 import { useQuery } from "@tanstack/react-query";
 import { MemberManagement } from "../../member-management";
-import { TeamList } from "./team-list";
 import { useNavigate } from "@tanstack/react-router";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-export interface OrganizationSettingsPageProps {
+export interface TeamSettingsPageProps {
   initialTab?: string;
-  organization: {
+  team: {
     id: string;
     name: string;
     slug: string;
   };
+  organization: {
+    id: string;
+  };
 }
 
-export function OrganizationSettingsPage({
+export function TeamSettingsPage({
   initialTab,
+  team,
   organization,
-}: OrganizationSettingsPageProps) {
+}: TeamSettingsPageProps) {
   const trpc = useTRPC();
-  const orgMembersQuery = useQuery(
-    trpc.organization.getMembers.queryOptions({
-      organizationId: organization.id,
-    }),
+  const teamMembersQuery = useQuery(
+    trpc.team.getById.queryOptions(
+      {
+        id: team.id,
+      },
+      {
+        select: (data) => ({
+          users: data.members.map((member) => ({
+            id: member.id,
+            name: member.user.name,
+            email: member.user.email,
+            role: member.role,
+          })),
+        }),
+      },
+    ),
   );
+
   const isMobile = useIsMobile();
   const navigate = useNavigate();
 
   return (
     <>
-      <Title>{`${organization.name} Settings`}</Title>
+      <Title>{`${team.name} Settings`}</Title>
       <SettingsTabs
         value={initialTab ?? "general"}
         isMobile={isMobile}
         onValueChange={(value) =>
           navigate({
-            to: "/organizations/$organizationId/settings",
-            params: { organizationId: organization.id },
+            to: "/organizations/$organizationId/teams/$teamId/settings",
+            params: { organizationId: organization.id, teamId: team.id },
             search: {
               tab: value,
             },
@@ -55,25 +69,17 @@ export function OrganizationSettingsPage({
         <SettingsTabsList>
           <SettingsTabsTrigger value="general">General</SettingsTabsTrigger>
           <SettingsTabsTrigger value="members">Members</SettingsTabsTrigger>
-          <SettingsTabsTrigger value="teams">Teams</SettingsTabsTrigger>
         </SettingsTabsList>
         <div className="flex max-w-lg mx-auto w-full">
-          <SettingsTabsContent value="general">
-            <div className="flex flex-col gap-4">
-              <OrganizationManage organization={organization} />
-              <OrganizationDelete organization={organization} />
-            </div>
-          </SettingsTabsContent>
+          <SettingsTabsContent value="general">General</SettingsTabsContent>
           <SettingsTabsContent value="members">
             <MemberManagement
-              query={orgMembersQuery}
-              addMemberParams={{ organizationId: organization.id }}
+              query={teamMembersQuery}
+              addMemberParams={{
+                organizationId: organization.id,
+                teamId: team.id,
+              }}
             />
-          </SettingsTabsContent>
-          <SettingsTabsContent value="teams">
-            <div className="flex flex-col gap-4">
-              <TeamList />
-            </div>
           </SettingsTabsContent>
         </div>
       </SettingsTabs>

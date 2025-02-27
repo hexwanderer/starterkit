@@ -57,7 +57,9 @@ export const TeamSchema = {
         user: z.object({
           id: z.string(),
           name: z.string(),
+          email: z.string(),
         }),
+        role: z.string(),
       }),
     ),
     createdBy: z.string(),

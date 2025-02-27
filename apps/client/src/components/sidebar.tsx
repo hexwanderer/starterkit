@@ -11,7 +11,6 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -47,9 +46,7 @@ import {
   FileStackIcon,
   GalleryVerticalEnd,
   LogOut,
-  Plus,
   Settings2,
-  Settings2Icon,
 } from "lucide-react";
 import { RiHome6Line, RiSettings3Line } from "@remixicon/react";
 import type React from "react";
@@ -168,7 +165,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <OrgPopout />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
@@ -253,15 +250,7 @@ export function NavMain({
   );
 }
 
-export function TeamSwitcher({
-  teams,
-}: {
-  teams: {
-    name: string;
-    logo: React.ElementType;
-    plan: string;
-  }[];
-}) {
+export function OrgPopout() {
   const { isMobile } = useSidebar();
   const activeOrganization = authClient.useActiveOrganization();
   const [activeTeam] = useState({

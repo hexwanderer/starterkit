@@ -44,6 +44,17 @@ export function TeamList() {
             {sortIcon(column.getIsSorted())}
           </Button>
         ),
+        cell: ({ row }) => (
+          <Link
+            to="/organizations/$organizationId/teams/$teamId/settings"
+            params={{
+              organizationId: row.original.organizationId,
+              teamId: row.original.id,
+            }}
+          >
+            {row.original.name}
+          </Link>
+        ),
         size: 500,
       },
       {
@@ -109,7 +120,7 @@ export function TeamList() {
           onChange={(event) =>
             table.setGlobalFilter(String(event.target.value))
           }
-          placeholder="Search teams.."
+          placeholder="Search teams..."
         />
         <Link
           to="/organizations/$organizationId/teams/create"

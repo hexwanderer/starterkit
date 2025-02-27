@@ -32,6 +32,7 @@ export const teamMembers = pgTable("team_members", {
   userId: text()
     .notNull()
     .references(() => users.id),
+  role: text().notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),

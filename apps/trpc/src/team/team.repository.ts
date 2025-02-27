@@ -45,9 +45,11 @@ export class TeamPostgresImpl implements TeamRepository {
             member: {
               id: string;
               name: string;
+              email: string;
             };
+            role: string;
           }[]
-        >`COALESCE(json_agg(json_build_object('id', ${teamMembers.id}, 'member', json_build_object('id', ${teamMembers.userId}, 'name', ${users.name}))), '[]')`.as(
+        >`COALESCE(json_agg(json_build_object('id', ${teamMembers.id}, 'member', json_build_object('id', ${teamMembers.userId}, 'name', ${users.name}, 'email', ${users.email}), 'role', ${teamMembers.role})), '[]')`.as(
           "members",
         ),
       })
@@ -59,7 +61,17 @@ export class TeamPostgresImpl implements TeamRepository {
           ? eq(teams.organizationId, params?.filter?.organizationId)
           : undefined,
       )
-      .groupBy(teams.id, teams.name, teams.description, teams.organizationId);
+      .groupBy(
+        teams.id,
+        teams.name,
+        teams.description,
+        teams.organizationId,
+        teams.slug,
+        teams.isPublic,
+        teams.createdBy,
+        teams.createdAt,
+        teams.updatedAt,
+      );
 
     const results = await query.execute();
     return results.map((result) => ({
@@ -75,7 +87,9 @@ export class TeamPostgresImpl implements TeamRepository {
         user: {
           id: member.member.id,
           name: member.member.name,
+          email: member.member.email,
         },
+        role: member.role,
       })),
       createdAt: result.createdAt.toISOString(),
       updatedAt: result.updatedAt.toISOString(),
@@ -100,9 +114,11 @@ export class TeamPostgresImpl implements TeamRepository {
             member: {
               id: string;
               name: string;
+              email: string;
             };
+            role: string;
           }[]
-        >`COALESCE(json_agg(json_build_object('id', ${teamMembers.id}, 'member', json_build_object('id', ${teamMembers.userId}, 'name', ${users.name}))), '[]')`.as(
+        >`COALESCE(json_agg(json_build_object('id', ${teamMembers.id}, 'member', json_build_object('id', ${teamMembers.userId}, 'name', ${users.name}, 'email', ${users.email}), 'role', ${teamMembers.role})), '[]')`.as(
           "members",
         ),
       })
@@ -110,6 +126,17 @@ export class TeamPostgresImpl implements TeamRepository {
       .leftJoin(teamMembers, eq(teams.id, teamMembers.teamId))
       .leftJoin(users, eq(teamMembers.userId, users.id))
       .where(eq(teams.id, id))
+      .groupBy(
+        teams.id,
+        teams.name,
+        teams.description,
+        teams.organizationId,
+        teams.slug,
+        teams.isPublic,
+        teams.createdBy,
+        teams.createdAt,
+        teams.updatedAt,
+      )
       .limit(1);
 
     if (!result) return null;
@@ -127,7 +154,9 @@ export class TeamPostgresImpl implements TeamRepository {
         user: {
           id: member.member.id,
           name: member.member.name,
+          email: member.member.email,
         },
+        role: member.role,
       })),
       createdAt: result.createdAt.toISOString(),
       updatedAt: result.updatedAt.toISOString(),
@@ -153,6 +182,7 @@ export class TeamPostgresImpl implements TeamRepository {
       .values({
         teamId: result.id,
         userId: team.createdBy,
+        role: "owner",
       })
       .returning();
 
@@ -173,7 +203,9 @@ export class TeamPostgresImpl implements TeamRepository {
           user: {
             id: memberResult.userId,
             name: "",
+            email: "",
           },
+          role: memberResult.role,
         },
       ],
       createdAt: result.createdAt.toISOString(),
