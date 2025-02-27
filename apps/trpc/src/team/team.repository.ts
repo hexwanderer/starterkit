@@ -1,5 +1,6 @@
 import {
   type DatabaseHandler,
+  organizations,
   teamMembers,
   teams,
   users,
@@ -10,11 +11,12 @@ import type {
   TeamQueryGetAll,
   TeamUpdate,
 } from "@repo/types";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 
 export interface TeamRepository {
   getAll(params: TeamQueryGetAll): Promise<TeamGet[]>;
   getById(id: string): Promise<TeamGet | null>;
+  getBySlug(slug: string, organizationSlug: string): Promise<TeamGet | null>;
   create(team: TeamCreate): Promise<TeamGet>;
   update(team: TeamUpdate): Promise<TeamGet>;
   delete(id: string): Promise<void>;
@@ -94,6 +96,79 @@ export class TeamPostgresImpl implements TeamRepository {
       createdAt: result.createdAt.toISOString(),
       updatedAt: result.updatedAt.toISOString(),
     }));
+  }
+
+  async getBySlug(
+    slug: string,
+    organizationSlug: string,
+  ): Promise<TeamGet | null> {
+    const [result] = await this.db
+      .select({
+        id: teams.id,
+        name: teams.name,
+        description: teams.description,
+        slug: teams.slug,
+        organizationId: teams.organizationId,
+        isPublic: teams.isPublic,
+        createdBy: teams.createdBy,
+        createdAt: teams.createdAt,
+        updatedAt: teams.updatedAt,
+        members: sql<
+          {
+            id: string;
+            member: {
+              id: string;
+              name: string;
+              email: string;
+            };
+            role: string;
+          }[]
+        >`COALESCE(json_agg(json_build_object('id', ${teamMembers.id}, 'member', json_build_object('id', ${teamMembers.userId}, 'name', ${users.name}, 'email', ${users.email}), 'role', ${teamMembers.role})), '[]')`.as(
+          "members",
+        ),
+      })
+      .from(teams)
+      .leftJoin(teamMembers, eq(teams.id, teamMembers.teamId))
+      .leftJoin(users, eq(teamMembers.userId, users.id))
+      .leftJoin(organizations, eq(teams.organizationId, organizations.id))
+      .where(
+        and(eq(teams.slug, slug), eq(organizations.slug, organizationSlug)),
+      )
+      .groupBy(
+        teams.id,
+        teams.name,
+        teams.description,
+        teams.organizationId,
+        teams.slug,
+        teams.isPublic,
+        teams.createdBy,
+        teams.createdAt,
+        teams.updatedAt,
+      )
+      .limit(1);
+
+    if (!result) return null;
+
+    return {
+      id: result.id,
+      name: result.name,
+      description: result.description,
+      organizationId: result.organizationId,
+      slug: result.slug,
+      visibility: result.isPublic ? "public" : "private",
+      createdBy: result.createdBy,
+      members: result.members.map((member) => ({
+        id: member.id,
+        user: {
+          id: member.member.id,
+          name: member.member.name,
+          email: member.member.email,
+        },
+        role: member.role,
+      })),
+      createdAt: result.createdAt.toISOString(),
+      updatedAt: result.updatedAt.toISOString(),
+    };
   }
 
   async getById(id: string): Promise<TeamGet | null> {

@@ -31,7 +31,7 @@ export class ResourcePostgresImpl implements ResourceRepository {
   }
 
   async getAll(options: ResourceQueryGetAll): Promise<ResourceGet[]> {
-    const teamId = options?.filter?.teamId ?? null;
+    const teamSlug = options?.filter?.teamSlug ?? null;
     const organizationId = options?.filter?.organizationId ?? null;
     const resourcesList = await this.db
       .select({
@@ -52,8 +52,8 @@ export class ResourcePostgresImpl implements ResourceRepository {
       .leftJoin(teamMembers, eq(teams.id, teamMembers.teamId))
       .where(
         and(
-          teamId
-            ? eq(resources.teamId, teamId)
+          teamSlug
+            ? eq(teams.slug, teamSlug)
             : organizationId
               ? eq(teams.organizationId, organizationId)
               : undefined,

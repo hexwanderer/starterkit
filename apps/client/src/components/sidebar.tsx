@@ -302,8 +302,8 @@ export function OrgPopout() {
             sideOffset={4}
           >
             <Link
-              to="/organizations/$organizationId/settings"
-              params={{ organizationId: activeOrganization.data?.id ?? "" }}
+              to="/organizations/$organizationSlug/settings"
+              params={{ organizationSlug: activeOrganization.data?.slug ?? "" }}
             >
               <DropdownMenuItem className="gap-2 p-2 w-full">
                 <div className="flex size-6 items-center justify-center rounded-md border bg-background">

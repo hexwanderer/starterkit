@@ -3,14 +3,15 @@ import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
 export const Route = createFileRoute(
-  "/_authenticated/organizations/$organizationId/settings",
+  "/_authenticated/organizations/$organizationSlug/settings",
 )({
   loader: async ({ params, context }) => {
-    if (!params.organizationId) throw new Error("No organization id provided");
+    if (!params.organizationSlug)
+      throw new Error("No organization id provided");
     const { data, error } =
       await context.authClient.organization.getFullOrganization({
         query: {
-          organizationId: params.organizationId,
+          organizationSlug: params.organizationSlug,
         },
       });
 

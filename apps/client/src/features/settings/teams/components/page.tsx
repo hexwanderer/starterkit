@@ -19,7 +19,7 @@ export interface TeamSettingsPageProps {
     slug: string;
   };
   organization: {
-    id: string;
+    slug: string;
   };
 }
 
@@ -58,8 +58,11 @@ export function TeamSettingsPage({
         isMobile={isMobile}
         onValueChange={(value) =>
           navigate({
-            to: "/organizations/$organizationId/teams/$teamId/settings",
-            params: { organizationId: organization.id, teamId: team.id },
+            to: "/organizations/$organizationSlug/teams/$teamSlug/settings",
+            params: {
+              organizationSlug: organization.slug,
+              teamSlug: team.slug,
+            },
             search: {
               tab: value,
             },
@@ -76,8 +79,8 @@ export function TeamSettingsPage({
             <MemberManagement
               query={teamMembersQuery}
               addMemberParams={{
-                organizationId: organization.id,
-                teamId: team.id,
+                organizationSlug: organization.slug,
+                teamSlug: team.slug,
               }}
             />
           </SettingsTabsContent>

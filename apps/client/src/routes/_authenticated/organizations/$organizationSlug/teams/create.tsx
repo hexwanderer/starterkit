@@ -2,7 +2,7 @@ import { TeamCreatePage } from "@/features/settings/organization/components/team
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute(
-  "/_authenticated/organizations/$organizationId/teams/create",
+  "/_authenticated/organizations/$organizationSlug/teams/create",
 )({
   component: TeamCreatePage,
 });

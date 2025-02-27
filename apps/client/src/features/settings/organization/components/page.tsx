@@ -44,8 +44,8 @@ export function OrganizationSettingsPage({
         isMobile={isMobile}
         onValueChange={(value) =>
           navigate({
-            to: "/organizations/$organizationId/settings",
-            params: { organizationId: organization.id },
+            to: "/organizations/$organizationSlug/settings",
+            params: { organizationSlug: organization.slug },
             search: {
               tab: value,
             },
@@ -67,13 +67,11 @@ export function OrganizationSettingsPage({
           <SettingsTabsContent value="members">
             <MemberManagement
               query={orgMembersQuery}
-              addMemberParams={{ organizationId: organization.id }}
+              addMemberParams={{ organizationSlug: organization.slug }}
             />
           </SettingsTabsContent>
           <SettingsTabsContent value="teams">
-            <div className="flex flex-col gap-4">
-              <TeamList />
-            </div>
+            <TeamList organizationSlug={organization.slug} />
           </SettingsTabsContent>
         </div>
       </SettingsTabs>

@@ -23,11 +23,11 @@ import { Route as AuthenticatedResourcesIndexImport } from "./routes/_authentica
 import { Route as AuthenticatedUserSettingsIndexImport } from "./routes/_authenticated/user/settings/index"
 import { Route as AuthenticatedResourcesIdViewImport } from "./routes/_authenticated/resources/$id.view"
 import { Route as AuthenticatedResourcesIdEditImport } from "./routes/_authenticated/resources/$id.edit"
-import { Route as AuthenticatedOrganizationsOrganizationIdSettingsImport } from "./routes/_authenticated/organizations/$organizationId/settings"
-import { Route as AuthenticatedOrganizationsOrganizationIdInviteImport } from "./routes/_authenticated/organizations/$organizationId/invite"
-import { Route as AuthenticatedOrganizationsOrganizationIdTeamsCreateImport } from "./routes/_authenticated/organizations/$organizationId/teams/create"
-import { Route as AuthenticatedOrganizationsOrganizationIdTeamsTeamIdSettingsImport } from "./routes/_authenticated/organizations/$organizationId/teams/$teamId.settings"
-import { Route as AuthenticatedOrganizationsOrganizationIdTeamsTeamIdInviteImport } from "./routes/_authenticated/organizations/$organizationId/teams/$teamId.invite"
+import { Route as AuthenticatedOrganizationsOrganizationSlugSettingsImport } from "./routes/_authenticated/organizations/$organizationSlug/settings"
+import { Route as AuthenticatedOrganizationsOrganizationSlugInviteImport } from "./routes/_authenticated/organizations/$organizationSlug/invite"
+import { Route as AuthenticatedOrganizationsOrganizationSlugTeamsCreateImport } from "./routes/_authenticated/organizations/$organizationSlug/teams/create"
+import { Route as AuthenticatedOrganizationsOrganizationSlugTeamsTeamSlugSettingsImport } from "./routes/_authenticated/organizations/$organizationSlug/teams/$teamSlug.settings"
+import { Route as AuthenticatedOrganizationsOrganizationSlugTeamsTeamSlugInviteImport } from "./routes/_authenticated/organizations/$organizationSlug/teams/$teamSlug.invite"
 
 // Create/Update Routes
 
@@ -105,38 +105,38 @@ const AuthenticatedResourcesIdEditRoute =
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 
-const AuthenticatedOrganizationsOrganizationIdSettingsRoute =
-  AuthenticatedOrganizationsOrganizationIdSettingsImport.update({
-    id: "/organizations/$organizationId/settings",
-    path: "/organizations/$organizationId/settings",
+const AuthenticatedOrganizationsOrganizationSlugSettingsRoute =
+  AuthenticatedOrganizationsOrganizationSlugSettingsImport.update({
+    id: "/organizations/$organizationSlug/settings",
+    path: "/organizations/$organizationSlug/settings",
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 
-const AuthenticatedOrganizationsOrganizationIdInviteRoute =
-  AuthenticatedOrganizationsOrganizationIdInviteImport.update({
-    id: "/organizations/$organizationId/invite",
-    path: "/organizations/$organizationId/invite",
+const AuthenticatedOrganizationsOrganizationSlugInviteRoute =
+  AuthenticatedOrganizationsOrganizationSlugInviteImport.update({
+    id: "/organizations/$organizationSlug/invite",
+    path: "/organizations/$organizationSlug/invite",
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 
-const AuthenticatedOrganizationsOrganizationIdTeamsCreateRoute =
-  AuthenticatedOrganizationsOrganizationIdTeamsCreateImport.update({
-    id: "/organizations/$organizationId/teams/create",
-    path: "/organizations/$organizationId/teams/create",
+const AuthenticatedOrganizationsOrganizationSlugTeamsCreateRoute =
+  AuthenticatedOrganizationsOrganizationSlugTeamsCreateImport.update({
+    id: "/organizations/$organizationSlug/teams/create",
+    path: "/organizations/$organizationSlug/teams/create",
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 
-const AuthenticatedOrganizationsOrganizationIdTeamsTeamIdSettingsRoute =
-  AuthenticatedOrganizationsOrganizationIdTeamsTeamIdSettingsImport.update({
-    id: "/organizations/$organizationId/teams/$teamId/settings",
-    path: "/organizations/$organizationId/teams/$teamId/settings",
+const AuthenticatedOrganizationsOrganizationSlugTeamsTeamSlugSettingsRoute =
+  AuthenticatedOrganizationsOrganizationSlugTeamsTeamSlugSettingsImport.update({
+    id: "/organizations/$organizationSlug/teams/$teamSlug/settings",
+    path: "/organizations/$organizationSlug/teams/$teamSlug/settings",
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 
-const AuthenticatedOrganizationsOrganizationIdTeamsTeamIdInviteRoute =
-  AuthenticatedOrganizationsOrganizationIdTeamsTeamIdInviteImport.update({
-    id: "/organizations/$organizationId/teams/$teamId/invite",
-    path: "/organizations/$organizationId/teams/$teamId/invite",
+const AuthenticatedOrganizationsOrganizationSlugTeamsTeamSlugInviteRoute =
+  AuthenticatedOrganizationsOrganizationSlugTeamsTeamSlugInviteImport.update({
+    id: "/organizations/$organizationSlug/teams/$teamSlug/invite",
+    path: "/organizations/$organizationSlug/teams/$teamSlug/invite",
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 
@@ -207,18 +207,18 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthenticatedResourcesIndexImport
       parentRoute: typeof AuthenticatedImport
     }
-    "/_authenticated/organizations/$organizationId/invite": {
-      id: "/_authenticated/organizations/$organizationId/invite"
-      path: "/organizations/$organizationId/invite"
-      fullPath: "/organizations/$organizationId/invite"
-      preLoaderRoute: typeof AuthenticatedOrganizationsOrganizationIdInviteImport
+    "/_authenticated/organizations/$organizationSlug/invite": {
+      id: "/_authenticated/organizations/$organizationSlug/invite"
+      path: "/organizations/$organizationSlug/invite"
+      fullPath: "/organizations/$organizationSlug/invite"
+      preLoaderRoute: typeof AuthenticatedOrganizationsOrganizationSlugInviteImport
       parentRoute: typeof AuthenticatedImport
     }
-    "/_authenticated/organizations/$organizationId/settings": {
-      id: "/_authenticated/organizations/$organizationId/settings"
-      path: "/organizations/$organizationId/settings"
-      fullPath: "/organizations/$organizationId/settings"
-      preLoaderRoute: typeof AuthenticatedOrganizationsOrganizationIdSettingsImport
+    "/_authenticated/organizations/$organizationSlug/settings": {
+      id: "/_authenticated/organizations/$organizationSlug/settings"
+      path: "/organizations/$organizationSlug/settings"
+      fullPath: "/organizations/$organizationSlug/settings"
+      preLoaderRoute: typeof AuthenticatedOrganizationsOrganizationSlugSettingsImport
       parentRoute: typeof AuthenticatedImport
     }
     "/_authenticated/resources/$id/edit": {
@@ -242,25 +242,25 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthenticatedUserSettingsIndexImport
       parentRoute: typeof AuthenticatedImport
     }
-    "/_authenticated/organizations/$organizationId/teams/create": {
-      id: "/_authenticated/organizations/$organizationId/teams/create"
-      path: "/organizations/$organizationId/teams/create"
-      fullPath: "/organizations/$organizationId/teams/create"
-      preLoaderRoute: typeof AuthenticatedOrganizationsOrganizationIdTeamsCreateImport
+    "/_authenticated/organizations/$organizationSlug/teams/create": {
+      id: "/_authenticated/organizations/$organizationSlug/teams/create"
+      path: "/organizations/$organizationSlug/teams/create"
+      fullPath: "/organizations/$organizationSlug/teams/create"
+      preLoaderRoute: typeof AuthenticatedOrganizationsOrganizationSlugTeamsCreateImport
       parentRoute: typeof AuthenticatedImport
     }
-    "/_authenticated/organizations/$organizationId/teams/$teamId/invite": {
-      id: "/_authenticated/organizations/$organizationId/teams/$teamId/invite"
-      path: "/organizations/$organizationId/teams/$teamId/invite"
-      fullPath: "/organizations/$organizationId/teams/$teamId/invite"
-      preLoaderRoute: typeof AuthenticatedOrganizationsOrganizationIdTeamsTeamIdInviteImport
+    "/_authenticated/organizations/$organizationSlug/teams/$teamSlug/invite": {
+      id: "/_authenticated/organizations/$organizationSlug/teams/$teamSlug/invite"
+      path: "/organizations/$organizationSlug/teams/$teamSlug/invite"
+      fullPath: "/organizations/$organizationSlug/teams/$teamSlug/invite"
+      preLoaderRoute: typeof AuthenticatedOrganizationsOrganizationSlugTeamsTeamSlugInviteImport
       parentRoute: typeof AuthenticatedImport
     }
-    "/_authenticated/organizations/$organizationId/teams/$teamId/settings": {
-      id: "/_authenticated/organizations/$organizationId/teams/$teamId/settings"
-      path: "/organizations/$organizationId/teams/$teamId/settings"
-      fullPath: "/organizations/$organizationId/teams/$teamId/settings"
-      preLoaderRoute: typeof AuthenticatedOrganizationsOrganizationIdTeamsTeamIdSettingsImport
+    "/_authenticated/organizations/$organizationSlug/teams/$teamSlug/settings": {
+      id: "/_authenticated/organizations/$organizationSlug/teams/$teamSlug/settings"
+      path: "/organizations/$organizationSlug/teams/$teamSlug/settings"
+      fullPath: "/organizations/$organizationSlug/teams/$teamSlug/settings"
+      preLoaderRoute: typeof AuthenticatedOrganizationsOrganizationSlugTeamsTeamSlugSettingsImport
       parentRoute: typeof AuthenticatedImport
     }
   }
@@ -271,32 +271,32 @@ declare module "@tanstack/react-router" {
 interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedResourcesIndexRoute: typeof AuthenticatedResourcesIndexRoute
-  AuthenticatedOrganizationsOrganizationIdInviteRoute: typeof AuthenticatedOrganizationsOrganizationIdInviteRoute
-  AuthenticatedOrganizationsOrganizationIdSettingsRoute: typeof AuthenticatedOrganizationsOrganizationIdSettingsRoute
+  AuthenticatedOrganizationsOrganizationSlugInviteRoute: typeof AuthenticatedOrganizationsOrganizationSlugInviteRoute
+  AuthenticatedOrganizationsOrganizationSlugSettingsRoute: typeof AuthenticatedOrganizationsOrganizationSlugSettingsRoute
   AuthenticatedResourcesIdEditRoute: typeof AuthenticatedResourcesIdEditRoute
   AuthenticatedResourcesIdViewRoute: typeof AuthenticatedResourcesIdViewRoute
   AuthenticatedUserSettingsIndexRoute: typeof AuthenticatedUserSettingsIndexRoute
-  AuthenticatedOrganizationsOrganizationIdTeamsCreateRoute: typeof AuthenticatedOrganizationsOrganizationIdTeamsCreateRoute
-  AuthenticatedOrganizationsOrganizationIdTeamsTeamIdInviteRoute: typeof AuthenticatedOrganizationsOrganizationIdTeamsTeamIdInviteRoute
-  AuthenticatedOrganizationsOrganizationIdTeamsTeamIdSettingsRoute: typeof AuthenticatedOrganizationsOrganizationIdTeamsTeamIdSettingsRoute
+  AuthenticatedOrganizationsOrganizationSlugTeamsCreateRoute: typeof AuthenticatedOrganizationsOrganizationSlugTeamsCreateRoute
+  AuthenticatedOrganizationsOrganizationSlugTeamsTeamSlugInviteRoute: typeof AuthenticatedOrganizationsOrganizationSlugTeamsTeamSlugInviteRoute
+  AuthenticatedOrganizationsOrganizationSlugTeamsTeamSlugSettingsRoute: typeof AuthenticatedOrganizationsOrganizationSlugTeamsTeamSlugSettingsRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedResourcesIndexRoute: AuthenticatedResourcesIndexRoute,
-  AuthenticatedOrganizationsOrganizationIdInviteRoute:
-    AuthenticatedOrganizationsOrganizationIdInviteRoute,
-  AuthenticatedOrganizationsOrganizationIdSettingsRoute:
-    AuthenticatedOrganizationsOrganizationIdSettingsRoute,
+  AuthenticatedOrganizationsOrganizationSlugInviteRoute:
+    AuthenticatedOrganizationsOrganizationSlugInviteRoute,
+  AuthenticatedOrganizationsOrganizationSlugSettingsRoute:
+    AuthenticatedOrganizationsOrganizationSlugSettingsRoute,
   AuthenticatedResourcesIdEditRoute: AuthenticatedResourcesIdEditRoute,
   AuthenticatedResourcesIdViewRoute: AuthenticatedResourcesIdViewRoute,
   AuthenticatedUserSettingsIndexRoute: AuthenticatedUserSettingsIndexRoute,
-  AuthenticatedOrganizationsOrganizationIdTeamsCreateRoute:
-    AuthenticatedOrganizationsOrganizationIdTeamsCreateRoute,
-  AuthenticatedOrganizationsOrganizationIdTeamsTeamIdInviteRoute:
-    AuthenticatedOrganizationsOrganizationIdTeamsTeamIdInviteRoute,
-  AuthenticatedOrganizationsOrganizationIdTeamsTeamIdSettingsRoute:
-    AuthenticatedOrganizationsOrganizationIdTeamsTeamIdSettingsRoute,
+  AuthenticatedOrganizationsOrganizationSlugTeamsCreateRoute:
+    AuthenticatedOrganizationsOrganizationSlugTeamsCreateRoute,
+  AuthenticatedOrganizationsOrganizationSlugTeamsTeamSlugInviteRoute:
+    AuthenticatedOrganizationsOrganizationSlugTeamsTeamSlugInviteRoute,
+  AuthenticatedOrganizationsOrganizationSlugTeamsTeamSlugSettingsRoute:
+    AuthenticatedOrganizationsOrganizationSlugTeamsTeamSlugSettingsRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -327,14 +327,14 @@ export interface FileRoutesByFullPath {
   "/": typeof LandingIndexRoute
   "/auth": typeof AuthIndexRoute
   "/resources": typeof AuthenticatedResourcesIndexRoute
-  "/organizations/$organizationId/invite": typeof AuthenticatedOrganizationsOrganizationIdInviteRoute
-  "/organizations/$organizationId/settings": typeof AuthenticatedOrganizationsOrganizationIdSettingsRoute
+  "/organizations/$organizationSlug/invite": typeof AuthenticatedOrganizationsOrganizationSlugInviteRoute
+  "/organizations/$organizationSlug/settings": typeof AuthenticatedOrganizationsOrganizationSlugSettingsRoute
   "/resources/$id/edit": typeof AuthenticatedResourcesIdEditRoute
   "/resources/$id/view": typeof AuthenticatedResourcesIdViewRoute
   "/user/settings": typeof AuthenticatedUserSettingsIndexRoute
-  "/organizations/$organizationId/teams/create": typeof AuthenticatedOrganizationsOrganizationIdTeamsCreateRoute
-  "/organizations/$organizationId/teams/$teamId/invite": typeof AuthenticatedOrganizationsOrganizationIdTeamsTeamIdInviteRoute
-  "/organizations/$organizationId/teams/$teamId/settings": typeof AuthenticatedOrganizationsOrganizationIdTeamsTeamIdSettingsRoute
+  "/organizations/$organizationSlug/teams/create": typeof AuthenticatedOrganizationsOrganizationSlugTeamsCreateRoute
+  "/organizations/$organizationSlug/teams/$teamSlug/invite": typeof AuthenticatedOrganizationsOrganizationSlugTeamsTeamSlugInviteRoute
+  "/organizations/$organizationSlug/teams/$teamSlug/settings": typeof AuthenticatedOrganizationsOrganizationSlugTeamsTeamSlugSettingsRoute
 }
 
 export interface FileRoutesByTo {
@@ -346,14 +346,14 @@ export interface FileRoutesByTo {
   "/": typeof LandingIndexRoute
   "/auth": typeof AuthIndexRoute
   "/resources": typeof AuthenticatedResourcesIndexRoute
-  "/organizations/$organizationId/invite": typeof AuthenticatedOrganizationsOrganizationIdInviteRoute
-  "/organizations/$organizationId/settings": typeof AuthenticatedOrganizationsOrganizationIdSettingsRoute
+  "/organizations/$organizationSlug/invite": typeof AuthenticatedOrganizationsOrganizationSlugInviteRoute
+  "/organizations/$organizationSlug/settings": typeof AuthenticatedOrganizationsOrganizationSlugSettingsRoute
   "/resources/$id/edit": typeof AuthenticatedResourcesIdEditRoute
   "/resources/$id/view": typeof AuthenticatedResourcesIdViewRoute
   "/user/settings": typeof AuthenticatedUserSettingsIndexRoute
-  "/organizations/$organizationId/teams/create": typeof AuthenticatedOrganizationsOrganizationIdTeamsCreateRoute
-  "/organizations/$organizationId/teams/$teamId/invite": typeof AuthenticatedOrganizationsOrganizationIdTeamsTeamIdInviteRoute
-  "/organizations/$organizationId/teams/$teamId/settings": typeof AuthenticatedOrganizationsOrganizationIdTeamsTeamIdSettingsRoute
+  "/organizations/$organizationSlug/teams/create": typeof AuthenticatedOrganizationsOrganizationSlugTeamsCreateRoute
+  "/organizations/$organizationSlug/teams/$teamSlug/invite": typeof AuthenticatedOrganizationsOrganizationSlugTeamsTeamSlugInviteRoute
+  "/organizations/$organizationSlug/teams/$teamSlug/settings": typeof AuthenticatedOrganizationsOrganizationSlugTeamsTeamSlugSettingsRoute
 }
 
 export interface FileRoutesById {
@@ -367,14 +367,14 @@ export interface FileRoutesById {
   "/_landing/": typeof LandingIndexRoute
   "/auth/": typeof AuthIndexRoute
   "/_authenticated/resources/": typeof AuthenticatedResourcesIndexRoute
-  "/_authenticated/organizations/$organizationId/invite": typeof AuthenticatedOrganizationsOrganizationIdInviteRoute
-  "/_authenticated/organizations/$organizationId/settings": typeof AuthenticatedOrganizationsOrganizationIdSettingsRoute
+  "/_authenticated/organizations/$organizationSlug/invite": typeof AuthenticatedOrganizationsOrganizationSlugInviteRoute
+  "/_authenticated/organizations/$organizationSlug/settings": typeof AuthenticatedOrganizationsOrganizationSlugSettingsRoute
   "/_authenticated/resources/$id/edit": typeof AuthenticatedResourcesIdEditRoute
   "/_authenticated/resources/$id/view": typeof AuthenticatedResourcesIdViewRoute
   "/_authenticated/user/settings/": typeof AuthenticatedUserSettingsIndexRoute
-  "/_authenticated/organizations/$organizationId/teams/create": typeof AuthenticatedOrganizationsOrganizationIdTeamsCreateRoute
-  "/_authenticated/organizations/$organizationId/teams/$teamId/invite": typeof AuthenticatedOrganizationsOrganizationIdTeamsTeamIdInviteRoute
-  "/_authenticated/organizations/$organizationId/teams/$teamId/settings": typeof AuthenticatedOrganizationsOrganizationIdTeamsTeamIdSettingsRoute
+  "/_authenticated/organizations/$organizationSlug/teams/create": typeof AuthenticatedOrganizationsOrganizationSlugTeamsCreateRoute
+  "/_authenticated/organizations/$organizationSlug/teams/$teamSlug/invite": typeof AuthenticatedOrganizationsOrganizationSlugTeamsTeamSlugInviteRoute
+  "/_authenticated/organizations/$organizationSlug/teams/$teamSlug/settings": typeof AuthenticatedOrganizationsOrganizationSlugTeamsTeamSlugSettingsRoute
 }
 
 export interface FileRouteTypes {
@@ -388,14 +388,14 @@ export interface FileRouteTypes {
     | "/"
     | "/auth"
     | "/resources"
-    | "/organizations/$organizationId/invite"
-    | "/organizations/$organizationId/settings"
+    | "/organizations/$organizationSlug/invite"
+    | "/organizations/$organizationSlug/settings"
     | "/resources/$id/edit"
     | "/resources/$id/view"
     | "/user/settings"
-    | "/organizations/$organizationId/teams/create"
-    | "/organizations/$organizationId/teams/$teamId/invite"
-    | "/organizations/$organizationId/teams/$teamId/settings"
+    | "/organizations/$organizationSlug/teams/create"
+    | "/organizations/$organizationSlug/teams/$teamSlug/invite"
+    | "/organizations/$organizationSlug/teams/$teamSlug/settings"
   fileRoutesByTo: FileRoutesByTo
   to:
     | ""
@@ -406,14 +406,14 @@ export interface FileRouteTypes {
     | "/"
     | "/auth"
     | "/resources"
-    | "/organizations/$organizationId/invite"
-    | "/organizations/$organizationId/settings"
+    | "/organizations/$organizationSlug/invite"
+    | "/organizations/$organizationSlug/settings"
     | "/resources/$id/edit"
     | "/resources/$id/view"
     | "/user/settings"
-    | "/organizations/$organizationId/teams/create"
-    | "/organizations/$organizationId/teams/$teamId/invite"
-    | "/organizations/$organizationId/teams/$teamId/settings"
+    | "/organizations/$organizationSlug/teams/create"
+    | "/organizations/$organizationSlug/teams/$teamSlug/invite"
+    | "/organizations/$organizationSlug/teams/$teamSlug/settings"
   id:
     | "__root__"
     | "/_authenticated"
@@ -425,14 +425,14 @@ export interface FileRouteTypes {
     | "/_landing/"
     | "/auth/"
     | "/_authenticated/resources/"
-    | "/_authenticated/organizations/$organizationId/invite"
-    | "/_authenticated/organizations/$organizationId/settings"
+    | "/_authenticated/organizations/$organizationSlug/invite"
+    | "/_authenticated/organizations/$organizationSlug/settings"
     | "/_authenticated/resources/$id/edit"
     | "/_authenticated/resources/$id/view"
     | "/_authenticated/user/settings/"
-    | "/_authenticated/organizations/$organizationId/teams/create"
-    | "/_authenticated/organizations/$organizationId/teams/$teamId/invite"
-    | "/_authenticated/organizations/$organizationId/teams/$teamId/settings"
+    | "/_authenticated/organizations/$organizationSlug/teams/create"
+    | "/_authenticated/organizations/$organizationSlug/teams/$teamSlug/invite"
+    | "/_authenticated/organizations/$organizationSlug/teams/$teamSlug/settings"
   fileRoutesById: FileRoutesById
 }
 
@@ -471,14 +471,14 @@ export const routeTree = rootRoute
       "children": [
         "/_authenticated/dashboard",
         "/_authenticated/resources/",
-        "/_authenticated/organizations/$organizationId/invite",
-        "/_authenticated/organizations/$organizationId/settings",
+        "/_authenticated/organizations/$organizationSlug/invite",
+        "/_authenticated/organizations/$organizationSlug/settings",
         "/_authenticated/resources/$id/edit",
         "/_authenticated/resources/$id/view",
         "/_authenticated/user/settings/",
-        "/_authenticated/organizations/$organizationId/teams/create",
-        "/_authenticated/organizations/$organizationId/teams/$teamId/invite",
-        "/_authenticated/organizations/$organizationId/teams/$teamId/settings"
+        "/_authenticated/organizations/$organizationSlug/teams/create",
+        "/_authenticated/organizations/$organizationSlug/teams/$teamSlug/invite",
+        "/_authenticated/organizations/$organizationSlug/teams/$teamSlug/settings"
       ]
     },
     "/_landing": {
@@ -515,12 +515,12 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/resources/index.tsx",
       "parent": "/_authenticated"
     },
-    "/_authenticated/organizations/$organizationId/invite": {
-      "filePath": "_authenticated/organizations/$organizationId/invite.tsx",
+    "/_authenticated/organizations/$organizationSlug/invite": {
+      "filePath": "_authenticated/organizations/$organizationSlug/invite.tsx",
       "parent": "/_authenticated"
     },
-    "/_authenticated/organizations/$organizationId/settings": {
-      "filePath": "_authenticated/organizations/$organizationId/settings.tsx",
+    "/_authenticated/organizations/$organizationSlug/settings": {
+      "filePath": "_authenticated/organizations/$organizationSlug/settings.tsx",
       "parent": "/_authenticated"
     },
     "/_authenticated/resources/$id/edit": {
@@ -535,16 +535,16 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/user/settings/index.tsx",
       "parent": "/_authenticated"
     },
-    "/_authenticated/organizations/$organizationId/teams/create": {
-      "filePath": "_authenticated/organizations/$organizationId/teams/create.tsx",
+    "/_authenticated/organizations/$organizationSlug/teams/create": {
+      "filePath": "_authenticated/organizations/$organizationSlug/teams/create.tsx",
       "parent": "/_authenticated"
     },
-    "/_authenticated/organizations/$organizationId/teams/$teamId/invite": {
-      "filePath": "_authenticated/organizations/$organizationId/teams/$teamId.invite.tsx",
+    "/_authenticated/organizations/$organizationSlug/teams/$teamSlug/invite": {
+      "filePath": "_authenticated/organizations/$organizationSlug/teams/$teamSlug.invite.tsx",
       "parent": "/_authenticated"
     },
-    "/_authenticated/organizations/$organizationId/teams/$teamId/settings": {
-      "filePath": "_authenticated/organizations/$organizationId/teams/$teamId.settings.tsx",
+    "/_authenticated/organizations/$organizationSlug/teams/$teamSlug/settings": {
+      "filePath": "_authenticated/organizations/$organizationSlug/teams/$teamSlug.settings.tsx",
       "parent": "/_authenticated"
     }
   }

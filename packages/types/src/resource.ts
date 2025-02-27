@@ -11,6 +11,7 @@ export const ResourceQuery = {
     filter: z.optional(
       z.object({
         teamId: z.string().optional(),
+        teamSlug: z.string().optional(),
         organizationId: z.string().optional(),
       }),
     ),

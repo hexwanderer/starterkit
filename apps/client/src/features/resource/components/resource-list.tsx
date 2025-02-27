@@ -28,7 +28,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Title } from "@/components/header";
 
-export function ResourceList({ teamId }: { teamId?: string }) {
+export function ResourceList({ team }: { team?: string }) {
   const trpc = useTRPC();
   const session = authClient.useSession();
   const organization = authClient.useActiveOrganization();
@@ -39,11 +39,11 @@ export function ResourceList({ teamId }: { teamId?: string }) {
         userId: session.data?.user.id ?? "",
         filter: {
           organizationId: organization.data?.id,
-          teamId: teamId || undefined,
+          teamSlug: team || undefined,
         },
       },
       {
-        enabled: !!organization.data?.id && !!session.data?.user.id,
+        enabled: !!organization.data?.id,
       },
     ),
   );
@@ -102,12 +102,12 @@ export function ResourceList({ teamId }: { teamId?: string }) {
     <>
       <Title>Resources</Title>
       <Select
-        value={teamId}
+        value={team}
         onValueChange={(value) =>
           navigate({
             to: "/resources",
             search: {
-              teamId: value,
+              team: value,
             },
           })
         }
@@ -131,7 +131,7 @@ export function ResourceList({ teamId }: { teamId?: string }) {
                 ))
               ) : teamsQuery.data?.length ? (
                 teamsQuery.data.map((team) => (
-                  <SelectItem key={team.id} value={team.id}>
+                  <SelectItem key={team.slug} value={team.slug}>
                     {team.name}
                   </SelectItem>
                 ))

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute(
-  "/_authenticated/organizations/$organizationId/teams/$teamId/invite",
+  "/_authenticated/organizations/$organizationSlug/teams/$teamSlug/invite",
 )({
   component: RouteComponent,
 });
@@ -9,7 +9,7 @@ export const Route = createFileRoute(
 function RouteComponent() {
   return (
     <div>
-      Hello "/_authenticated/organizations/$organizationId/teams/invite"!
+      Hello "/_authenticated/organizations/$organizationSlug/teams/invite"!
     </div>
   );
 }

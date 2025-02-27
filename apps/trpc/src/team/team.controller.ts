@@ -37,6 +37,21 @@ export function addTeamRoutes({ repository }: TeamControllerProps) {
           });
         return result;
       }),
+    getBySlug: teamProcedure
+      .input(z.object({ slug: z.string(), organizationSlug: z.string() }))
+      .output(TeamSchema.get)
+      .query(async ({ input }) => {
+        const result = await repository.getBySlug(
+          input.slug,
+          input.organizationSlug,
+        );
+        if (!result)
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Team not found",
+          });
+        return result;
+      }),
     create: teamProcedure
       .input(TeamSchema.create)
       .output(TeamSchema.get)

@@ -26,7 +26,11 @@ import { Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { sortIcon } from "@/lib/react-utils";
 
-export function TeamList() {
+export interface TeamListProps {
+  organizationSlug: string;
+}
+
+export function TeamList({ organizationSlug }: TeamListProps) {
   const trpc = useTRPC();
   const teamsQuery = useQuery(trpc.team.getAll.queryOptions());
 
@@ -46,10 +50,10 @@ export function TeamList() {
         ),
         cell: ({ row }) => (
           <Link
-            to="/organizations/$organizationId/teams/$teamId/settings"
+            to="/organizations/$organizationSlug/teams/$teamSlug/settings"
             params={{
-              organizationId: row.original.organizationId,
-              teamId: row.original.id,
+              organizationSlug,
+              teamSlug: row.original.slug,
             }}
           >
             {row.original.name}
@@ -88,7 +92,7 @@ export function TeamList() {
         enableGlobalFilter: false,
       },
     ],
-    [],
+    [organizationSlug],
   );
 
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -123,8 +127,8 @@ export function TeamList() {
           placeholder="Search teams..."
         />
         <Link
-          to="/organizations/$organizationId/teams/create"
-          params={{ organizationId: organization.data?.id ?? "undefined" }}
+          to="/organizations/$organizationSlug/teams/create"
+          params={{ organizationSlug: organization.data?.slug ?? "undefined" }}
         >
           <Button className="flex-[1]">Create Team</Button>
         </Link>

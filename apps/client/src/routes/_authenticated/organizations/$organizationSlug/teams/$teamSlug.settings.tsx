@@ -5,7 +5,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
 export const Route = createFileRoute(
-  "/_authenticated/organizations/$organizationId/teams/$teamId/settings",
+  "/_authenticated/organizations/$organizationSlug/teams/$teamSlug/settings",
 )({
   validateSearch: z.object({
     tab: z.string().optional(),
@@ -14,22 +14,23 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
-  const { organizationId, teamId } = Route.useParams();
+  const { organizationSlug, teamSlug } = Route.useParams();
   const { tab } = Route.useSearch();
   const trpc = useTRPC();
   const teamQuery = useQuery(
-    trpc.team.getById.queryOptions({
-      id: teamId,
+    trpc.team.getBySlug.queryOptions({
+      slug: teamSlug,
+      organizationSlug: organizationSlug,
     }),
   );
 
   return (
     <TeamSettingsPage
-      organization={{ id: organizationId }}
+      organization={{ slug: organizationSlug }}
       team={{
-        id: teamId,
+        id: teamQuery.data?.id ?? "",
         name: teamQuery.data?.name ?? "",
-        slug: teamQuery.data?.slug ?? "",
+        slug: teamSlug,
       }}
       initialTab={tab}
     />

@@ -38,8 +38,8 @@ interface Member {
 export interface MemberManagementProps {
   query: UseQueryResult<QueryResult, unknown>;
   addMemberParams: {
-    organizationId: string;
-    teamId?: string;
+    organizationSlug: string;
+    teamSlug?: string;
   };
 }
 
@@ -127,18 +127,18 @@ export function MemberManagement({
         />
         <Link
           to={
-            addMemberParams.teamId
-              ? "/organizations/$organizationId/teams/$teamId/invite"
-              : "/organizations/$organizationId/invite"
+            addMemberParams.teamSlug
+              ? "/organizations/$organizationSlug/teams/$teamSlug/invite"
+              : "/organizations/$organizationSlug/invite"
           }
           params={{
-            ...(addMemberParams.teamId
+            ...(addMemberParams.teamSlug
               ? {
-                  teamId: addMemberParams.teamId,
-                  organizationId: addMemberParams.organizationId,
+                  teamSlug: addMemberParams.teamSlug,
+                  organizationSlug: addMemberParams.organizationSlug,
                 }
               : {
-                  organizationId: addMemberParams.organizationId,
+                  organizationSlug: addMemberParams.organizationSlug,
                 }),
           }}
         >
