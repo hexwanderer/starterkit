@@ -49,7 +49,7 @@ const proxyRouter = express.Router();
 
 proxyRouter.use("/collect/static", (req, res) => {
   proxyServer.web(req, res, {
-    target: "https://us-assets.i.posthog.com/static",
+    target: "https://eu-assets.i.posthog.com/static",
     changeOrigin: true,
     secure: true,
     xfwd: true,
@@ -63,7 +63,7 @@ proxyRouter.use("/collect/static", (req, res) => {
 
 proxyRouter.use("/collect", (req, res) => {
   proxyServer.web(req, res, {
-    target: "https://us.i.posthog.com",
+    target: "https://eu.i.posthog.com",
     changeOrigin: true,
     secure: true,
     xfwd: true,

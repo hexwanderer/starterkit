@@ -22,6 +22,7 @@ import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import { PosthogInit } from "./lib/posthog";
 import { PostHogProvider } from "posthog-js/react";
 import posthog from "posthog-js";
+import { Cookies } from "./components/cookies";
 
 // Create a new router instance
 const router = createRouter({
@@ -114,6 +115,7 @@ if (!rootElement.innerHTML) {
           <RouterProvider router={router} context={{ authClient }} />
           <Toaster />
           <PosthogInit />
+          <Cookies />
         </PostHogProvider>
       </ProviderTree>
     </StrictMode>,
