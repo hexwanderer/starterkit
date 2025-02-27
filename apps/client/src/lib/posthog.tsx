@@ -3,7 +3,6 @@ import posthog from "posthog-js";
 
 export function PosthogInit() {
   useEffect(() => {
-    console.log(`Initiazing posthog: ${import.meta.env.VITE_POSTHOG_KEY}`);
     posthog.init(import.meta.env.VITE_POSTHOG_KEY, {
       api_host: `${import.meta.env.VITE_SERVER_URL}/collect`,
     });
