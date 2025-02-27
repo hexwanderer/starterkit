@@ -51,7 +51,7 @@ import {
   Settings2,
   Settings2Icon,
 } from "lucide-react";
-import { RiHome6Line } from "@remixicon/react";
+import { RiHome6Line, RiSettings3Line } from "@remixicon/react";
 import type React from "react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -312,37 +312,13 @@ export function TeamSwitcher({
             side={isMobile ? "bottom" : "right"}
             sideOffset={4}
           >
-            <DropdownMenuLabel className="text-xs text-muted-foreground">
-              Teams
-            </DropdownMenuLabel>
-            {teams.map((team, index) => (
-              <DropdownMenuItem
-                key={team.name}
-                // onClick={() => setActiveTeam(team)}
-                className="gap-2 p-2"
-              >
-                <div className="flex size-6 items-center justify-center rounded-sm border">
-                  <team.logo className="size-4 shrink-0" />
-                </div>
-                {team.name}
-                <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
-              </DropdownMenuItem>
-            ))}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="gap-2 p-2">
-              <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-                <Plus className="size-4" />
-              </div>
-              <div className="font-medium text-muted-foreground">Add team</div>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
             <Link
               to="/organizations/$organizationId/settings"
               params={{ organizationId: activeOrganization.data?.id ?? "" }}
             >
-              <DropdownMenuItem className="gap-2 p-2">
+              <DropdownMenuItem className="gap-2 p-2 w-full">
                 <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-                  <Settings2Icon className="size-4" />
+                  <RiSettings3Line className="size-4" />
                 </div>
                 <div className="font-medium text-muted-foreground">
                   Organization Settings
@@ -351,7 +327,7 @@ export function TeamSwitcher({
             </Link>
             <DropdownMenuSeparator />
             <Link to="/auth/orgs">
-              <DropdownMenuItem className="gap-2 p-2">
+              <DropdownMenuItem className="gap-2 p-2 w-full">
                 <div className="flex size-6 items-center justify-center rounded-md border bg-background">
                   <ArrowLeftRightIcon className="size-4" />
                 </div>
@@ -417,8 +393,8 @@ export function NavUser({
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+            align="start"
             side={isMobile ? "bottom" : "right"}
-            align="end"
             sideOffset={4}
           >
             <DropdownMenuLabel className="p-0 font-normal">
@@ -443,8 +419,8 @@ export function NavUser({
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <Link to="/user/settings" className="flex items-center gap-2">
-                <DropdownMenuItem>
-                  <Settings2Icon />
+                <DropdownMenuItem className="gap-2 p-2 w-full">
+                  <RiSettings3Line className="size-4" />
                   Settings
                 </DropdownMenuItem>
               </Link>
