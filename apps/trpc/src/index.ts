@@ -1,6 +1,7 @@
 import { createContext, publicProcedure, router } from "./trpc";
 import * as trpcExpress from "@trpc/server/adapters/express";
 import express from "express";
+import proxy from "http-proxy";
 import { addResourceRoutes } from "./resource/resource.controller";
 import { ResourcePostgresImpl } from "./resource/resource.repository";
 import { db, teamMembers } from "@repo/database";
@@ -32,8 +33,40 @@ const appRouter = router({
 
 export type AppRouter = typeof appRouter;
 
+const proxyServer = proxy.createProxyServer();
+const proxyRouter = express.Router();
+
+proxyRouter.use("/collect/static", (req, res) => {
+  proxyServer.web(req, res, {
+    target: "https://us-assets.i.posthog.com/static",
+    changeOrigin: true,
+    secure: true,
+    xfwd: true,
+    headers: {
+      "X-Real-IP": req.ip ?? "",
+      "X-Forwarded-For": req.ip ?? "",
+      "X-Forwarded-Host": req.hostname,
+    },
+  });
+});
+
+proxyRouter.use("/collect", (req, res) => {
+  proxyServer.web(req, res, {
+    target: "https://us.i.posthog.com",
+    changeOrigin: true,
+    secure: true,
+    xfwd: true,
+    headers: {
+      "X-Real-IP": req.ip ?? "",
+      "X-Forwarded-For": req.ip ?? "",
+      "X-Forwarded-Host": req.hostname,
+    },
+  });
+});
+
 const app = express()
   .use(cors())
+  .use(proxyRouter)
   .all("/api/auth/*", toNodeHandler(auth))
   .use(
     "/api",

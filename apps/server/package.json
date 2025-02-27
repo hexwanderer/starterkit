@@ -11,12 +11,14 @@
     "@elysiajs/node": "^1.2.3",
     "@repo/auth": "workspace:*",
     "@repo/database": "workspace:*",
+    "@types/http-proxy": "^1.17.16",
     "@types/node": "^22.10.10",
     "@types/pg": "^8.11.11",
     "better-auth": "^1.1.15",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.39.0",
     "elysia": "^1.2.10",
+    "http-proxy": "^1.18.1",
     "typescript": "^5.7.3"
   },
   "devDependencies": {

@@ -5,7 +5,7 @@ import "./App.css";
 import "./theme.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { buildProvidersTree } from "@/lib/providersTree";
+import { buildProvidersTree } from "@/lib/providers-tree";
 import { treaty } from "@elysiajs/eden";
 import { ac, admin, member, owner } from "@repo/auth";
 import type { App } from "@repo/server";
@@ -19,6 +19,9 @@ import type { AppRouter } from "@repo/trpc";
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
+import { PosthogInit } from "./lib/posthog";
+import { PostHogProvider } from "posthog-js/react";
+import posthog from "posthog-js";
 
 // Create a new router instance
 const router = createRouter({
@@ -107,8 +110,11 @@ if (!rootElement.innerHTML) {
   root.render(
     <StrictMode>
       <ProviderTree>
-        <RouterProvider router={router} context={{ authClient }} />
-        <Toaster />
+        <PostHogProvider client={posthog}>
+          <RouterProvider router={router} context={{ authClient }} />
+          <Toaster />
+          <PosthogInit />
+        </PostHogProvider>
       </ProviderTree>
     </StrictMode>,
   );

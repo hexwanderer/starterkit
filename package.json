@@ -6,5 +6,8 @@
   "dependencies": {
     "@biomejs/biome": "^1.9.4"
   },
-  "packageManager": "bun@1.2.2"
+  "packageManager": "bun@1.2.2",
+  "trustedDependencies": [
+    "core-js"
+  ]
 }
