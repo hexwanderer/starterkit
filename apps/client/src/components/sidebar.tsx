@@ -109,7 +109,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           },
           ...(teamsQuery.data?.flatMap((data) => ({
             title: data.name,
-            url: `/resources?teamId=${data.id}`,
+            url: `/resources?team=${data.slug}`,
           })) ?? []), // Ensure it's an array even if data is undefined
         ],
       },

@@ -12,12 +12,23 @@ import { addOrganizationRoutes } from "./organization/organization.controller";
 import { OrganizationBetterAuthImpl } from "./organization/organization.repository";
 import { addTeamRoutes } from "./team/team.controller";
 import { TeamPostgresImpl } from "./team/team.repository";
+import { Queue } from "bullmq";
+import IORedis from "ioredis";
+
+console.log(`REDIS_HOST: ${process.env.REDIS_HOST}`);
 
 const teamRepository = new TeamPostgresImpl(db);
+
+const client = new IORedis(
+  `rediss://default:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
+);
+
+const resourceQueue = new Queue("resource-queue", { connection: client });
 
 const appRouter = router({
   resource: addResourceRoutes({
     repository: new ResourcePostgresImpl(db),
+    queue: resourceQueue,
   }),
   organization: addOrganizationRoutes({
     repository: new OrganizationBetterAuthImpl(auth),

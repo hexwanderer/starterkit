@@ -1,0 +1,20 @@
+{
+  "name": "@repo/workers",
+  "module": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run src/index.ts --watch",
+    "start": "bun run src/index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "bullmq": "^5.41.7",
+    "dotenv": "^16.4.7",
+    "ioredis": "^5.5.0"
+  }
+}

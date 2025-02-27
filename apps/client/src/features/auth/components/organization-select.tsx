@@ -130,6 +130,14 @@ export function OrganizationSelect() {
                 <span>Add Organization</span>
               </Button>
             </DialogTrigger>
+
+            <Button
+              variant="destructive"
+              className="w-full h-12 text-sm font-medium mt-4"
+              onClick={() => authClient.signOut()}
+            >
+              Sign Out
+            </Button>
           </div>
         </div>
 

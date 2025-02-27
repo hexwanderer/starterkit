@@ -3,9 +3,11 @@ import { router, publicProcedure } from "../trpc";
 import type { ResourceRepository } from "./resource.repository";
 import { ResourceQuery, ResourceSchema } from "@repo/types";
 import { z } from "zod";
+import type { Queue } from "bullmq";
 
 export interface ResourceControllerProps {
   repository: ResourceRepository;
+  queue: Queue;
 }
 
 const resourceProcedure = publicProcedure.use(async ({ ctx, next }) => {
@@ -17,7 +19,10 @@ const resourceProcedure = publicProcedure.use(async ({ ctx, next }) => {
   });
 });
 
-export function addResourceRoutes({ repository }: ResourceControllerProps) {
+export function addResourceRoutes({
+  repository,
+  queue,
+}: ResourceControllerProps) {
   return router({
     getAll: resourceProcedure
       .input(ResourceQuery.getAll)
@@ -50,7 +55,13 @@ export function addResourceRoutes({ repository }: ResourceControllerProps) {
       .input(ResourceSchema.create)
       .output(ResourceSchema.get)
       .mutation(async ({ input }) => {
-        return repository.create(input);
+        return await repository.getTransaction(async (tx) => {
+          const result = await repository.create(input, tx);
+          await queue.add("jobName", {
+            data: result,
+          });
+          return result;
+        });
       }),
     update: resourceProcedure
       .input(ResourceSchema.update)

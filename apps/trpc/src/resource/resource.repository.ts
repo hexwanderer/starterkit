@@ -1,5 +1,6 @@
 import {
   type DatabaseHandler,
+  type db,
   resources,
   resourceTagPairs,
   resourceTags,
@@ -15,12 +16,18 @@ import type {
   ResourceQueryGetAll,
 } from "@repo/types";
 
+type DrizzlePgTx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
 export interface ResourceRepository {
   getAll(options: ResourceQueryGetAll): Promise<ResourceGet[]>;
   getById(id: string): Promise<ResourceGet | null>;
-  create(resource: ResourceCreate): Promise<ResourceGet>;
+  create(
+    resource: ResourceCreate,
+    transaction?: DrizzlePgTx,
+  ): Promise<ResourceGet>;
   update(resource: ResourceUpdate): Promise<ResourceGet>;
   delete(id: string): Promise<void>;
+  getTransaction<T>(callback: (tx: DrizzlePgTx) => Promise<T>): Promise<T>;
 }
 
 export class ResourcePostgresImpl implements ResourceRepository {
@@ -28,6 +35,10 @@ export class ResourcePostgresImpl implements ResourceRepository {
 
   constructor(db: DatabaseHandler) {
     this.db = db;
+  }
+
+  getTransaction<T>(callback: (tx: DrizzlePgTx) => Promise<T>): Promise<T> {
+    return this.db.transaction(callback);
   }
 
   async getAll(options: ResourceQueryGetAll): Promise<ResourceGet[]> {
@@ -102,50 +113,61 @@ export class ResourcePostgresImpl implements ResourceRepository {
     };
   }
 
-  async create(resource: ResourceCreate): Promise<ResourceGet> {
-    const [result] = await this.db
-      .insert(resources)
-      .values({
-        title: resource.title,
-        description: resource.description,
-        teamId: resource.teamId,
-      })
-      .returning();
-    if (!result) throw new Error("Failed to create resource");
-
-    const existingTags = resource.tags.filter((tag) => typeof tag !== "string");
-    for (const tag of existingTags) {
-      await this.db.insert(resourceTagPairs).values({
-        resourceId: result.id,
-        tagId: tag.id,
-      });
-    }
-
-    const newTagsWithIds: { id: string; name: string }[] = [];
-    const newTags = resource.tags.filter((tag) => typeof tag === "string");
-    for (const tag of newTags) {
-      const [tagResult] = await this.db
-        .insert(resourceTags)
+  async create(
+    resource: ResourceCreate,
+    transaction?: DrizzlePgTx,
+  ): Promise<ResourceGet> {
+    const createLogic = async (tx: DrizzlePgTx) => {
+      const [result] = await tx
+        .insert(resources)
         .values({
-          tag: tag,
+          title: resource.title,
+          description: resource.description,
+          teamId: resource.teamId,
         })
         .returning();
-      if (!tagResult) throw new Error("Failed to create tag");
+      if (!result) throw new Error("Failed to create resource");
 
-      await this.db.insert(resourceTagPairs).values({
-        resourceId: result.id,
-        tagId: tagResult.id,
-      });
-      newTagsWithIds.push({
-        id: tagResult.id,
-        name: tag,
-      });
-    }
+      const existingTags = resource.tags.filter(
+        (tag) => typeof tag !== "string",
+      );
+      for (const tag of existingTags) {
+        await tx.insert(resourceTagPairs).values({
+          resourceId: result.id,
+          tagId: tag.id,
+        });
+      }
 
-    return {
-      ...result,
-      tags: newTagsWithIds,
+      const newTagsWithIds: { id: string; name: string }[] = [];
+      const newTags = resource.tags.filter((tag) => typeof tag === "string");
+      for (const tag of newTags) {
+        const [tagResult] = await tx
+          .insert(resourceTags)
+          .values({
+            tag: tag,
+          })
+          .returning();
+        if (!tagResult) throw new Error("Failed to create tag");
+
+        await tx.insert(resourceTagPairs).values({
+          resourceId: result.id,
+          tagId: tagResult.id,
+        });
+        newTagsWithIds.push({
+          id: tagResult.id,
+          name: tag,
+        });
+      }
+
+      return {
+        ...result,
+        tags: newTagsWithIds,
+      };
     };
+
+    return transaction
+      ? createLogic(transaction)
+      : this.getTransaction(createLogic);
   }
 
   update(resource: ResourceUpdate): Promise<ResourceGet> {

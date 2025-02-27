@@ -17,9 +17,11 @@
     "@types/express": "^5.0.0",
     "@types/http-proxy": "^1.17.16",
     "better-auth": "^1.1.21",
+    "bullmq": "^5.41.7",
     "cors": "^2.8.5",
     "express": "^4.21.2",
-    "http-proxy": "^1.18.1"
+    "http-proxy": "^1.18.1",
+    "ioredis": "^5.5.0"
   },
   "scripts": {
     "dev": "bun run src/index.ts --watch"
