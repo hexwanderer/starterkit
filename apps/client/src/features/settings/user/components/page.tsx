@@ -7,28 +7,45 @@ import {
 } from "../../settings-tabs";
 import { ProfileCard } from "./profile-card";
 import { Title } from "@/components/header";
+import { useNavigate } from "@tanstack/react-router";
 
-export function UserSettingsPage() {
+export interface UserSettingsPageProps {
+  initialTab?: string;
+}
+
+export function UserSettingsPage({ initialTab }: UserSettingsPageProps) {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   return (
     <>
       <Title>User Settings</Title>
-      <SettingsTabs defaultValue="tab-1" isMobile={isMobile}>
+      <SettingsTabs
+        value={initialTab ?? "profile"}
+        isMobile={isMobile}
+        onValueChange={(value) =>
+          navigate({
+            to: "/user/settings",
+            search: {
+              tab: value,
+            },
+          })
+        }
+      >
         <SettingsTabsList>
-          <SettingsTabsTrigger value="tab-1">Profile</SettingsTabsTrigger>
-          <SettingsTabsTrigger value="tab-2">Projects</SettingsTabsTrigger>
-          <SettingsTabsTrigger value="tab-3">Packages</SettingsTabsTrigger>
+          <SettingsTabsTrigger value="profile">Profile</SettingsTabsTrigger>
+          <SettingsTabsTrigger value="projects">Projects</SettingsTabsTrigger>
+          <SettingsTabsTrigger value="package">Packages</SettingsTabsTrigger>
         </SettingsTabsList>
         <div className="flex max-w-lg mx-auto w-full">
-          <SettingsTabsContent value="tab-1">
+          <SettingsTabsContent value="profile">
             <ProfileCard />
           </SettingsTabsContent>
-          <SettingsTabsContent value="tab-2">
+          <SettingsTabsContent value="projects">
             <p className="px-4 py-1.5 text-xs text-muted-foreground">
               Content for Tab 2
             </p>
           </SettingsTabsContent>
-          <SettingsTabsContent value="tab-3 ">
+          <SettingsTabsContent value="package">
             <p className="px-4 py-1.5 text-xs text-muted-foreground">
               Content for Tab 3
             </p>

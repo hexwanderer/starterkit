@@ -1,5 +1,6 @@
 import { OrganizationSettingsPage } from "@/features/settings/organization/components/page";
 import { createFileRoute } from "@tanstack/react-router";
+import { z } from "zod";
 
 export const Route = createFileRoute(
   "/_authenticated/organizations/$organizationId/settings",
@@ -21,10 +22,15 @@ export const Route = createFileRoute(
       slug: data.slug,
     };
   },
+  validateSearch: z.object({
+    tab: z.string().optional(),
+  }),
   component: RouteComponent,
 });
 
 function RouteComponent() {
   const data = Route.useLoaderData();
-  return <OrganizationSettingsPage organization={data} />;
+  const { tab } = Route.useSearch();
+
+  return <OrganizationSettingsPage organization={data} initialTab={tab} />;
 }

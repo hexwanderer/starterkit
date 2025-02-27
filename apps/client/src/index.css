@@ -243,3 +243,32 @@ color utility to any element that depends on these defaults.
     height: auto !important;
   }
 }
+.custom-scrollbar {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: rgba(255, 255, 255, 0.4) transparent; /* Track color */
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  height: 4px; /* Thin horizontal scrollbar */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.5); /* Elegant translucent thumb */
+  border-radius: 4px; /* Rounded edges */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.7); /* Slightly darker on hover */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent; /* No track background */
+}
+
+.scroll-snap-x {
+  scroll-snap-type: x mandatory;
+}
+
+.scroll-snap-x > * {
+  scroll-snap-align: start;
+}

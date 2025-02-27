@@ -19,9 +19,12 @@ import {
   useReactTable,
   type ColumnDef,
   getFilteredRowModel,
+  getSortedRowModel,
+  type SortingState,
 } from "@tanstack/react-table";
 import { Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { sortIcon } from "@/lib/react-utils";
 
 export function TeamList() {
   const trpc = useTRPC();
@@ -31,17 +34,44 @@ export function TeamList() {
     () => [
       {
         accessorKey: "name",
-        header: "Name",
+        header: ({ column }) => (
+          <Button
+            className="p-0"
+            variant="ghost"
+            onClick={() => column.toggleSorting()}
+          >
+            <span>Name</span>
+            {sortIcon(column.getIsSorted())}
+          </Button>
+        ),
         size: 500,
       },
       {
         accessorKey: "slug",
-        header: "Slug",
+        header: ({ column }) => (
+          <Button
+            className="p-0"
+            variant="ghost"
+            onClick={() => column.toggleSorting()}
+          >
+            <span>Slug</span>
+            {sortIcon(column.getIsSorted())}
+          </Button>
+        ),
         size: 500,
       },
       {
         accessorKey: "visibility",
-        header: "Visibility",
+        header: ({ column }) => (
+          <Button
+            className="p-0"
+            variant="ghost"
+            onClick={() => column.toggleSorting()}
+          >
+            <span>Visibility</span>
+            {sortIcon(column.getIsSorted())}
+          </Button>
+        ),
         size: 500,
         cell: ({ row }) => <Badge>{row.original.visibility}</Badge>,
         enableGlobalFilter: false,
@@ -50,6 +80,7 @@ export function TeamList() {
     [],
   );
 
+  const [sorting, setSorting] = useState<SortingState>([]);
   // biome-ignore lint/suspicious/noExplicitAny: per documentation
   const [globalFilter, setGlobalFilter] = useState<any>([]);
 
@@ -58,10 +89,13 @@ export function TeamList() {
     columns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
     state: {
       globalFilter,
+      sorting,
     },
     onGlobalFilterChange: setGlobalFilter,
+    onSortingChange: setSorting,
   });
 
   const organization = authClient.useActiveOrganization();
