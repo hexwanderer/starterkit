@@ -14,6 +14,7 @@ import { addTeamRoutes } from "./team/team.controller";
 import { TeamPostgresImpl } from "./team/team.repository";
 import { Queue } from "bullmq";
 import IORedis from "ioredis";
+import { SocketServer } from "./socket";
 
 console.log(`REDIS_HOST: ${process.env.REDIS_HOST}`);
 
@@ -24,25 +25,6 @@ const client = new IORedis(
 );
 
 const resourceQueue = new Queue("resource-queue", { connection: client });
-
-const appRouter = router({
-  resource: addResourceRoutes({
-    repository: new ResourcePostgresImpl(db),
-    queue: resourceQueue,
-  }),
-  organization: addOrganizationRoutes({
-    repository: new OrganizationBetterAuthImpl(auth),
-    teamRepository,
-  }),
-  team: addTeamRoutes({
-    repository: teamRepository,
-  }),
-  index: publicProcedure.query(async () => {
-    return "OK";
-  }),
-});
-
-export type AppRouter = typeof appRouter;
 
 const proxyServer = proxy.createProxyServer();
 const proxyRouter = express.Router();
@@ -78,7 +60,32 @@ proxyRouter.use("/collect", (req, res) => {
 const app = express()
   .use(cors())
   .use(proxyRouter)
-  .all("/api/auth/*", toNodeHandler(auth))
+  .all("/api/auth/*", toNodeHandler(auth));
+
+const ss = new SocketServer();
+await ss.createSocketServer(app, client);
+
+const appRouter = router({
+  resource: addResourceRoutes({
+    repository: new ResourcePostgresImpl(db),
+    queue: resourceQueue,
+  }),
+  organization: addOrganizationRoutes({
+    repository: new OrganizationBetterAuthImpl(auth),
+    teamRepository,
+  }),
+  team: addTeamRoutes({
+    repository: teamRepository,
+    socket: ss,
+  }),
+  index: publicProcedure.query(async () => {
+    return "OK";
+  }),
+});
+
+export type AppRouter = typeof appRouter;
+
+app
   .use(
     "/api",
     trpcExpress.createExpressMiddleware({
@@ -86,6 +93,6 @@ const app = express()
       createContext: createContext,
     }),
   )
-  .listen(7506, () => {
-    console.log("trpc is running at http://localhost:7506");
+  .listen(3000, () => {
+    console.log("Listening on port 3000");
   });

@@ -3,7 +3,8 @@
   "module": "src/index.ts",
   "type": "module",
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/socket.io": "^3.0.2"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
@@ -11,6 +12,7 @@
   "dependencies": {
     "@repo/database": "workspace:*",
     "@repo/types": "workspace:*",
+    "@socket.io/redis-adapter": "^8.3.0",
     "@trpc/client": "^11.0.0-rc.808",
     "@trpc/server": "^11.0.0-rc.808",
     "@types/cors": "^2.8.17",
@@ -20,8 +22,10 @@
     "bullmq": "^5.41.7",
     "cors": "^2.8.5",
     "express": "^4.21.2",
+    "http": "^0.0.1-security",
     "http-proxy": "^1.18.1",
-    "ioredis": "^5.5.0"
+    "ioredis": "^5.5.0",
+    "socket.io": "^4.8.1"
   },
   "scripts": {
     "dev": "bun run src/index.ts --watch"

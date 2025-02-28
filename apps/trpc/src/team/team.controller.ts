@@ -3,6 +3,7 @@ import { publicProcedure, router } from "../trpc";
 import type { TeamRepository } from "./team.repository";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import type { SocketServer } from "../socket";
 
 const teamProcedure = publicProcedure.use(async ({ ctx, next }) => {
   if (!ctx.user) {
@@ -15,9 +16,10 @@ const teamProcedure = publicProcedure.use(async ({ ctx, next }) => {
 
 export interface TeamControllerProps {
   repository: TeamRepository;
+  socket: SocketServer;
 }
 
-export function addTeamRoutes({ repository }: TeamControllerProps) {
+export function addTeamRoutes({ repository, socket }: TeamControllerProps) {
   return router({
     getAll: teamProcedure
       .input(TeamQuery.getAll)
@@ -68,6 +70,23 @@ export function addTeamRoutes({ repository }: TeamControllerProps) {
       .input(z.object({ id: z.string() }))
       .mutation(async ({ input }) => {
         return repository.delete(input.id);
+      }),
+    addMember: teamProcedure
+      .input(z.object({ id: z.string(), userId: z.string() }))
+      .mutation(async ({ input, ctx }) => {
+        if (!ctx.user) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "User context must be present to invite another user",
+          });
+        }
+        const result = await repository.addMember(input.id, input.userId);
+        socket.notifyUser(input.userId, {
+          type: "invited_to_team",
+          data: {
+            by: ctx.user.id,
+          },
+        });
       }),
   });
 }

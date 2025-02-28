@@ -20,6 +20,7 @@ export interface TeamRepository {
   create(team: TeamCreate): Promise<TeamGet>;
   update(team: TeamUpdate): Promise<TeamGet>;
   delete(id: string): Promise<void>;
+  addMember(teamId: string, userId: string): Promise<void>;
 }
 
 export class TeamPostgresImpl implements TeamRepository {
@@ -27,6 +28,10 @@ export class TeamPostgresImpl implements TeamRepository {
 
   constructor(db: DatabaseHandler) {
     this.db = db;
+  }
+
+  addMember(teamId: string, userId: string): Promise<void> {
+    throw new Error("Method not implemented.");
   }
 
   async getAll(params: TeamQueryGetAll): Promise<TeamGet[]> {
