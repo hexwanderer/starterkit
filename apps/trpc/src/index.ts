@@ -15,17 +15,16 @@ import { TeamPostgresImpl } from "./team/team.repository";
 import { Queue } from "bullmq";
 import IORedis from "ioredis";
 import { SocketServer } from "./socket";
+import { createServer } from "node:http";
 
 console.log(`REDIS_HOST: ${process.env.REDIS_HOST}`);
 
+const PORT = 7506;
 const teamRepository = new TeamPostgresImpl(db);
-
 const client = new IORedis(
   `rediss://default:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
 );
-
 const resourceQueue = new Queue("resource-queue", { connection: client });
-
 const proxyServer = proxy.createProxyServer();
 const proxyRouter = express.Router();
 
@@ -57,14 +56,20 @@ proxyRouter.use("/collect", (req, res) => {
   });
 });
 
+// Create Express app with all middleware and routes
 const app = express()
   .use(cors())
   .use(proxyRouter)
   .all("/api/auth/*", toNodeHandler(auth));
 
-const ss = new SocketServer();
-await ss.createSocketServer(app, client);
+// Create HTTP server from Express app
+const httpServer = createServer(app);
 
+// Set up Socket.IO with the HTTP server
+const ss = new SocketServer();
+await ss.initializeSocketIO(httpServer, client);
+
+// Define and set up tRPC router
 const appRouter = router({
   resource: addResourceRoutes({
     repository: new ResourcePostgresImpl(db),
@@ -85,6 +90,7 @@ const appRouter = router({
 
 export type AppRouter = typeof appRouter;
 
+// Add tRPC middleware to Express app
 app
   .use(
     "/api",
@@ -93,6 +99,14 @@ app
       createContext: createContext,
     }),
   )
-  .listen(3000, () => {
-    console.log("Listening on port 3000");
+  .use(express.json())
+  .post("/test-notification", async (req, res) => {
+    console.log("test-notification");
+    await ss.notifyUser(req.body.userId, req.body.data);
+    res.sendStatus(200);
   });
+
+// Start the HTTP server
+httpServer.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
+});

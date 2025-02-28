@@ -21,8 +21,9 @@ import { routeTree } from "./routeTree.gen";
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import { PosthogInit } from "./lib/posthog";
 import { PostHogProvider } from "posthog-js/react";
-import posthog from "posthog-js";
 import { Cookies } from "./components/cookies";
+import posthog from "posthog-js";
+import io from "socket.io-client";
 
 // Create a new router instance
 const router = createRouter({
