@@ -1,5 +1,6 @@
 import { Header, TitleProvider } from "@/components/header";
 import { AppSidebar } from "@/components/sidebar";
+import { NotificationProvider } from "@/features/notifications/hooks/notification-provider";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Outlet } from "@tanstack/react-router";
 import { toast } from "sonner";
@@ -25,18 +26,20 @@ function RouteComponent() {
 
       {/* Main Content */}
       <TitleProvider>
-        <div className="flex flex-1 flex-col w-full">
-          <Header />
-          {/* Sidebar Trigger */}
-          {/* <div className={`fixed bottom-4 left-4 ${isMobile ? "" : "hidden"}`}>
+        <NotificationProvider>
+          <div className="flex flex-1 flex-col w-full">
+            <Header />
+            {/* Sidebar Trigger */}
+            {/* <div className={`fixed bottom-4 left-4 ${isMobile ? "" : "hidden"}`}>
           <SidebarTrigger />
         </div> */}
 
-          {/* Main Outlet Content */}
-          <div className="flex-1 w-full overflow-y-auto p-4">
-            <Outlet />
+            {/* Main Outlet Content */}
+            <div className="flex-1 w-full overflow-y-auto p-4">
+              <Outlet />
+            </div>
           </div>
-        </div>
+        </NotificationProvider>
       </TitleProvider>
 
       {/* TanStack Router DevTools */}

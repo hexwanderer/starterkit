@@ -38,6 +38,7 @@ import {
   AudioWaveform,
   BadgeCheck,
   Bell,
+  BellIcon,
   BookOpen,
   ChevronRight,
   ChevronsUpDown,
@@ -52,6 +53,7 @@ import { RiHome6Line, RiSettings3Line } from "@remixicon/react";
 import type React from "react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { UnreadBadge } from "@/features/notifications/components/unread-badge";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const trpc = useTRPC();
@@ -245,6 +247,11 @@ export function NavMain({
             </Link>
           );
         })}
+
+        <SidebarMenuButton>
+          <UnreadBadge />
+          <span>Notifications</span>
+        </SidebarMenuButton>
       </SidebarMenu>
     </SidebarGroup>
   );

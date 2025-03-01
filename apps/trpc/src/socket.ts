@@ -56,7 +56,20 @@ export class SocketServer {
           socket.data.userId,
           socket.data.organizationId,
         );
-        socket.emit("loadNotifications", notifications);
+        console.log(`notifications, ${JSON.stringify(notifications)}`);
+        socket.emit("loadNotifications", [
+          {
+            id: v7(),
+            title: "Test notification",
+            description: "This is a test notification",
+            destination: socket.data.userId,
+            avatar: null,
+            attachedResource: null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            readAt: null,
+          },
+        ]);
         socket.on("disconnect", () => {
           console.log(`User ${socket.data.userId} disconnected`);
         });

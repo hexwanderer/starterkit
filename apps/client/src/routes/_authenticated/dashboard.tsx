@@ -1,5 +1,6 @@
 import { Title } from "@/components/header";
-import { NotificationList } from "@/components/notification";
+import { NotificationList as NL } from "@/components/notification";
+import { NotificationList } from "@/features/notifications/components/notification-list";
 import { authClient } from "@/main";
 import { createFileRoute } from "@tanstack/react-router";
 
