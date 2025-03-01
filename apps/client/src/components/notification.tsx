@@ -1,12 +1,18 @@
 import { authClient } from "@/main";
+import type {
+  ClientToServerEvents,
+  NotificationSchemaCreate,
+  NotificationSchemaGet,
+  ServerToClientEvents,
+} from "@repo/types";
 import { useEffect, useState } from "react";
-import io from "socket.io-client";
+import io, { type Socket } from "socket.io-client";
 
 export function NotificationList() {
   const session = authClient.useSession();
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<NotificationSchemaGet[]>([]);
 
-  const sendNotification = (data: any) => {
+  const sendNotification = (data: NotificationSchemaCreate) => {
     fetch("http://localhost:7506/test-notification", {
       method: "POST",
       headers: {
@@ -20,15 +26,22 @@ export function NotificationList() {
   };
 
   useEffect(() => {
-    const socket = io("http://localhost:7506", {
-      auth: {
-        userId: session.data?.user?.id,
+    const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
+      "http://localhost:7506",
+      {
+        auth: {
+          userId: session.data?.user?.id,
+        },
       },
-    })
+    );
+    socket
       .on("connect", () => {
         console.log("connected");
       })
-      .on("message", (data) => {
+      .on("loadNotifications", (data) => {
+        setMessages((prev) => [...prev, ...data]);
+      })
+      .on("notification", (data) => {
         setMessages((prev) => [...prev, data]);
       })
       .on("disconnect", () => {
@@ -44,10 +57,21 @@ export function NotificationList() {
     <div>
       <ul>
         {messages.map((message) => (
-          <li key={message}>{message}</li>
+          <li key={message.id}>{message.title}</li>
         ))}
       </ul>
-      <button onClick={() => sendNotification("Hello from React!")}>
+      {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
+      <button
+        onClick={() =>
+          sendNotification({
+            destination: session.data?.user?.id ?? "",
+            title: "Hello from React!",
+            description: "This is a test notification",
+            avatar: null,
+            attachedResource: null,
+          })
+        }
+      >
         Send notification
       </button>
     </div>

@@ -16,11 +16,15 @@ import { Queue } from "bullmq";
 import IORedis from "ioredis";
 import { SocketServer } from "./socket";
 import { createServer } from "node:http";
+import { NotificationPostgresImpl } from "./notification/notification.repository";
+import type { NotificationSchemaCreate } from "@repo/types";
 
 console.log(`REDIS_HOST: ${process.env.REDIS_HOST}`);
 
 const PORT = 7506;
 const teamRepository = new TeamPostgresImpl(db);
+const notificationRepository = new NotificationPostgresImpl(db);
+
 const client = new IORedis(
   `rediss://default:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
 );
@@ -67,7 +71,7 @@ const httpServer = createServer(app);
 
 // Set up Socket.IO with the HTTP server
 const ss = new SocketServer();
-await ss.initializeSocketIO(httpServer, client);
+await ss.initializeSocketIO(httpServer, client, notificationRepository);
 
 // Define and set up tRPC router
 const appRouter = router({
@@ -101,6 +105,8 @@ app
   )
   .use(express.json())
   .post("/test-notification", async (req, res) => {
+    const body = req.body as NotificationSchemaCreate;
+    notificationRepository.create(body);
     console.log("test-notification");
     await ss.notifyUser(req.body.userId, req.body.data);
     res.sendStatus(200);

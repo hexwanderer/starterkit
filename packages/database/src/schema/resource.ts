@@ -34,6 +34,6 @@ export const resourceTagPairs = pgTable("resource_tag_pairs", {
   tagId: text()
     .notNull()
     .references(() => resourceTags.id),
-  createdAt: timestamp("created_at", { withTimezone: true }),
-  updatedAt: timestamp("updated_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
