@@ -21,6 +21,7 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
@@ -53,7 +54,6 @@ import { RiHome6Line, RiSettings3Line } from "@remixicon/react";
 import type React from "react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { UnreadBadge } from "@/features/notifications/components/unread-badge";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const trpc = useTRPC();
@@ -249,8 +249,9 @@ export function NavMain({
         })}
 
         <SidebarMenuButton>
-          <UnreadBadge />
+          <BellIcon />
           <span>Notifications</span>
+          <SidebarMenuBadge>0</SidebarMenuBadge>
         </SidebarMenuButton>
       </SidebarMenu>
     </SidebarGroup>
