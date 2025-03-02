@@ -18,6 +18,7 @@ import { Route as LandingIndexImport } from "./routes/_landing/index"
 import { Route as AuthOrgsImport } from "./routes/auth/orgs"
 import { Route as LandingFeaturesImport } from "./routes/_landing/features"
 import { Route as LandingAboutImport } from "./routes/_landing/about"
+import { Route as AuthenticatedInboxImport } from "./routes/_authenticated/inbox"
 import { Route as AuthenticatedDashboardImport } from "./routes/_authenticated/dashboard"
 import { Route as AuthenticatedResourcesIndexImport } from "./routes/_authenticated/resources/index"
 import { Route as AuthenticatedUserSettingsIndexImport } from "./routes/_authenticated/user/settings/index"
@@ -69,6 +70,12 @@ const LandingAboutRoute = LandingAboutImport.update({
   id: "/about",
   path: "/about",
   getParentRoute: () => LandingRoute,
+} as any)
+
+const AuthenticatedInboxRoute = AuthenticatedInboxImport.update({
+  id: "/inbox",
+  path: "/inbox",
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 
 const AuthenticatedDashboardRoute = AuthenticatedDashboardImport.update({
@@ -163,6 +170,13 @@ declare module "@tanstack/react-router" {
       path: "/dashboard"
       fullPath: "/dashboard"
       preLoaderRoute: typeof AuthenticatedDashboardImport
+      parentRoute: typeof AuthenticatedImport
+    }
+    "/_authenticated/inbox": {
+      id: "/_authenticated/inbox"
+      path: "/inbox"
+      fullPath: "/inbox"
+      preLoaderRoute: typeof AuthenticatedInboxImport
       parentRoute: typeof AuthenticatedImport
     }
     "/_landing/about": {
@@ -270,6 +284,7 @@ declare module "@tanstack/react-router" {
 
 interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedInboxRoute: typeof AuthenticatedInboxRoute
   AuthenticatedResourcesIndexRoute: typeof AuthenticatedResourcesIndexRoute
   AuthenticatedOrganizationsOrganizationSlugInviteRoute: typeof AuthenticatedOrganizationsOrganizationSlugInviteRoute
   AuthenticatedOrganizationsOrganizationSlugSettingsRoute: typeof AuthenticatedOrganizationsOrganizationSlugSettingsRoute
@@ -283,6 +298,7 @@ interface AuthenticatedRouteChildren {
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedInboxRoute: AuthenticatedInboxRoute,
   AuthenticatedResourcesIndexRoute: AuthenticatedResourcesIndexRoute,
   AuthenticatedOrganizationsOrganizationSlugInviteRoute:
     AuthenticatedOrganizationsOrganizationSlugInviteRoute,
@@ -321,6 +337,7 @@ const LandingRouteWithChildren =
 export interface FileRoutesByFullPath {
   "": typeof LandingRouteWithChildren
   "/dashboard": typeof AuthenticatedDashboardRoute
+  "/inbox": typeof AuthenticatedInboxRoute
   "/about": typeof LandingAboutRoute
   "/features": typeof LandingFeaturesRoute
   "/auth/orgs": typeof AuthOrgsRoute
@@ -340,6 +357,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   "": typeof AuthenticatedRouteWithChildren
   "/dashboard": typeof AuthenticatedDashboardRoute
+  "/inbox": typeof AuthenticatedInboxRoute
   "/about": typeof LandingAboutRoute
   "/features": typeof LandingFeaturesRoute
   "/auth/orgs": typeof AuthOrgsRoute
@@ -361,6 +379,7 @@ export interface FileRoutesById {
   "/_authenticated": typeof AuthenticatedRouteWithChildren
   "/_landing": typeof LandingRouteWithChildren
   "/_authenticated/dashboard": typeof AuthenticatedDashboardRoute
+  "/_authenticated/inbox": typeof AuthenticatedInboxRoute
   "/_landing/about": typeof LandingAboutRoute
   "/_landing/features": typeof LandingFeaturesRoute
   "/auth/orgs": typeof AuthOrgsRoute
@@ -382,6 +401,7 @@ export interface FileRouteTypes {
   fullPaths:
     | ""
     | "/dashboard"
+    | "/inbox"
     | "/about"
     | "/features"
     | "/auth/orgs"
@@ -400,6 +420,7 @@ export interface FileRouteTypes {
   to:
     | ""
     | "/dashboard"
+    | "/inbox"
     | "/about"
     | "/features"
     | "/auth/orgs"
@@ -419,6 +440,7 @@ export interface FileRouteTypes {
     | "/_authenticated"
     | "/_landing"
     | "/_authenticated/dashboard"
+    | "/_authenticated/inbox"
     | "/_landing/about"
     | "/_landing/features"
     | "/auth/orgs"
@@ -470,6 +492,7 @@ export const routeTree = rootRoute
       "filePath": "_authenticated.tsx",
       "children": [
         "/_authenticated/dashboard",
+        "/_authenticated/inbox",
         "/_authenticated/resources/",
         "/_authenticated/organizations/$organizationSlug/invite",
         "/_authenticated/organizations/$organizationSlug/settings",
@@ -491,6 +514,10 @@ export const routeTree = rootRoute
     },
     "/_authenticated/dashboard": {
       "filePath": "_authenticated/dashboard.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/inbox": {
+      "filePath": "_authenticated/inbox.tsx",
       "parent": "/_authenticated"
     },
     "/_landing/about": {

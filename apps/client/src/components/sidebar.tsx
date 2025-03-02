@@ -39,7 +39,6 @@ import {
   AudioWaveform,
   BadgeCheck,
   Bell,
-  BellIcon,
   BookOpen,
   ChevronRight,
   ChevronsUpDown,
@@ -47,6 +46,7 @@ import {
   CreditCard,
   FileStackIcon,
   GalleryVerticalEnd,
+  InboxIcon,
   LogOut,
   Settings2,
 } from "lucide-react";
@@ -54,6 +54,7 @@ import { RiHome6Line, RiSettings3Line } from "@remixicon/react";
 import type React from "react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useNotifications } from "@/features/notifications/hooks/notification-provider";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const trpc = useTRPC();
@@ -195,6 +196,8 @@ export function NavMain({
   }[];
 }) {
   const currentPath = useLocation().pathname;
+  const { unreadCount, isLoading } = useNotifications();
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Platform</SidebarGroupLabel>
@@ -248,11 +251,22 @@ export function NavMain({
           );
         })}
 
-        <SidebarMenuButton>
-          <BellIcon />
-          <span>Notifications</span>
-          <SidebarMenuBadge>0</SidebarMenuBadge>
-        </SidebarMenuButton>
+        <Link to="/inbox">
+          <SidebarMenuItem>
+            <SidebarMenuButton>
+              <InboxIcon />
+              <span>Inbox</span>
+
+              <SidebarMenuBadge>
+                {isLoading ? (
+                  <span className="h-2 w-2 animate-pulse bg-white rounded-full" />
+                ) : (
+                  unreadCount && unreadCount
+                )}
+              </SidebarMenuBadge>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </Link>
       </SidebarMenu>
     </SidebarGroup>
   );

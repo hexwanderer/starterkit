@@ -21,12 +21,11 @@ export const Route = createFileRoute("/_authenticated")({
 function RouteComponent() {
   return (
     <div className="flex flex-grow h-screen w-full">
-      {/* Sidebar */}
-      <AppSidebar className="!block w-64 bg-gray-800 text-white" />
-
       {/* Main Content */}
       <TitleProvider>
         <NotificationProvider>
+          {/* Sidebar */}
+          <AppSidebar className="!block w-64 bg-gray-800 text-white" />
           <div className="flex flex-1 flex-col w-full">
             <Header />
             {/* Sidebar Trigger */}
