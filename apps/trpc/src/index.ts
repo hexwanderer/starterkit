@@ -104,11 +104,11 @@ app
     }),
   )
   .use(express.json())
-  .post("/test-notification", async (req, res) => {
+  .post("/debug/notification", async (req, res) => {
     const body = req.body as NotificationSchemaCreate;
     notificationRepository.create(body);
     console.log("test-notification");
-    await ss.notifyUser(req.body.userId, req.body.data);
+    await ss.notifyUser(req.body.data.userId, req.body.data);
     res.sendStatus(200);
   });
 
