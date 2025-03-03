@@ -28,7 +28,7 @@ export type Role = "owner" | "admin" | "user";
 type User = {
   roles: Role[];
   id: string;
-  active_organization_id?: string;
+  activeOrganizationId?: string;
 };
 
 type PermissionCheck<Key extends keyof Permissions> =
@@ -98,11 +98,11 @@ const ROLES = {
     },
     resource: {
       view: (user, resource) => {
-        return user.active_organization_id === resource.organizational_unit_id;
+        return user.activeOrganizationId === resource.teamId;
       },
       create: true,
-      update: (user, resource) => resource.created_by === user.id,
-      delete: (user, resource) => resource.created_by === user.id,
+      update: (user, resource) => resource.createdBy === user.id,
+      delete: (user, resource) => resource.createdBy === user.id,
     },
   },
 } as const satisfies RolesWithPermissions;
