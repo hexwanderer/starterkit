@@ -4,11 +4,34 @@ import type { TeamRepository } from "./team.repository";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import type { SocketServer } from "../socket";
+import { hasPermission } from "@repo/auth";
 
-const teamProcedure = publicProcedure.use(async ({ ctx, next }) => {
+const teamProcedure = publicProcedure.use(async ({ ctx, path, next }) => {
   if (!ctx.user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
+
+  // const regex: RegExp = /api\/([a-zA-Z0-9])\.([a-zA-Z0-9])/;
+  // const [, object, action] = path.match(regex) ?? [];
+  // const objectAsKey = object as keyof Permissions;
+  // const act = action as "view" | "create" | "update" | "delete";
+
+  // if (
+  //   !hasPermission(
+  //     {
+  //       roles: ["owner", "admin", "user"],
+  //       id: ctx.user.id,
+  //       activeOrganizationId: "",
+  //     },
+  //     "team", // TODO: Cast to correct type
+  //     act,
+  //   )
+  // ) {
+  //   throw new TRPCError({
+  //     code: "UNAUTHORIZED",
+  //     message: "User is not authorized to perform this action",
+  //   });
+  // }
   return next({
     ctx,
   });
@@ -81,12 +104,12 @@ export function addTeamRoutes({ repository, socket }: TeamControllerProps) {
           });
         }
         const result = await repository.addMember(input.id, input.userId);
-        socket.notifyUser(input.userId, {
-          type: "invited_to_team",
-          data: {
-            by: ctx.user.id,
-          },
-        });
+        // socket.notifyUser(input.userId, {
+        //   type: "invited_to_team",
+        //   data: {
+        //     by: ctx.user.id,
+        //   },
+        // });
       }),
   });
 }
