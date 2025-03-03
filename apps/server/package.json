@@ -1,11 +1,6 @@
 {
   "name": "@repo/server",
   "type": "module",
-  "scripts": {
-    "dev": "bun run src/main.ts --watch",
-    "start": "bun run src/main.ts",
-    "typecheck": "tsc"
-  },
   "dependencies": {
     "@elysiajs/cors": "^1.2.0",
     "@elysiajs/node": "^1.2.3",
@@ -14,7 +9,7 @@
     "@types/http-proxy": "^1.17.16",
     "@types/node": "^22.10.10",
     "@types/pg": "^8.11.11",
-    "better-auth": "^1.1.15",
+    "better-auth": "^1.2.1",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.39.0",
     "elysia": "^1.2.10",
