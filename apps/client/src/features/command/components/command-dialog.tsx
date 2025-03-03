@@ -11,6 +11,8 @@ import {
   Command,
 } from "@/components/ui/command";
 import { useCommandStore, type CommandAction } from "../stores/command-store";
+import { DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 export function CommandDialog() {
   const { open, actions, closeCommand } = useCommandStore();
@@ -44,6 +46,10 @@ export function CommandDialog() {
   return (
     <Command>
       <ShadcnCommandDialog open={open} onOpenChange={closeCommand}>
+        <VisuallyHidden>
+          <DialogTitle>Command Palette</DialogTitle>
+          <DialogDescription>Command Bar</DialogDescription>
+        </VisuallyHidden>
         <CommandInput placeholder="Type a command or search..." />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
