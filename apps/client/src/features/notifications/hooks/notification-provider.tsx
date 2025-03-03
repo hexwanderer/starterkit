@@ -66,6 +66,7 @@ export const NotificationProvider = ({
         setIsLoading(false);
       })
       .on("notification", (data) => {
+        debugger;
         console.log("new notification received", data);
         setNotifications((prev) => [...prev, data]);
         setUnreadCount((prev) => prev + 1);

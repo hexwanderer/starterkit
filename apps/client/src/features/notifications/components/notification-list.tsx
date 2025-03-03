@@ -36,7 +36,7 @@ export function NotificationList() {
     },
   });
 
-  const renderLoadingState = () => {
+  function renderLoadingState() {
     return Array(4)
       .fill(0)
       .map((_, index) => (
@@ -45,9 +45,9 @@ export function NotificationList() {
             // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
             index
           }`}
-          className={`overflow-hidden transition-all duration-150 ${index % 2 === 0 ? "border-l-4 border-l-blue-500" : ""}`}
+          className="overflow-hidden transition-all duration-150"
         >
-          <div className="p-4">
+          <div className="p-4 animate-pulse">
             <div className="flex items-start gap-3">
               <Skeleton className="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700" />
               <div className="flex-1">
@@ -64,20 +64,10 @@ export function NotificationList() {
                 </div>
               </div>
             </div>
-
-            {index % 3 === 0 && (
-              <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
-                <div className="block p-3 rounded-md bg-gray-50 dark:bg-gray-800">
-                  <Skeleton className="h-4 w-40 bg-gray-200 dark:bg-gray-700 rounded-md mb-2" />
-                  <Skeleton className="h-3 w-full bg-gray-200 dark:bg-gray-700 rounded-md mb-1" />
-                  <Skeleton className="h-3 w-2/3 bg-gray-200 dark:bg-gray-700 rounded-md" />
-                </div>
-              </div>
-            )}
           </div>
         </Card>
       ));
-  };
+  }
 
   return (
     <div className="flex flex-col w-full max-w-3xl mx-auto">

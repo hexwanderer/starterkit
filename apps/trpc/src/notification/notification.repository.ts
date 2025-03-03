@@ -5,6 +5,7 @@ import type {
   NotificationSchemaGet,
 } from "@repo/types";
 import { and, eq, isNull, sql } from "drizzle-orm";
+import { v7 } from "uuid";
 
 export interface NotificationRepository {
   getForUser(
@@ -31,6 +32,7 @@ export class NotificationPostgresImpl implements NotificationRepository {
     const [notif] = await this.db
       .insert(notifications)
       .values({
+        id: notification.id ?? v7(),
         destination: notification.destination,
         avatar: notification.avatar,
         title: notification.title,
