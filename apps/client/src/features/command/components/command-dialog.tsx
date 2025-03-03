@@ -8,7 +8,6 @@ import {
   CommandList,
   CommandSeparator,
   CommandShortcut,
-  Command,
 } from "@/components/ui/command";
 import { useCommandStore, type CommandAction } from "../stores/command-store";
 import {
@@ -48,60 +47,58 @@ export function CommandDialog() {
   }, []);
 
   return (
-    <Command>
-      <ShadcnCommandDialog open={open} onOpenChange={closeCommand}>
-        <VisuallyHidden>
-          <DialogTitle>Command Palette</DialogTitle>
-          <DialogDescription>Command Bar</DialogDescription>
-        </VisuallyHidden>
-        {dialogContent ? (
-          <DialogContent>{dialogContent}</DialogContent>
-        ) : (
-          <>
-            <CommandInput placeholder="Type a command or search..." />
-            <CommandList>
-              <CommandEmpty>No results found.</CommandEmpty>
+    <ShadcnCommandDialog open={open} onOpenChange={closeCommand}>
+      <VisuallyHidden>
+        <DialogTitle>Command Palette</DialogTitle>
+        <DialogDescription>Command Bar</DialogDescription>
+      </VisuallyHidden>
+      {dialogContent ? (
+        <DialogContent>{dialogContent}</DialogContent>
+      ) : (
+        <>
+          <CommandInput placeholder="Type a command or search..." />
+          <CommandList>
+            <CommandEmpty>No results found.</CommandEmpty>
 
-              {Object.entries(categorizedActions).map(
-                ([category, categoryActions]) => (
-                  <React.Fragment key={category}>
-                    <CommandGroup heading={category}>
-                      {categoryActions.map((action) => (
-                        <CommandItem
-                          key={action.id}
-                          onSelect={() => {
-                            action.callback();
-                            closeCommand();
-                          }}
-                        >
-                          {action.name}
-                          {action.description && (
-                            <span className="text-sm text-muted-foreground ml-2">
-                              {action.description}
-                            </span>
-                          )}
-                          {action.shortcut && (
-                            <CommandShortcut>
-                              {action.shortcut.map((key, index) => (
-                                // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-                                <React.Fragment key={index}>
-                                  {index > 0 && <span>+</span>}
-                                  <kbd>{key}</kbd>
-                                </React.Fragment>
-                              ))}
-                            </CommandShortcut>
-                          )}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                    <CommandSeparator />
-                  </React.Fragment>
-                ),
-              )}
-            </CommandList>
-          </>
-        )}
-      </ShadcnCommandDialog>
-    </Command>
+            {Object.entries(categorizedActions).map(
+              ([category, categoryActions]) => (
+                <React.Fragment key={category}>
+                  <CommandGroup heading={category}>
+                    {categoryActions.map((action) => (
+                      <CommandItem
+                        key={action.id}
+                        onSelect={() => {
+                          action.callback();
+                          closeCommand();
+                        }}
+                      >
+                        {action.name}
+                        {action.description && (
+                          <span className="text-sm text-muted-foreground ml-2">
+                            {action.description}
+                          </span>
+                        )}
+                        {action.shortcut && (
+                          <CommandShortcut>
+                            {action.shortcut.map((key, index) => (
+                              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                              <React.Fragment key={index}>
+                                {index > 0 && <span>+</span>}
+                                <kbd>{key}</kbd>
+                              </React.Fragment>
+                            ))}
+                          </CommandShortcut>
+                        )}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                  <CommandSeparator />
+                </React.Fragment>
+              ),
+            )}
+          </CommandList>
+        </>
+      )}
+    </ShadcnCommandDialog>
   );
 }
