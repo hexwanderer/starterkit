@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { create } from "zustand";
 
 export type CommandAction = {
@@ -11,6 +12,7 @@ export type CommandAction = {
 
 interface CommandState {
   open: boolean;
+  dialogContent?: ReactNode;
   actions: CommandAction[];
 }
 
@@ -19,6 +21,8 @@ interface CommandActions {
   unregisterAction: (id: string) => void;
   registerActions: (actions: CommandAction[]) => void;
   unregisterActions: (ids: string[]) => void;
+  setDialogContent: (children: ReactNode) => void;
+  unsetDialogContent: () => void;
   clearActions: () => void;
   openCommand: () => void;
   closeCommand: () => void;
@@ -70,5 +74,18 @@ export const useCommandStore = create<CommandState & CommandActions>(
         action.callback();
       }
     },
+
+    setDialogContent: (children) => {
+      set((state) => ({
+        ...state,
+        dialogContent: children,
+      }));
+    },
+
+    unsetDialogContent: () =>
+      set((state) => ({
+        ...state,
+        dialogContent: undefined,
+      })),
   }),
 );

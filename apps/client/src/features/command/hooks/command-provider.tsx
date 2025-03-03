@@ -1,4 +1,10 @@
-import { createContext, type ReactNode, useContext, useEffect } from "react";
+import {
+  createContext,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useMemo,
+} from "react";
 import { useCommandStore, type CommandAction } from "../stores/command-store";
 
 interface CommandContextType {
@@ -11,7 +17,15 @@ interface CommandContextType {
 
 const CommandContext = createContext<CommandContextType | undefined>(undefined);
 
-export function CommandProvider({ children }: { children: ReactNode }) {
+interface CommandProviderProps {
+  children: ReactNode;
+  globalActions?: CommandAction[];
+}
+
+export function CommandProvider({
+  children,
+  globalActions,
+}: CommandProviderProps) {
   const {
     registerAction,
     unregisterAction,
@@ -19,6 +33,15 @@ export function CommandProvider({ children }: { children: ReactNode }) {
     unregisterActions,
     openCommand,
   } = useCommandStore();
+
+  const actions = useMemo(() => globalActions ?? [], [globalActions]);
+
+  useEffect(() => {
+    registerActions(actions);
+    return () => {
+      unregisterActions(actions.map((action) => action.id));
+    };
+  }, [actions, registerActions, unregisterActions]);
 
   return (
     <CommandContext.Provider

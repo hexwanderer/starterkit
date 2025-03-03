@@ -3,9 +3,11 @@ import { AppSidebar } from "@/components/sidebar";
 import { CommandDialog } from "@/features/command/components/command-dialog";
 import { KeyboardShortcutHandler } from "@/features/command/components/keyboard-shortcut-handler";
 import { CommandProvider } from "@/features/command/hooks/command-provider";
+import type { CommandAction } from "@/features/command/stores/command-store";
 import { NotificationProvider } from "@/features/notifications/hooks/notification-provider";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { Outlet } from "@tanstack/react-router";
+import { useMemo } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated")({
@@ -22,12 +24,29 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 function RouteComponent() {
+  const navigate = useNavigate();
+  const commands = useMemo<CommandAction[]>(
+    () => [
+      {
+        id: "nav-dashboard",
+        name: "Go to Dashboard",
+        description: "Navigate to the dashboard",
+        shortcut: ["D"],
+        callback: () =>
+          navigate({
+            to: "/dashboard",
+          }),
+      },
+    ],
+    [navigate],
+  );
+
   return (
     <div className="flex flex-grow h-screen w-full">
       {/* Main Content */}
       <TitleProvider>
         <NotificationProvider>
-          <CommandProvider>
+          <CommandProvider globalActions={commands}>
             {/* Sidebar */}
             <AppSidebar className="!block w-64 bg-gray-800 text-white" />
             <div className="flex flex-1 flex-col w-full">

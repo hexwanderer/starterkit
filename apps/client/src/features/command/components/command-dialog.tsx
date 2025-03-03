@@ -11,11 +11,15 @@ import {
   Command,
 } from "@/components/ui/command";
 import { useCommandStore, type CommandAction } from "../stores/command-store";
-import { DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import {
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 export function CommandDialog() {
-  const { open, actions, closeCommand } = useCommandStore();
+  const { open, actions, closeCommand, dialogContent } = useCommandStore();
 
   // Group actions by category
   const categorizedActions = actions.reduce<Record<string, CommandAction[]>>(
@@ -50,47 +54,53 @@ export function CommandDialog() {
           <DialogTitle>Command Palette</DialogTitle>
           <DialogDescription>Command Bar</DialogDescription>
         </VisuallyHidden>
-        <CommandInput placeholder="Type a command or search..." />
-        <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
+        {dialogContent ? (
+          <DialogContent>{dialogContent}</DialogContent>
+        ) : (
+          <>
+            <CommandInput placeholder="Type a command or search..." />
+            <CommandList>
+              <CommandEmpty>No results found.</CommandEmpty>
 
-          {Object.entries(categorizedActions).map(
-            ([category, categoryActions]) => (
-              <React.Fragment key={category}>
-                <CommandGroup heading={category}>
-                  {categoryActions.map((action) => (
-                    <CommandItem
-                      key={action.id}
-                      onSelect={() => {
-                        action.callback();
-                        closeCommand();
-                      }}
-                    >
-                      {action.name}
-                      {action.description && (
-                        <span className="text-sm text-muted-foreground ml-2">
-                          {action.description}
-                        </span>
-                      )}
-                      {action.shortcut && (
-                        <CommandShortcut>
-                          {action.shortcut.map((key, index) => (
-                            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-                            <React.Fragment key={index}>
-                              {index > 0 && <span>+</span>}
-                              <kbd>{key}</kbd>
-                            </React.Fragment>
-                          ))}
-                        </CommandShortcut>
-                      )}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-                <CommandSeparator />
-              </React.Fragment>
-            ),
-          )}
-        </CommandList>
+              {Object.entries(categorizedActions).map(
+                ([category, categoryActions]) => (
+                  <React.Fragment key={category}>
+                    <CommandGroup heading={category}>
+                      {categoryActions.map((action) => (
+                        <CommandItem
+                          key={action.id}
+                          onSelect={() => {
+                            action.callback();
+                            closeCommand();
+                          }}
+                        >
+                          {action.name}
+                          {action.description && (
+                            <span className="text-sm text-muted-foreground ml-2">
+                              {action.description}
+                            </span>
+                          )}
+                          {action.shortcut && (
+                            <CommandShortcut>
+                              {action.shortcut.map((key, index) => (
+                                // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                                <React.Fragment key={index}>
+                                  {index > 0 && <span>+</span>}
+                                  <kbd>{key}</kbd>
+                                </React.Fragment>
+                              ))}
+                            </CommandShortcut>
+                          )}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                    <CommandSeparator />
+                  </React.Fragment>
+                ),
+              )}
+            </CommandList>
+          </>
+        )}
       </ShadcnCommandDialog>
     </Command>
   );

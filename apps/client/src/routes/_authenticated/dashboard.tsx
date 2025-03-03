@@ -1,7 +1,11 @@
 import { Combobox, ComboboxOption } from "@/components/combobox";
 import { Title } from "@/components/header";
+import { Button } from "@/components/ui/button";
 import { PageCommands } from "@/features/command/hooks/command-provider";
-import type { CommandAction } from "@/features/command/stores/command-store";
+import {
+  useCommandStore,
+  type CommandAction,
+} from "@/features/command/stores/command-store";
 import { authClient } from "@/main";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
@@ -25,11 +29,20 @@ function RouteComponent() {
   const activeOrg = authClient.useActiveOrganization();
   const [singleValue, setSingleValue] = useState<string | undefined>(undefined);
   const [multiValue, setMultiValue] = useState<string[] | undefined>(undefined);
+  const { setDialogContent, openCommand } = useCommandStore();
 
   return (
     <>
       <Title>{activeOrg.data?.name}</Title>
       <PageCommands commands={commands} />
+      <Button
+        onClick={() => {
+          setDialogContent(<div>Hello!</div>);
+          openCommand();
+        }}
+      >
+        Open Dialog
+      </Button>
       <div>{`Hello! Active organziation is ${activeOrg.data?.id ?? "unknown"}`}</div>
       <Combobox
         mode="single"
