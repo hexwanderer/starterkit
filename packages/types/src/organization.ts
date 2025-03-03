@@ -36,6 +36,10 @@ export const OrganizationMemberSchema = {
     email: z.string(),
     teamId: z.string().optional(),
   }),
+  changeRole: z.object({
+    memberId: z.string(),
+    role: z.string(),
+  }),
   get: z.object({
     id: z.string(),
     name: z.string(),
@@ -61,6 +65,9 @@ export type OrganizationMemberAdd = z.infer<
 >;
 export type OrganizationMemberGet = z.infer<
   typeof OrganizationMemberSchema.get
+>;
+export type OrganizationMemberChangeRole = z.infer<
+  typeof OrganizationMemberSchema.changeRole
 >;
 export type OrganizationMemberRemove = z.infer<
   typeof OrganizationMemberSchema.removeMember

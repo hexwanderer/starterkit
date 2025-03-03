@@ -4,6 +4,7 @@ import type {
   OrganizationCreate,
   OrganizationGet,
   OrganizationMemberAdd,
+  OrganizationMemberChangeRole,
   OrganizationMemberGet,
   OrganizationMemberQueryGetMembers,
   OrganizationMemberRemove,
@@ -16,21 +17,20 @@ export interface OrganizationRepository {
     organization: OrganizationCreate,
     headers?: Headers,
   ): Promise<OrganizationGet>;
-
   update(
     organization: OrganizationUpdate,
     headers?: Headers,
   ): Promise<OrganizationGet>;
-
   delete(id: string, headers?: Headers): Promise<void>;
-
   addMember(params: OrganizationMemberAdd, headers?: Headers): Promise<void>;
-
+  changeMemberRole(
+    params: OrganizationMemberChangeRole,
+    headers?: Headers,
+  ): Promise<void>;
   getMembers(
     params: OrganizationMemberQueryGetMembers,
     headers?: Headers,
   ): Promise<OrganizationMemberGet[]>;
-
   removeMember(
     params: OrganizationMemberRemove,
     headers?: Headers,
@@ -42,6 +42,23 @@ export class OrganizationBetterAuthImpl implements OrganizationRepository {
 
   constructor(client: typeof auth) {
     this.client = client;
+  }
+
+  async changeMemberRole(
+    params: OrganizationMemberChangeRole,
+    headers?: Headers,
+  ): Promise<void> {
+    if (!headers) throw new Error("No headers provided");
+    if (!params.role || !["owner", "admin", "member"].includes(params.role)) {
+      throw new Error("Invalid role");
+    }
+    await this.client.api.updateMemberRole({
+      headers,
+      body: {
+        memberId: params.memberId,
+        role: params.role as "owner" | "admin" | "member",
+      },
+    });
   }
 
   async getMembers(
@@ -57,7 +74,7 @@ export class OrganizationBetterAuthImpl implements OrganizationRepository {
     });
     if (!org) throw new TRPCError({ code: "NOT_FOUND" });
     return org.members.map((member) => ({
-      id: member.user.id,
+      id: member.userId,
       name: member.user.name,
       email: member.user.email,
       role: member.role,

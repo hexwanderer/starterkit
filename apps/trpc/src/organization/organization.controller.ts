@@ -71,6 +71,12 @@ export function addOrganizationRoutes({
         await repository.addMember(input, ctx.headers);
         return;
       }),
+    changeMemberRole: organizationProcedure
+      .input(OrganizationMemberSchema.changeRole)
+      .mutation(async ({ input, ctx }) => {
+        await repository.changeMemberRole(input, ctx.headers);
+        return;
+      }),
     getMembers: organizationProcedure
       .input(z.object({ organizationId: z.string() }))
       .output(
