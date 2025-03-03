@@ -1,5 +1,8 @@
 import { Header, TitleProvider } from "@/components/header";
 import { AppSidebar } from "@/components/sidebar";
+import { CommandDialog } from "@/features/command/components/command-dialog";
+import { KeyboardShortcutHandler } from "@/features/command/components/keyboard-shortcut-handler";
+import { CommandProvider } from "@/features/command/hooks/command-provider";
 import { NotificationProvider } from "@/features/notifications/hooks/notification-provider";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Outlet } from "@tanstack/react-router";
@@ -24,20 +27,20 @@ function RouteComponent() {
       {/* Main Content */}
       <TitleProvider>
         <NotificationProvider>
-          {/* Sidebar */}
-          <AppSidebar className="!block w-64 bg-gray-800 text-white" />
-          <div className="flex flex-1 flex-col w-full">
-            <Header />
-            {/* Sidebar Trigger */}
-            {/* <div className={`fixed bottom-4 left-4 ${isMobile ? "" : "hidden"}`}>
-          <SidebarTrigger />
-        </div> */}
+          <CommandProvider>
+            {/* Sidebar */}
+            <AppSidebar className="!block w-64 bg-gray-800 text-white" />
+            <div className="flex flex-1 flex-col w-full">
+              <Header />
 
-            {/* Main Outlet Content */}
-            <div className="flex-1 w-full overflow-y-auto p-4">
-              <Outlet />
+              {/* Main Outlet Content */}
+              <div className="flex-1 w-full overflow-y-auto p-4">
+                <Outlet />
+                <CommandDialog />
+                <KeyboardShortcutHandler />
+              </div>
             </div>
-          </div>
+          </CommandProvider>
         </NotificationProvider>
       </TitleProvider>
 
