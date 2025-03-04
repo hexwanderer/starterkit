@@ -1,12 +1,10 @@
 import { Title } from "@/components/header";
 import { PageCommands } from "@/features/command/hooks/command-provider";
-// import { useTRPC } from "@/main";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { useTRPC } from "@/main";
-// import { useTRPC } from "@/main";
 
 export const Route = createFileRoute("/_authenticated/playground")({
   component: RouteComponent,
