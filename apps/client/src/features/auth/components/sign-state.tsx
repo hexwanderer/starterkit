@@ -77,7 +77,7 @@ function SignIn() {
       password: "",
     },
     validators: {
-      onChange: UserSchema.signIn,
+      onBlur: UserSchema.signIn,
     },
     onSubmit: async ({ value }) => {
       signInMutation.mutate(value);
@@ -138,7 +138,7 @@ function SignUp() {
       name: "",
     },
     validators: {
-      onChange: UserSchema.create,
+      onBlur: UserSchema.create,
     },
     onSubmit: async ({ value }) => {
       signUpMutation.mutate(value);

@@ -6,16 +6,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Form, FormField, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { SaveIcon } from "lucide-react";
-import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useProfileMutations } from "../api/mutations";
-import { authClient } from "@/main";
+import { authClient, useAppForm } from "@/main";
 
 const profileSchema = z.object({
   name: z.string().min(1).max(255),
@@ -27,20 +23,6 @@ export type Profile = z.infer<typeof profileSchema>;
 
 export function ProfileCard() {
   const user = authClient.useSession();
-
-  const form = useForm<Profile>({
-    resolver: zodResolver(profileSchema),
-    defaultValues: {
-      name: "Name",
-      email: "email@example.com",
-      // avatar: "https://example.com/avatar.png",
-    },
-    values: {
-      name: user.data?.user.name ?? "Name",
-      email: user.data?.user.email ?? "email@example.com",
-      // avatar: user.data?.user.avatar ?? "https://example.com/avatar.png",
-    },
-  });
 
   const userUpdateMutation = useMutation({
     mutationKey: ["auth", "userUpdate"],
@@ -54,13 +36,19 @@ export function ProfileCard() {
     },
   });
 
-  function handleSubmit(data: Profile) {
-    const changedData = {
-      name: data.name === "Name" ? undefined : data.name,
-      email: data.email === "email@example.com" ? undefined : data.email,
-    };
-    userUpdateMutation.mutate(changedData);
-  }
+  const form = useAppForm({
+    defaultValues: {
+      name: user.data?.user?.name ?? "",
+      email: user.data?.user?.email ?? "",
+      // avatar: user.data?.session?.avatar ?? "",
+    } as Profile,
+    validators: {
+      onChange: profileSchema,
+    },
+    onSubmit: async ({ value }) => {
+      userUpdateMutation.mutate(value);
+    },
+  });
 
   return (
     <Card className="flex-grow w-full h-full">
@@ -68,64 +56,32 @@ export function ProfileCard() {
         <CardTitle>Profile</CardTitle>
       </CardHeader>
       <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)}>
-            <div className="flex flex-col gap-4">
-              <FormField
-                name="name"
-                render={({ field }) => (
-                  <>
-                    <FormLabel>Name</FormLabel>
-                    <Input
-                      {...field}
-                      className="w-full"
-                      placeholder="Name"
-                      required
-                    />
-                  </>
-                )}
-              />
-              {form.formState.errors.name && (
-                <FormMessage>{form.formState.errors.name.message}</FormMessage>
-              )}
-
-              <FormField
-                name="email"
-                render={({ field }) => (
-                  <>
-                    <FormLabel>Email</FormLabel>
-                    <Input
-                      {...field}
-                      className="w-full"
-                      placeholder="Email"
-                      required
-                    />
-                  </>
-                )}
-              />
-              {form.formState.errors.email && (
-                <FormMessage>{form.formState.errors.email.message}</FormMessage>
-              )}
-
-              {/* <FormField
-              name="avatar"
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  className="w-full"
-                  placeholder="Avatar"
-                  required
-                />
-              )}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            form.handleSubmit();
+          }}
+        >
+          <div className="flex flex-col gap-4">
+            <form.AppField
+              name="name"
+              children={(field) => <field.InputWithLabel label="Name" />}
             />
-            {form.formState.errors.avatar && (
-              <FormMessage>
-                {form.formState.errors.avatar.message}
-              </FormMessage>
-            )} */}
-            </div>
-          </form>
-        </Form>
+
+            <form.AppField
+              name="email"
+              children={(field) => <field.InputWithLabel label="Email" />}
+            />
+
+            <form.AppForm>
+              <form.SubmitButton
+                label="Save"
+                disabled={userUpdateMutation.isPending}
+              />
+            </form.AppForm>
+          </div>
+        </form>
       </CardContent>
       <CardFooter>
         <Button variant="outline" className="w-full h-12 text-sm font-medium">

@@ -2,24 +2,19 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Form, FormField, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AuthSplitGrid } from "@/features/auth/components/auth-split-grid";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { Loader2, Plus } from "lucide-react";
-import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useOrganizationManagementMutations } from "../api/mutations";
-import { authClient, useTRPC } from "@/main";
-import { type OrganizationCreate, OrganizationSchema } from "@repo/types";
+import { authClient, useAppForm, useTRPC } from "@/main";
+import { OrganizationSchema } from "@repo/types";
 
 interface Organization {
   id: string;
@@ -29,10 +24,6 @@ interface Organization {
 
 export function OrganizationSelect() {
   const organizationsQuery = authClient.useListOrganizations();
-
-  const form = useForm<OrganizationCreate>({
-    resolver: zodResolver(OrganizationSchema.create),
-  });
 
   const navigate = useNavigate();
   const trpc = useTRPC();
@@ -55,9 +46,18 @@ export function OrganizationSelect() {
     },
   });
 
-  function handleSubmit(data: OrganizationCreate) {
-    createOrgMutation.mutate(data);
-  }
+  const form = useAppForm({
+    defaultValues: {
+      name: "",
+      slug: "",
+    },
+    validators: {
+      onBlur: OrganizationSchema.create,
+    },
+    onSubmit: async ({ value }) => {
+      createOrgMutation.mutate(value);
+    },
+  });
 
   return (
     <AuthSplitGrid>
@@ -145,50 +145,33 @@ export function OrganizationSelect() {
           <DialogHeader>
             <DialogTitle>Add Organization</DialogTitle>
           </DialogHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)}>
-              <div className="flex flex-col gap-4">
-                <FormField
-                  name="name"
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      className="w-full"
-                      placeholder="My Organization"
-                      required
-                    />
-                  )}
-                />
-                {form.formState.errors.name && (
-                  <FormMessage>
-                    {form.formState.errors.name.message}
-                  </FormMessage>
-                )}
 
-                <FormField
-                  name="slug"
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      className="w-full"
-                      placeholder="my-organization"
-                      required
-                    />
-                  )}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              form.handleSubmit();
+            }}
+          >
+            <div className="flex flex-col gap-4">
+              <form.AppField
+                name="name"
+                children={(field) => <field.InputWithLabel label="Name" />}
+              />
+
+              <form.AppField
+                name="slug"
+                children={(field) => <field.InputWithLabel label="Slug" />}
+              />
+
+              <form.AppForm>
+                <form.SubmitButton
+                  label="Create Organization"
+                  disabled={createOrgMutation.isPending}
                 />
-                {form.formState.errors.slug && (
-                  <FormMessage>
-                    {form.formState.errors.slug.message}
-                  </FormMessage>
-                )}
-                <DialogFooter>
-                  <Button type="submit" className="w-full">
-                    Create Organization
-                  </Button>
-                </DialogFooter>
-              </div>
-            </form>
-          </Form>
+              </form.AppForm>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
     </AuthSplitGrid>

@@ -15,6 +15,11 @@ export function InputWithLabel({ label }: { label: string }) {
         value={field.state.value}
         onChange={(e) => field.handleChange(e.target.value)}
       />
+      {field.state.meta.errors.length > 0 && (
+        <em className="text-destructive text-sm">
+          {field.state.meta.errors.map((err) => err.message).join(", ")}
+        </em>
+      )}
     </div>
   );
 }
