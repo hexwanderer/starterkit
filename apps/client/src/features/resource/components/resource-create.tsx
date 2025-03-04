@@ -84,17 +84,13 @@ export function ResourceCreatePage({ id }: ResourceCreateProps) {
         }}
       >
         <div className="flex flex-col gap-4">
-          <form.AppField
-            name="title"
-            children={(field) => <field.InputWithLabel label="Title" />}
-          />
+          <form.AppField name="title">
+            {(field) => <field.InputWithLabel label="Title" />}
+          </form.AppField>
 
-          <form.AppField
-            name="description"
-            children={(field) => (
-              <field.LongInputWithLabel label="Description" />
-            )}
-          />
+          <form.AppField name="description">
+            {(field) => <field.LongInputWithLabel label="Description" />}
+          </form.AppField>
 
           <form.Field name="tags" mode="array">
             {(field) => (

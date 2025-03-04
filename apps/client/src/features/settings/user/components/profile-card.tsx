@@ -64,15 +64,13 @@ export function ProfileCard() {
           }}
         >
           <div className="flex flex-col gap-4">
-            <form.AppField
-              name="name"
-              children={(field) => <field.InputWithLabel label="Name" />}
-            />
+            <form.AppField name="name">
+              {(field) => <field.InputWithLabel label="Name" />}
+            </form.AppField>
 
-            <form.AppField
-              name="email"
-              children={(field) => <field.InputWithLabel label="Email" />}
-            />
+            <form.AppField name="email">
+              {(field) => <field.InputWithLabel label="Email" />}
+            </form.AppField>
 
             <form.AppForm>
               <form.SubmitButton

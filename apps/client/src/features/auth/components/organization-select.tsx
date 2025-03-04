@@ -154,15 +154,13 @@ export function OrganizationSelect() {
             }}
           >
             <div className="flex flex-col gap-4">
-              <form.AppField
-                name="name"
-                children={(field) => <field.InputWithLabel label="Name" />}
-              />
+              <form.AppField name="name">
+                {(field) => <field.InputWithLabel label="Name" />}
+              </form.AppField>
 
-              <form.AppField
-                name="slug"
-                children={(field) => <field.InputWithLabel label="Slug" />}
-              />
+              <form.AppField name="slug">
+                {(field) => <field.InputWithLabel label="Slug" />}
+              </form.AppField>
 
               <form.AppForm>
                 <form.SubmitButton

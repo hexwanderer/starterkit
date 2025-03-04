@@ -55,20 +55,17 @@ export function TeamCreatePage() {
         }}
       >
         <div className="flex flex-col gap-4">
-          <form.AppField
-            name="name"
-            children={(field) => <field.InputWithLabel label="Name" />}
-          />
+          <form.AppField name="name">
+            {(field) => <field.InputWithLabel label="Name" />}
+          </form.AppField>
 
-          <form.AppField
-            name="description"
-            children={(field) => <field.InputWithLabel label="Description" />}
-          />
+          <form.AppField name="description">
+            {(field) => <field.InputWithLabel label="Description" />}
+          </form.AppField>
 
-          <form.AppField
-            name="slug"
-            children={(field) => <field.InputWithLabel label="Slug" />}
-          />
+          <form.AppField name="slug">
+            {(field) => <field.InputWithLabel label="Slug" />}
+          </form.AppField>
 
           <form.Field name="visibility">
             {(field) => (
