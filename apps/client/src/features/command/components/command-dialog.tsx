@@ -18,7 +18,8 @@ import {
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 export function CommandDialog() {
-  const { open, actions, closeCommand, dialogContent } = useCommandStore();
+  const { open, actions, closeCommand, dialogContent, setDialogContent } =
+    useCommandStore();
 
   // Group actions by category
   const categorizedActions = actions.reduce<Record<string, CommandAction[]>>(
@@ -47,7 +48,16 @@ export function CommandDialog() {
   }, []);
 
   return (
-    <ShadcnCommandDialog open={open} onOpenChange={closeCommand}>
+    <ShadcnCommandDialog
+      open={open}
+      onOpenChange={() => {
+        closeCommand();
+        // Set dialog content to undefined after a short delay
+        setTimeout(() => {
+          setDialogContent(undefined);
+        }, 100);
+      }}
+    >
       <VisuallyHidden>
         <DialogTitle>Command Palette</DialogTitle>
         <DialogDescription>Command Bar</DialogDescription>
