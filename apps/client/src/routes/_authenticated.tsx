@@ -1,5 +1,6 @@
 import { Header, TitleProvider } from "@/components/header";
 import { AppSidebar } from "@/components/sidebar";
+import * as Sentry from "@sentry/react";
 import { CommandDialog } from "@/features/command/components/command-dialog";
 import { KeyboardShortcutHandler } from "@/features/command/components/keyboard-shortcut-handler";
 import { CommandProvider } from "@/features/command/hooks/command-provider";
@@ -9,6 +10,7 @@ import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { Outlet } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { toast } from "sonner";
+import { ErrorFallback } from "@/components/error-fallback";
 
 export const Route = createFileRoute("/_authenticated")({
   beforeLoad: async ({ context }) => {
@@ -48,16 +50,20 @@ function RouteComponent() {
         <NotificationProvider>
           <CommandProvider globalActions={commands}>
             {/* Sidebar */}
-            <AppSidebar className="!block w-64 bg-gray-800 text-white" />
+            <Sentry.ErrorBoundary>
+              <AppSidebar className="!block w-64 bg-gray-800 text-white" />
+            </Sentry.ErrorBoundary>
             <div className="flex flex-1 flex-col w-full">
               <Header />
 
               {/* Main Outlet Content */}
-              <div className="flex-1 w-full overflow-y-auto p-4">
-                <Outlet />
-                <CommandDialog />
-                <KeyboardShortcutHandler />
-              </div>
+              <Sentry.ErrorBoundary fallback={ErrorFallback}>
+                <div className="flex-1 w-full overflow-y-auto p-4">
+                  <Outlet />
+                  <CommandDialog />
+                  <KeyboardShortcutHandler />
+                </div>
+              </Sentry.ErrorBoundary>
             </div>
           </CommandProvider>
         </NotificationProvider>

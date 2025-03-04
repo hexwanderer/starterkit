@@ -1,3 +1,4 @@
+import { sentryVitePlugin } from "@sentry/vite-plugin";
 import path from "node:path";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react-swc";
@@ -10,12 +11,17 @@ export default defineConfig({
     TanStackRouterVite({
       target: "react",
       enableRouteGeneration: true,
-      autoCodeSplitting: true,
     }),
     react(),
     tailwindcss(),
+    sentryVitePlugin({
+      org: "winston-p",
+      project: "starterkit",
+    }),
   ],
+
   envDir: "../..",
+
   server: {
     port: 3001,
     proxy: {
@@ -26,6 +32,7 @@ export default defineConfig({
       },
     },
   },
+
   optimizeDeps: {
     exclude: ["react-hook-form"],
   },
@@ -34,5 +41,9 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+  },
+
+  build: {
+    sourcemap: true,
   },
 });

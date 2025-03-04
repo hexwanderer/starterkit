@@ -1,9 +1,12 @@
 import { Title } from "@/components/header";
 import { PageCommands } from "@/features/command/hooks/command-provider";
-import { useTRPC } from "@/main";
+// import { useTRPC } from "@/main";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo } from "react";
+import { Button } from "@/components/ui/button";
+import { useTRPC } from "@/main";
+// import { useTRPC } from "@/main";
 
 export const Route = createFileRoute("/_authenticated/playground")({
   component: RouteComponent,
@@ -38,6 +41,15 @@ function RouteComponent() {
     <>
       <Title>Playground</Title>
       <PageCommands commands={commands} />
+      <div className="flex flex-col gap-4">
+        <Button
+          onClick={() => {
+            throw new Error("Test error");
+          }}
+        >
+          Test Error
+        </Button>
+      </div>
     </>
   );
 }

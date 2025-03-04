@@ -23,6 +23,7 @@ import { PosthogInit } from "./lib/posthog";
 import { PostHogProvider } from "posthog-js/react";
 import { Cookies } from "./components/cookies";
 import posthog from "posthog-js";
+import * as Sentry from "@sentry/react";
 
 // Create a new router instance
 const router = createRouter({
@@ -88,6 +89,13 @@ const trpcClient = createTRPCClient<AppRouter>({
       },
     }),
   ],
+});
+
+Sentry.init({
+  dsn: import.meta.env.VITE_SENTRY_DSN,
+  integrations: [Sentry.browserTracingIntegration()],
+  tracesSampleRate: 1.0,
+  tracePropagationTargets: ["localhost"],
 });
 
 const rootElement = document.getElementById("root");
