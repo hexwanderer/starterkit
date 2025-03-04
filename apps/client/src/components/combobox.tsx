@@ -31,6 +31,7 @@ type ComboboxChangeHandler<M extends ComboboxMode> = (
 ) => void;
 
 export interface ComboboxProps<M extends ComboboxMode> {
+  id: string;
   mode: M;
   value: ComboboxValueType<M>;
   onValueChange: ComboboxChangeHandler<M>;
@@ -77,6 +78,7 @@ function isComboboxOption(
 }
 
 export function Combobox<M extends ComboboxMode>({
+  id,
   mode,
   value,
   onValueChange,
@@ -93,6 +95,7 @@ export function Combobox<M extends ComboboxMode>({
   // Generate a hidden input for form integration
   const hiddenInput = name ? (
     <input
+      id={id}
       type="hidden"
       name={name}
       value={

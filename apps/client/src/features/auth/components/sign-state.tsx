@@ -1,22 +1,12 @@
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AuthSplitGrid } from "@/features/auth/components/auth-split-grid";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { useUserManagementMutations } from "../api/mutations";
+import { useAppForm } from "@/main";
+import { UserSchema } from "@repo/types";
 
 export function SignState() {
   const [tab, setTab] = useState<"signin" | "signup">("signin");
@@ -70,22 +60,7 @@ export function SignState() {
   );
 }
 
-const signInFormSchema = z.object({
-  email: z.string().email().min(1, "Email is required"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-});
-
-export type SignInFormSchema = z.infer<typeof signInFormSchema>;
-
 function SignIn() {
-  const form = useForm<SignInFormSchema>({
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-    resolver: zodResolver(signInFormSchema),
-  });
-
   const navigate = useNavigate();
 
   const signInMutation = useMutation({
@@ -96,153 +71,113 @@ function SignIn() {
     },
   });
 
-  function handleSubmit(data: SignInFormSchema) {
-    signInMutation.mutate(data);
-  }
+  const form = useAppForm({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+    validators: {
+      onChange: UserSchema.signIn,
+    },
+    onSubmit: async ({ value }) => {
+      signInMutation.mutate(value);
+    },
+  });
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="you@example.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <>
+      <form
+        id="sign-in-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          form.handleSubmit();
+        }}
+      >
+        <div className="flex flex-col gap-4">
+          <form.AppField
+            name="email"
+            children={(field) => <field.InputWithLabel label="Email" />}
+          />
 
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <div className="flex justify-between items-center">
-                <FormLabel>Password</FormLabel>
-                <Button
-                  variant="link"
-                  className="px-0 h-auto font-normal"
-                  onClick={() => {
-                    /* Handle forgot password */
-                  }}
-                >
-                  Forgot Password?
-                </Button>
-              </div>
-              <FormControl>
-                <Input type="password" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <form.AppField
+            name="password"
+            children={(field) => <field.PasswordWithLabel label="Password" />}
+          />
 
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={signInMutation.isPending}
-        >
-          Sign In
-        </Button>
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => console.log("forgot password")}
+          >
+            Forgot password?
+          </Button>
+
+          <form.AppForm>
+            <form.SubmitButton
+              label="Sign In"
+              disabled={signInMutation.isPending}
+            />
+          </form.AppForm>
+        </div>
       </form>
-    </Form>
+    </>
   );
 }
 
-const signUpFormSchema = z.object({
-  email: z.string().email().min(1, "Email is required"),
-  password: z.string().min(1, "Password is required"),
-  name: z.string().min(1, "Name is required"),
-});
-
-export type SignUpFormSchema = z.infer<typeof signUpFormSchema>;
-
 function SignUp() {
-  const form = useForm<SignUpFormSchema>({
+  const signUpMutation = useMutation({
+    mutationKey: ["auth", "signUp"],
+    mutationFn: useUserManagementMutations().signUp,
+  });
+
+  const form = useAppForm({
     defaultValues: {
       email: "",
       password: "",
       name: "",
     },
-    resolver: zodResolver(signUpFormSchema),
-  });
-
-  const navigate = useNavigate();
-
-  const signUpMutation = useMutation({
-    mutationKey: ["auth", "signUp"],
-    mutationFn: useUserManagementMutations().signUp,
-    onSuccess: () => {
-      navigate({ to: "/auth/orgs" });
+    validators: {
+      onChange: UserSchema.create,
+    },
+    onSubmit: async ({ value }) => {
+      signUpMutation.mutate(value);
     },
   });
 
-  function handleSubmit(data: SignUpFormSchema) {
-    signUpMutation.mutate(data);
-  }
-
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
+    <form
+      id="sign-up-form"
+      onSubmit={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        form.handleSubmit();
+      }}
+    >
+      <div className="flex flex-col gap-4">
+        <form.AppField
           name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="you@example.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          children={(field) => <field.InputWithLabel label="Email" />}
         />
 
-        <FormField
-          control={form.control}
+        <form.AppField
           name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input
-                  type="password"
-                  placeholder="Create a password"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          children={(field) => <field.PasswordWithLabel label="Password" />}
         />
 
-        <FormField
-          control={form.control}
+        <form.AppField
           name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter your name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          children={(field) => <field.InputWithLabel label="Name" />}
         />
 
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={signUpMutation.isPending}
-        >
-          Create Account
-        </Button>
-      </form>
-    </Form>
+        <form.AppForm>
+          <form.SubmitButton
+            label="Sign Up"
+            formId="sign-up-form"
+            disabled={signUpMutation.isPending}
+          />
+        </form.AppForm>
+      </div>
+    </form>
   );
 }

@@ -30,15 +30,12 @@ export const ResourceSchema = {
     title: z.string(),
     description: z.string(),
     teamId: z.string(),
-    tags: z.union([
-      z.array(z.string()),
-      z.array(
-        z.object({
-          id: z.string(),
-          name: z.string(),
-        }),
-      ),
-    ]),
+    tags: z.array(
+      z.object({
+        id: z.string().optional(),
+        name: z.string(),
+      }),
+    ),
   }),
   update: z.object({
     id: z.string(),

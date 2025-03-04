@@ -1,4 +1,4 @@
-import { ResourceCreate } from "@/features/resource/components/resource-create";
+import { ResourceCreatePage } from "@/features/resource/components/resource-create";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated/resources/$id/edit")({
@@ -8,7 +8,7 @@ export const Route = createFileRoute("/_authenticated/resources/$id/edit")({
 function RouteComponent() {
   const { id } = Route.useParams();
   if (id === ":new") {
-    return <ResourceCreate />;
+    return <ResourceCreatePage />;
   }
-  return <ResourceCreate id={id} />;
+  return <ResourceCreatePage id={id} />;
 }

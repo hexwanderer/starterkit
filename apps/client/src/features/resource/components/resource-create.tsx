@@ -1,13 +1,6 @@
-import { Form, FormField, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -16,16 +9,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { authClient, useTRPC } from "@/main";
+import { authClient, useAppForm, useTRPC } from "@/main";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Title } from "@/components/header";
-
-const resourceCreateSchema = z.object({
-  title: z.string().min(1).max(255),
-  description: z.string().min(1).max(4095),
-  tags: z.array(z.string()).min(1),
-  teamId: z.string(),
-});
+import { type ResourceCreate, ResourceSchema } from "@repo/types";
+import { Combobox, ComboboxOption } from "@/components/combobox";
 
 export interface ResourceCreateProps {
   id?: string;
@@ -33,25 +21,15 @@ export interface ResourceCreateProps {
 
 const defaultTagOptions = [
   {
-    value: "next.js",
-    label: "Next.js",
+    id: "123",
+    name: "next.js",
   },
 ];
 
-export function ResourceCreate({ id }: ResourceCreateProps) {
+export function ResourceCreatePage({ id }: ResourceCreateProps) {
   if (!id) {
     console.log("id", id);
   }
-
-  const form = useForm<z.infer<typeof resourceCreateSchema>>({
-    resolver: zodResolver(resourceCreateSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-      tags: [],
-      teamId: "",
-    },
-  });
 
   const navigate = useNavigate();
   const trpc = useTRPC();
@@ -64,6 +42,21 @@ export function ResourceCreate({ id }: ResourceCreateProps) {
       },
     }),
   );
+
+  const form = useAppForm({
+    defaultValues: {
+      title: "",
+      description: "",
+      tags: [],
+      teamId: "",
+    } as ResourceCreate,
+    validators: {
+      onChange: ResourceSchema.create,
+    },
+    onSubmit: async ({ value }) => {
+      resourceCreateMutation.mutate(value);
+    },
+  });
 
   const organization = authClient.useActiveOrganization();
   const teamsQuery = useQuery(
@@ -80,119 +73,94 @@ export function ResourceCreate({ id }: ResourceCreateProps) {
     ),
   );
 
-  function handleSubmit(data: z.infer<typeof resourceCreateSchema>) {
-    resourceCreateMutation.mutate(data);
-  }
-
   return (
     <>
       <Title>Create Resource</Title>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)}>
-          <div
-            id="form-container"
-            className="flex flex-col gap-2 animate-fade-in py-4"
-          >
-            <FormField
-              name="title"
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  value={field.value ?? ""}
-                  className="w-full"
-                  placeholder="Title"
-                  required
-                />
-              )}
-            />
-            {form.formState.errors.title && (
-              <FormMessage>{form.formState.errors.title.message}</FormMessage>
-            )}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          form.handleSubmit();
+        }}
+      >
+        <div className="flex flex-col gap-4">
+          <form.AppField
+            name="title"
+            children={(field) => <field.InputWithLabel label="Title" />}
+          />
 
-            <FormField
-              name="description"
-              render={({ field }) => (
-                <Textarea
-                  {...field}
-                  value={field.value ?? ""}
-                  className="w-full"
-                  placeholder="Description"
-                  required
-                />
-              )}
-            />
-            {form.formState.errors.description && (
-              <FormMessage>
-                {form.formState.errors.description.message}
-              </FormMessage>
+          <form.AppField
+            name="description"
+            children={(field) => (
+              <field.LongInputWithLabel label="Description" />
             )}
+          />
 
-            <FormField
-              name="tags"
-              render={({ field }) => (
-                <>
-                  <Label>Multiselect with placeholder and clear</Label>
-                  <Select
-                    value={field.value?.[0] ?? ""} // Ensure we take the first item if available
-                    onValueChange={(val) => field.onChange([val])} // Store as an array
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select tags" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {defaultTagOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </>
-              )}
-            />
-            {form.formState.errors.tags && (
-              <FormMessage>{form.formState.errors.tags.message}</FormMessage>
+          <form.Field name="tags" mode="array">
+            {(field) => (
+              <>
+                <Label htmlFor="tags">
+                  Multiselect with placeholder and clear
+                </Label>
+                <Combobox
+                  id="tags"
+                  mode="multiple"
+                  value={field.state.value.map((v) => v.name)}
+                  onValueChange={(val) => {
+                    const selectedVals = defaultTagOptions.filter((option) =>
+                      val?.includes(option.name),
+                    );
+                    field.setValue(selectedVals);
+                  }}
+                >
+                  {defaultTagOptions.map((option) => (
+                    <ComboboxOption key={option.id} value={option.name}>
+                      {option.name}
+                    </ComboboxOption>
+                  ))}
+                </Combobox>
+              </>
             )}
+          </form.Field>
 
-            <FormField
-              name="teamId"
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select team" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {teamsQuery.isLoading ? (
-                      Array.from({ length: 5 }).map((_, index) => (
-                        // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-                        <SelectItem key={index} value="Loading...">
-                          <Skeleton />
-                        </SelectItem>
-                      ))
-                    ) : teamsQuery.data?.length ? (
-                      teamsQuery.data.map((team) => (
-                        <SelectItem key={team.id} value={team.id}>
-                          {team.name}
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <SelectItem value="No teams found">
-                        No teams found
+          <form.Field name="teamId">
+            {(field) => (
+              <Select value={field.state.value} onValueChange={field.setValue}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select team" />
+                </SelectTrigger>
+                <SelectContent>
+                  {teamsQuery.isLoading ? (
+                    Array.from({ length: 5 }).map((_, index) => (
+                      // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                      <SelectItem key={index} value={index.toString()}>
+                        <Skeleton />
                       </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-            {form.formState.errors.teamId && (
-              <FormMessage>{form.formState.errors.teamId.message}</FormMessage>
+                    ))
+                  ) : teamsQuery.data?.length ? (
+                    teamsQuery.data.map((team) => (
+                      <SelectItem key={team.id} value={team.id}>
+                        {team.name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="No teams found">
+                      No teams found
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
             )}
-            <Button type="submit" className="w-full my-10">
-              Create Resource
-            </Button>
-          </div>
-        </form>
-      </Form>
+          </form.Field>
+
+          <form.AppForm>
+            <form.SubmitButton
+              label="Create Resource"
+              disabled={resourceCreateMutation.isPending}
+            />
+          </form.AppForm>
+        </div>
+      </form>
     </>
   );
 }

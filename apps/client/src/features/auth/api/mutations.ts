@@ -1,9 +1,8 @@
-import type { OrganizationCreate } from "../components/organization-select";
 import type {
   SignInFormSchema,
   SignUpFormSchema,
 } from "../components/sign-state";
-import { authClient, serverClient } from "@/main";
+import { authClient } from "@/main";
 
 export const useOrganizationManagementMutations = () => ({
   organizationSelect: async (id: string) => {
@@ -38,13 +37,11 @@ export const useUserManagementMutations = () => ({
     return data;
   },
   signUp: async (params: SignUpFormSchema) => {
-    console.log("params", params);
     const { data, error } = await authClient.signUp.email({
       email: params.email,
       password: params.password,
       name: params.name,
     });
-    console.log(error);
 
     if (error) throw error;
 

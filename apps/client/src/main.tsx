@@ -24,6 +24,11 @@ import { PostHogProvider } from "posthog-js/react";
 import { Cookies } from "./components/cookies";
 import posthog from "posthog-js";
 import * as Sentry from "@sentry/react";
+import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
+import { InputWithLabel } from "./components/form/input";
+import { PasswordWithLabel } from "./components/form/password";
+import { SubmitButton } from "./components/form/submit-button";
+import { LongInputWithLabel } from "./components/form/long-input";
 
 // Create a new router instance
 const router = createRouter({
@@ -40,6 +45,22 @@ declare module "@tanstack/react-router" {
     router: typeof router;
   }
 }
+
+export const { fieldContext, formContext, useFieldContext, useFormContext } =
+  createFormHookContexts();
+
+export const { useAppForm, withForm } = createFormHook({
+  fieldContext,
+  formContext,
+  fieldComponents: {
+    InputWithLabel,
+    PasswordWithLabel,
+    LongInputWithLabel,
+  },
+  formComponents: {
+    SubmitButton,
+  },
+});
 
 const queryClient = new QueryClient();
 export const authClient = createAuthClient({
