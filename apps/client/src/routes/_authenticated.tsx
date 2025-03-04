@@ -39,6 +39,17 @@ function RouteComponent() {
             to: "/dashboard",
           }),
       },
+      {
+        id: "nav-create-new-resource",
+        name: "Create New Resource",
+        description: "Create a new resource",
+        shortcut: ["C"],
+        callback: () =>
+          navigate({
+            to: "/resources/$id/edit",
+            params: { id: String.raw`:new` },
+          }),
+      },
     ],
     [navigate],
   );

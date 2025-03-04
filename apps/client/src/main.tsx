@@ -37,6 +37,7 @@ const router = createRouter({
     // biome-ignore lint/style/noNonNullAssertion: <explanation>
     authClient: undefined!,
   },
+  pathParamsAllowedCharacters: [":"],
 });
 
 // Register the router instance for type safety
