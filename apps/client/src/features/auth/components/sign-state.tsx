@@ -44,10 +44,10 @@ export function SignState() {
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
             </TabsList>
             <TabsContent value="signin">
-              <SignIn />
+              <SignIn className="animate-fade-left" />
             </TabsContent>
             <TabsContent value="signup">
-              <SignUp />
+              <SignUp className="animate-fade-right" />
             </TabsContent>
           </Tabs>
 
@@ -60,7 +60,7 @@ export function SignState() {
   );
 }
 
-function SignIn() {
+function SignIn({ className }: { className?: string }) {
   const navigate = useNavigate();
 
   const signInMutation = useMutation({
@@ -85,7 +85,7 @@ function SignIn() {
   });
 
   return (
-    <>
+    <div className={className}>
       <form
         id="sign-in-form"
         onSubmit={(e) => {
@@ -119,11 +119,11 @@ function SignIn() {
           </form.AppForm>
         </div>
       </form>
-    </>
+    </div>
   );
 }
 
-function SignUp() {
+function SignUp({ className }: { className?: string }) {
   const signUpMutation = useMutation({
     mutationKey: ["auth", "signUp"],
     mutationFn: useUserManagementMutations().signUp,
@@ -144,35 +144,37 @@ function SignUp() {
   });
 
   return (
-    <form
-      id="sign-up-form"
-      onSubmit={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        form.handleSubmit();
-      }}
-    >
-      <div className="flex flex-col gap-4">
-        <form.AppField name="email">
-          {(field) => <field.InputWithLabel label="Email" />}
-        </form.AppField>
+    <div className={className}>
+      <form
+        id="sign-up-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          form.handleSubmit();
+        }}
+      >
+        <div className="flex flex-col gap-4">
+          <form.AppField name="email">
+            {(field) => <field.InputWithLabel label="Email" />}
+          </form.AppField>
 
-        <form.AppField name="password">
-          {(field) => <field.PasswordWithLabel label="Password" />}
-        </form.AppField>
+          <form.AppField name="password">
+            {(field) => <field.PasswordWithLabel label="Password" />}
+          </form.AppField>
 
-        <form.AppField name="name">
-          {(field) => <field.InputWithLabel label="Name" />}
-        </form.AppField>
+          <form.AppField name="name">
+            {(field) => <field.InputWithLabel label="Name" />}
+          </form.AppField>
 
-        <form.AppForm>
-          <form.SubmitButton
-            label="Sign Up"
-            formId="sign-up-form"
-            disabled={signUpMutation.isPending}
-          />
-        </form.AppForm>
-      </div>
-    </form>
+          <form.AppForm>
+            <form.SubmitButton
+              label="Sign Up"
+              formId="sign-up-form"
+              disabled={signUpMutation.isPending}
+            />
+          </form.AppForm>
+        </div>
+      </form>
+    </div>
   );
 }
