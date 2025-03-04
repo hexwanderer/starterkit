@@ -39,7 +39,6 @@ import {
   AudioWaveform,
   BadgeCheck,
   Bell,
-  BookOpen,
   ChevronRight,
   ChevronsUpDown,
   Command,
@@ -48,7 +47,7 @@ import {
   GalleryVerticalEnd,
   InboxIcon,
   LogOut,
-  Settings2,
+  ToyBrickIcon,
 } from "lucide-react";
 import { RiHome6Line, RiSettings3Line } from "@remixicon/react";
 import type React from "react";
@@ -97,7 +96,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     ],
     navMain: [
       {
-        title: "Workspace",
+        title: "Dashboard",
         url: "/dashboard",
         icon: RiHome6Line,
       },
@@ -117,50 +116,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         ],
       },
       {
-        title: "Documentation",
-        url: "#",
-        icon: BookOpen,
-        items: [
-          {
-            title: "Introduction",
-            url: "#",
-          },
-          {
-            title: "Get Started",
-            url: "#",
-          },
-          {
-            title: "Tutorials",
-            url: "#",
-          },
-          {
-            title: "Changelog",
-            url: "#",
-          },
-        ],
-      },
-      {
-        title: "Settings",
-        url: "#",
-        icon: Settings2,
-        items: [
-          {
-            title: "General",
-            url: "#",
-          },
-          {
-            title: "Team",
-            url: "#",
-          },
-          {
-            title: "Billing",
-            url: "#",
-          },
-          {
-            title: "Limits",
-            url: "#",
-          },
-        ],
+        title: "Playground",
+        url: "/playground",
+        icon: ToyBrickIcon,
       },
     ],
   };

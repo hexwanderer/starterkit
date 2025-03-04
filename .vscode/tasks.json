@@ -1,0 +1,12 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Watch TanStack Router",
+      "command": "tsr",
+      "args": ["watch"],
+      "type": "shell",
+      "isBackground": true
+    }
+  ]
+}

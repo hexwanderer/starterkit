@@ -18,6 +18,7 @@ import { SocketServer } from "./socket";
 import { createServer } from "node:http";
 import { NotificationPostgresImpl } from "./notification/notification.repository";
 import type { NotificationSchemaCreate } from "@repo/types";
+import { z } from "zod";
 
 console.log(`REDIS_HOST: ${process.env.REDIS_HOST}`);
 
@@ -90,6 +91,12 @@ const appRouter = router({
   index: publicProcedure.query(async () => {
     return "OK";
   }),
+  testMutation: publicProcedure
+    .input(z.object({ time: z.date() }))
+    .mutation(async ({ input }) => {
+      console.log(`inputs: ${input.time}`);
+      return "OK";
+    }),
 });
 
 export type AppRouter = typeof appRouter;
