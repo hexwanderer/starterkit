@@ -22,25 +22,25 @@ export const createContext = async ({
       headers: fromNodeHeaders(req.headers),
     });
     if (session) {
-      const [dbRole] = await db
-        .select({
-          role: members.role,
-        })
-        .from(members)
-        .leftJoin(organizations, eq(members.organizationId, organizations.id))
-        .where(eq(members.userId, session.user.id))
-        .limit(1);
+      const [[dbRole], teamsList] = await Promise.all([
+        db
+          .select({
+            role: members.role,
+          })
+          .from(members)
+          .leftJoin(organizations, eq(members.organizationId, organizations.id))
+          .where(eq(members.userId, session.user.id))
+          .limit(1),
+        db
+          .select({
+            id: teamMembers.id,
+          })
+          .from(teamMembers)
+          .where(eq(teamMembers.userId, session.user.id ?? ""))
+          .execute(),
+      ]);
       const rolesArray = RoleMappings[dbRole.role ?? "user"];
-
-      const teamsList = await db
-        .select({
-          id: teamMembers.id,
-        })
-        .from(teams)
-        .where(
-          eq(teams.organizationId, session.session.activeOrganizationId ?? ""),
-        )
-        .execute();
+      console.log(`dbrole: ${dbRole.role}, rolesArray: ${rolesArray}`);
 
       return {
         user: {
@@ -49,7 +49,7 @@ export const createContext = async ({
             id: session.session.activeOrganizationId ?? "",
             roles: rolesArray,
           },
-          teams: teamsList.map((team) => team.id),
+          teams: teamsList,
           session: session.session,
         },
         headers: fromNodeHeaders(req.headers),

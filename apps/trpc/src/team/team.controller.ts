@@ -67,6 +67,7 @@ export function addTeamRoutes({ repository, socket }: TeamControllerProps) {
       .input(TeamSchema.create)
       .output(TeamSchema.get)
       .mutation(async ({ ctx, input }) => {
+        console.log(`user: ${ctx.user?.organization.roles}`);
         if (!hasPermission(ctx.user, "team", "create")) {
           throw trpcAuthError("User is not authorized to create a team");
         }

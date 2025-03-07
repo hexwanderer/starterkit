@@ -1,21 +1,4 @@
-import type {
-  RequestorContext,
-  ResourceGet,
-  ResourceQueryIdentifying,
-  Role,
-  TeamGet,
-  TeamQueryIdentifying,
-} from "@repo/types";
-
-type Resource = {
-  id: string;
-  title: string;
-  description: string;
-  tags: string[];
-  createdBy: string;
-  teamId: string;
-  privacy: "public" | "private";
-};
+import type { RequestorContext, ResourceGet, Role, TeamGet } from "@repo/types";
 
 type PermissionCheck<Key extends keyof Permissions> =
   | boolean
@@ -127,6 +110,7 @@ export function hasPermission<Resource extends keyof Permissions>(
   data?: Permissions[Resource]["dataType"],
 ) {
   if (!user) return false;
+  console.log(`user.organization.roles: ${user.organization.roles}`);
   return user.organization.roles.some((role) => {
     const permission = (ROLES as RolesWithPermissions)[role][resource]?.[
       action
