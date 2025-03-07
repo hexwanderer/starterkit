@@ -9,7 +9,6 @@ import cors from "cors";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./auth";
 import { addOrganizationRoutes } from "./organization/organization.controller";
-import { OrganizationBetterAuthImpl } from "./organization/organization.repository";
 import { addTeamRoutes } from "./team/team.controller";
 import { TeamPostgresImpl } from "./team/team.repository";
 import { Queue } from "bullmq";
@@ -81,7 +80,6 @@ const appRouter = router({
     queue: resourceQueue,
   }),
   organization: addOrganizationRoutes({
-    repository: new OrganizationBetterAuthImpl(auth),
     teamRepository,
   }),
   team: addTeamRoutes({

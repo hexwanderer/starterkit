@@ -1,4 +1,3 @@
-import { fromNodeHeaders } from "better-auth/node";
 import type { auth } from "../auth";
 import type {
   OrganizationCreate,
@@ -13,47 +12,29 @@ import type {
 import { TRPCError } from "@trpc/server";
 
 export interface OrganizationRepository {
-  create(
-    organization: OrganizationCreate,
-    headers?: Headers,
-  ): Promise<OrganizationGet>;
-  update(
-    organization: OrganizationUpdate,
-    headers?: Headers,
-  ): Promise<OrganizationGet>;
-  delete(id: string, headers?: Headers): Promise<void>;
-  addMember(params: OrganizationMemberAdd, headers?: Headers): Promise<void>;
-  changeMemberRole(
-    params: OrganizationMemberChangeRole,
-    headers?: Headers,
-  ): Promise<void>;
+  create(organization: OrganizationCreate): Promise<OrganizationGet>;
+  update(organization: OrganizationUpdate): Promise<OrganizationGet>;
+  changeMemberRole(params: OrganizationMemberChangeRole): Promise<void>;
   getMembers(
     params: OrganizationMemberQueryGetMembers,
-    headers?: Headers,
   ): Promise<OrganizationMemberGet[]>;
-  removeMember(
-    params: OrganizationMemberRemove,
-    headers?: Headers,
-  ): Promise<void>;
+  removeMember(params: OrganizationMemberRemove): Promise<void>;
 }
 
-export class OrganizationBetterAuthImpl implements OrganizationRepository {
+export class OrganizationBetterAuthImplV2 implements OrganizationRepository {
   client: typeof auth;
+  headers: Headers;
 
-  constructor(client: typeof auth) {
+  constructor(client: typeof auth, headers: Headers) {
     this.client = client;
+    this.headers = headers;
   }
 
-  async changeMemberRole(
-    params: OrganizationMemberChangeRole,
-    headers?: Headers,
-  ): Promise<void> {
-    if (!headers) throw new Error("No headers provided");
+  async changeMemberRole(params: OrganizationMemberChangeRole): Promise<void> {
     if (!params.role || !["owner", "admin", "member"].includes(params.role)) {
       throw new Error("Invalid role");
     }
     await this.client.api.updateMemberRole({
-      headers,
       body: {
         memberId: params.memberId,
         role: params.role as "owner" | "admin" | "member",
@@ -63,14 +44,12 @@ export class OrganizationBetterAuthImpl implements OrganizationRepository {
 
   async getMembers(
     params: OrganizationMemberQueryGetMembers,
-    headers?: Headers,
   ): Promise<OrganizationMemberGet[]> {
-    if (!headers) throw new Error("No headers provided");
     const org = await this.client.api.getFullOrganization({
-      headers,
       query: {
         organizationId: params.organizationId,
       },
+      headers: this.headers,
     });
     if (!org) throw new TRPCError({ code: "NOT_FOUND" });
     return org.members.map((member) => ({
@@ -81,29 +60,20 @@ export class OrganizationBetterAuthImpl implements OrganizationRepository {
     }));
   }
 
-  async addMember(
-    params: OrganizationMemberAdd,
-    headers?: Headers,
-  ): Promise<void> {
-    if (!headers) throw new Error("No headers provided");
+  async addMember(params: OrganizationMemberAdd): Promise<void> {
     const x = await this.client.api.createInvitation({
-      headers,
       body: {
         organizationId: params.organizationId,
         role: "member",
         email: params.email,
       },
+      headers: this.headers,
     });
     return;
   }
 
-  async removeMember(
-    params: OrganizationMemberRemove,
-    headers?: Headers,
-  ): Promise<void> {
-    if (!headers) throw new Error("No headers provided");
+  async removeMember(params: OrganizationMemberRemove): Promise<void> {
     await this.client.api.removeMember({
-      headers,
       body: {
         organizationId: params.organizationId,
         memberIdOrEmail: params.userId,
@@ -112,18 +82,14 @@ export class OrganizationBetterAuthImpl implements OrganizationRepository {
     return;
   }
 
-  async create(
-    organization: OrganizationCreate,
-    headers?: Headers,
-  ): Promise<OrganizationGet> {
+  async create(organization: OrganizationCreate): Promise<OrganizationGet> {
     try {
-      if (!headers) throw new Error("No headers provided");
       const organizationResult = await this.client.api.createOrganization({
-        headers,
         body: {
           name: organization.name,
           slug: organization.slug,
         },
+        headers: this.headers,
       });
       if (organizationResult == null || organizationResult === undefined) {
         throw new Error("Failed to create organization");
@@ -143,20 +109,16 @@ export class OrganizationBetterAuthImpl implements OrganizationRepository {
     }
   }
 
-  async update(
-    organization: OrganizationUpdate,
-    headers?: Headers,
-  ): Promise<OrganizationGet> {
+  async update(organization: OrganizationUpdate): Promise<OrganizationGet> {
     try {
-      if (!headers) throw new Error("No headers provided");
       const organizationResult = await this.client.api.updateOrganization({
-        headers,
         body: {
           data: {
             name: organization.name,
             slug: organization.slug,
           },
         },
+        headers: this.headers,
       });
       if (organizationResult == null || organizationResult === undefined) {
         throw new Error("Failed to update organization");
@@ -173,13 +135,12 @@ export class OrganizationBetterAuthImpl implements OrganizationRepository {
     }
   }
 
-  async delete(id: string, headers?: Headers): Promise<void> {
-    if (!headers) throw new Error("No headers provided");
+  async delete(id: string): Promise<void> {
     await this.client.api.deleteOrganization({
-      headers,
       body: {
         organizationId: id,
       },
+      headers: this.headers,
     });
     return;
   }

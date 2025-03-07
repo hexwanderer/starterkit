@@ -1,7 +1,4 @@
-import type {
-  SignInFormSchema,
-  SignUpFormSchema,
-} from "../components/sign-state";
+import type { UserCreate, UserSignIn } from "@repo/types";
 import { authClient } from "@/main";
 
 export const useOrganizationManagementMutations = () => ({
@@ -17,7 +14,7 @@ export const useOrganizationManagementMutations = () => ({
 });
 
 export const useUserManagementMutations = () => ({
-  signIn: async (params: SignInFormSchema) => {
+  signIn: async (params: UserSignIn) => {
     const { data, error } = await authClient.signIn.email(
       {
         email: params.email,
@@ -36,7 +33,7 @@ export const useUserManagementMutations = () => ({
 
     return data;
   },
-  signUp: async (params: SignUpFormSchema) => {
+  signUp: async (params: UserCreate) => {
     const { data, error } = await authClient.signUp.email({
       email: params.email,
       password: params.password,

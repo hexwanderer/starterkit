@@ -4,9 +4,11 @@ import express from "express";
 import { auth } from "./auth";
 import { fromNodeHeaders } from "better-auth/node";
 import type { Session, User } from "better-auth";
+import type { OrganizationRepository } from "./organization/organization.repository.v2";
 
 type Context = {
   user?: User;
+  orgRepository?: OrganizationRepository;
   session?: Session;
   headers: Headers;
 };

@@ -5,26 +5,30 @@ import {
 } from "@repo/types";
 import { publicProcedure, router } from "../trpc";
 import { TRPCError } from "@trpc/server";
-import type { OrganizationRepository } from "./organization.repository";
 import type { TeamRepository } from "../team/team.repository";
 import { z } from "zod";
+import { OrganizationBetterAuthImplV2 } from "./organization.repository.v2";
+import { auth } from "../auth";
 
 const organizationProcedure = publicProcedure.use(async ({ ctx, next }) => {
   if (!ctx.user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
+
+  const repository = new OrganizationBetterAuthImplV2(auth, ctx.headers);
   return next({
-    ctx,
+    ctx: {
+      ...ctx,
+      orgRepository: repository,
+    },
   });
 });
 
 export interface OrganizationControllerProps {
-  repository: OrganizationRepository;
   teamRepository: TeamRepository;
 }
 
 export function addOrganizationRoutes({
-  repository,
   teamRepository,
 }: OrganizationControllerProps) {
   return router({
@@ -37,7 +41,7 @@ export function addOrganizationRoutes({
         }),
       )
       .mutation(async ({ input, ctx }) => {
-        const responseOrg = await repository.create(input, ctx.headers);
+        const responseOrg = await ctx.orgRepository.create(input);
         const responseTeam = await teamRepository.create({
           name: "Default Team",
           description: "Default team for the organization",
@@ -56,25 +60,25 @@ export function addOrganizationRoutes({
       .input(OrganizationSchema.update)
       .output(OrganizationSchema.get)
       .mutation(async ({ input, ctx }) => {
-        const response = await repository.update(input, ctx.headers);
+        const response = await ctx.orgRepository.update(input);
         return response;
       }),
     delete: organizationProcedure
       .input(z.object({ id: z.string() }))
       .mutation(async ({ input, ctx }) => {
-        await repository.delete(input.id, ctx.headers);
+        await ctx.orgRepository.delete(input.id);
         return;
       }),
     addMember: organizationProcedure
       .input(OrganizationMemberSchema.addMember)
       .mutation(async ({ input, ctx }) => {
-        await repository.addMember(input, ctx.headers);
+        await ctx.orgRepository.addMember(input);
         return;
       }),
     changeMemberRole: organizationProcedure
       .input(OrganizationMemberSchema.changeRole)
       .mutation(async ({ input, ctx }) => {
-        await repository.changeMemberRole(input, ctx.headers);
+        await ctx.orgRepository.changeMemberRole(input);
         return;
       }),
     getMembers: organizationProcedure
@@ -86,7 +90,7 @@ export function addOrganizationRoutes({
         }),
       )
       .query(async ({ input, ctx }) => {
-        const result = await repository.getMembers(input, ctx.headers);
+        const result = await ctx.orgRepository.getMembers(input);
         return {
           organizationId: input.organizationId,
           users: result,
@@ -95,7 +99,7 @@ export function addOrganizationRoutes({
     removeMember: organizationProcedure
       .input(OrganizationMemberSchema.removeMember)
       .mutation(async ({ input, ctx }) => {
-        await repository.removeMember(input, ctx.headers);
+        await ctx.orgRepository.removeMember(input);
         return;
       }),
   });

@@ -132,6 +132,7 @@ export class ResourcePostgresImpl implements ResourceRepository {
         (tag) => typeof tag !== "string",
       );
       for (const tag of existingTags) {
+        if (!tag.id) throw new Error("Tag id is missing");
         await tx.insert(resourceTagPairs).values({
           resourceId: result.id,
           tagId: tag.id,
