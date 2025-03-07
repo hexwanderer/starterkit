@@ -22,6 +22,11 @@ export const TeamQuery = {
         .optional(),
     })
     .optional(),
+  identifying: z.object({
+    id: z.string().optional(),
+    slug: z.string().optional(),
+    createdBy: z.string().optional(),
+  }),
 };
 
 const Visibility = {
@@ -39,6 +44,7 @@ export const TeamSchema = {
     createdBy: z.string(),
   }),
   update: z.object({
+    id: z.string(),
     name: z.string(),
     slug: z.string(),
     description: z.string(),
@@ -69,6 +75,7 @@ export const TeamSchema = {
 };
 
 export type TeamQueryGetAll = z.infer<typeof TeamQuery.getAll>;
+export type TeamQueryIdentifying = z.infer<typeof TeamQuery.identifying>;
 
 export type TeamCreate = z.infer<typeof TeamSchema.create>;
 export type TeamUpdate = z.infer<typeof TeamSchema.update>;

@@ -28,7 +28,7 @@ export function addResourceRoutes({
       .input(ResourceQuery.getAll)
       .output(z.array(ResourceSchema.get))
       .query(async ({ ctx, input }) => {
-        if (ctx.user?.id !== input.userId) {
+        if (ctx.user?.user.id !== input.userId) {
           throw new TRPCError({
             code: "UNAUTHORIZED",
           });
@@ -36,7 +36,7 @@ export function addResourceRoutes({
         return repository.getAll({
           ...input,
           // biome-ignore lint/style/noNonNullAssertion: Checked in middleware
-          userId: ctx.user!.id ?? "",
+          userId: ctx.user!.user.id,
         });
       }),
     getById: resourceProcedure

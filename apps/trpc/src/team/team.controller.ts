@@ -5,33 +5,13 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import type { SocketServer } from "../socket";
 import { hasPermission } from "@repo/auth";
+import { trpcAuthError } from "../auth";
 
 const teamProcedure = publicProcedure.use(async ({ ctx, path, next }) => {
   if (!ctx.user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
 
-  // const regex: RegExp = /api\/([a-zA-Z0-9])\.([a-zA-Z0-9])/;
-  // const [, object, action] = path.match(regex) ?? [];
-  // const objectAsKey = object as keyof Permissions;
-  // const act = action as "view" | "create" | "update" | "delete";
-
-  // if (
-  //   !hasPermission(
-  //     {
-  //       roles: ["owner", "admin", "user"],
-  //       id: ctx.user.id,
-  //       activeOrganizationId: "",
-  //     },
-  //     "team", // TODO: Cast to correct type
-  //     act,
-  //   )
-  // ) {
-  //   throw new TRPCError({
-  //     code: "UNAUTHORIZED",
-  //     message: "User is not authorized to perform this action",
-  //   });
-  // }
   return next({
     ctx,
   });
@@ -53,6 +33,18 @@ export function addTeamRoutes({ repository, socket }: TeamControllerProps) {
     getById: teamProcedure
       .input(z.object({ id: z.string() }))
       .output(TeamSchema.get)
+      .use(async ({ ctx, next, input }) => {
+        if (
+          !hasPermission(ctx.user, "team", "view", {
+            id: input.id,
+          })
+        ) {
+          throw trpcAuthError("User is not authorized to get a team");
+        }
+        return next({
+          ctx,
+        });
+      })
       .query(async ({ input }) => {
         const result = await repository.getById(input.id);
         if (!result)
@@ -65,6 +57,18 @@ export function addTeamRoutes({ repository, socket }: TeamControllerProps) {
     getBySlug: teamProcedure
       .input(z.object({ slug: z.string(), organizationSlug: z.string() }))
       .output(TeamSchema.get)
+      .use(async ({ ctx, next, input }) => {
+        if (
+          !hasPermission(ctx.user, "team", "view", {
+            slug: input.slug,
+          })
+        ) {
+          throw trpcAuthError("User is not authorized to get a team");
+        }
+        return next({
+          ctx,
+        });
+      })
       .query(async ({ input }) => {
         const result = await repository.getBySlug(
           input.slug,
@@ -78,6 +82,14 @@ export function addTeamRoutes({ repository, socket }: TeamControllerProps) {
         return result;
       }),
     create: teamProcedure
+      .use(async ({ ctx, next }) => {
+        if (!hasPermission(ctx.user, "team", "create")) {
+          throw trpcAuthError("User is not authorized to create a team");
+        }
+        return next({
+          ctx,
+        });
+      })
       .input(TeamSchema.create)
       .output(TeamSchema.get)
       .mutation(async ({ input }) => {
@@ -86,11 +98,27 @@ export function addTeamRoutes({ repository, socket }: TeamControllerProps) {
     update: teamProcedure
       .input(TeamSchema.update)
       .output(TeamSchema.get)
+      .use(async ({ ctx, next, input }) => {
+        if (!hasPermission(ctx.user, "team", "update", { id: input.id })) {
+          throw trpcAuthError("User is not authorized to update a team");
+        }
+        return next({
+          ctx,
+        });
+      })
       .mutation(async ({ input }) => {
         return repository.update(input);
       }),
     delete: teamProcedure
       .input(z.object({ id: z.string() }))
+      .use(async ({ ctx, next, input }) => {
+        if (!hasPermission(ctx.user, "team", "delete", { id: input.id })) {
+          throw trpcAuthError("User is not authorized to delete a team");
+        }
+        return next({
+          ctx,
+        });
+      })
       .mutation(async ({ input }) => {
         return repository.delete(input.id);
       }),

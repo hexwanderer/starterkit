@@ -1,4 +1,5 @@
 import { db, organizations } from "@repo/database"; // your drizzle instance
+import { TRPCError } from "@trpc/server";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { bearer, organization } from "better-auth/plugins";
@@ -36,3 +37,10 @@ export const auth = betterAuth({
 });
 
 export type AuthService = typeof auth;
+
+export function trpcAuthError(string: string) {
+  return new TRPCError({
+    code: "UNAUTHORIZED",
+    message: string,
+  });
+}

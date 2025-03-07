@@ -1,17 +1,4 @@
-type Team = {
-  id: string;
-  name: string;
-  description: string;
-  visibility: "public" | "private";
-  createdBy: string;
-  members: {
-    id: string;
-    user: {
-      id: string;
-      name: string;
-    };
-  }[];
-};
+import type { RequestorContext, Role, TeamQueryIdentifying } from "@repo/types";
 
 type Resource = {
   id: string;
@@ -23,17 +10,9 @@ type Resource = {
   privacy: "public" | "private";
 };
 
-export type Role = "owner" | "admin" | "user";
-
-type User = {
-  roles: Role[];
-  id: string;
-  activeOrganizationId?: string;
-};
-
 type PermissionCheck<Key extends keyof Permissions> =
   | boolean
-  | ((user: User, data: Permissions[Key]["dataType"]) => boolean);
+  | ((user: RequestorContext, data: Permissions[Key]["dataType"]) => boolean);
 
 type RolesWithPermissions = {
   [R in Role]: Partial<{
@@ -45,7 +24,7 @@ type RolesWithPermissions = {
 
 type Permissions = {
   team: {
-    dataType: Team;
+    dataType: TeamQueryIdentifying;
     action: "view" | "create" | "update" | "delete";
   };
   resource: {
@@ -84,12 +63,38 @@ const ROLES = {
       delete: true,
     },
   },
+  "team.delete": {
+    team: {
+      delete: true,
+    },
+  },
+  "team.creator": {
+    team: {
+      view: (user, team) => {
+        return team.createdBy === user.user.id;
+      },
+      create: (user, team) => {
+        return team.createdBy === user.user.id;
+      },
+      update: (user, team) => {
+        return team.createdBy === user.user.id;
+      },
+      delete: (user, team) => {
+        return team.createdBy === user.user.id;
+      },
+    },
+  },
+  "resource.delete": {
+    resource: {
+      delete: true,
+    },
+  },
   user: {
     team: {
       view: (user, team) => {
         return (
           team.visibility === "public" ||
-          team.members.some((member) => member.id === user.id)
+          team.members.some((member) => member.id === user.user.id)
         );
       },
       create: false,
@@ -98,22 +103,23 @@ const ROLES = {
     },
     resource: {
       view: (user, resource) => {
-        return user.activeOrganizationId === resource.teamId;
+        return user.teams.some((team) => team.id === resource.teamId);
       },
       create: true,
-      update: (user, resource) => resource.createdBy === user.id,
-      delete: (user, resource) => resource.createdBy === user.id,
+      update: (user, resource) => resource.createdBy === user.user.id,
+      delete: (user, resource) => resource.createdBy === user.user.id,
     },
   },
 } as const satisfies RolesWithPermissions;
 
 export function hasPermission<Resource extends keyof Permissions>(
-  user: User,
+  user: RequestorContext | undefined,
   resource: Resource,
   action: Permissions[Resource]["action"],
   data?: Permissions[Resource]["dataType"],
 ) {
-  return user.roles.some((role) => {
+  if (!user) return false;
+  return user.organization.roles.some((role) => {
     const permission = (ROLES as RolesWithPermissions)[role][resource]?.[
       action
     ];
