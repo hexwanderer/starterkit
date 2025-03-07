@@ -1,4 +1,11 @@
-import type { RequestorContext, Role, TeamQueryIdentifying } from "@repo/types";
+import type {
+  RequestorContext,
+  ResourceGet,
+  ResourceQueryIdentifying,
+  Role,
+  TeamGet,
+  TeamQueryIdentifying,
+} from "@repo/types";
 
 type Resource = {
   id: string;
@@ -24,12 +31,12 @@ type RolesWithPermissions = {
 
 type Permissions = {
   team: {
-    dataType: TeamQueryIdentifying;
+    dataType: TeamGet;
     action: "view" | "create" | "update" | "delete";
   };
   resource: {
     // Can do something like Pick<Todo, "userId"> to get just the rows you use
-    dataType: Resource;
+    dataType: ResourceGet;
     action: "view" | "create" | "update" | "delete";
   };
 };
@@ -93,8 +100,9 @@ const ROLES = {
     team: {
       view: (user, team) => {
         return (
-          team.visibility === "public" ||
-          team.members.some((member) => member.id === user.user.id)
+          (team.visibility === "public" ||
+            team.members?.some((member) => member.id === user.user.id)) ??
+          false
         );
       },
       create: false,

@@ -26,6 +26,8 @@ export const TeamQuery = {
     id: z.string().optional(),
     slug: z.string().optional(),
     createdBy: z.string().optional(),
+    visibility: z.enum(["public", "private"]).optional(),
+    members: z.array(z.object({ id: z.string() })).optional(),
   }),
 };
 

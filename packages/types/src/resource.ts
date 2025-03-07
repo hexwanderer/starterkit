@@ -22,6 +22,11 @@ export const ResourceQuery = {
       }),
     ),
   }),
+  // Info needed to identify a resource for ABAC contexts
+  identifying: z.object({
+    id: z.string().optional(),
+    createdBy: z.string().optional(),
+  }),
 };
 
 export const ResourceSchema = {
@@ -36,6 +41,7 @@ export const ResourceSchema = {
         name: z.string(),
       }),
     ),
+    createdBy: z.string(),
   }),
   update: z.object({
     id: z.string(),
@@ -62,11 +68,15 @@ export const ResourceSchema = {
         name: z.string(),
       }),
     ),
+    createdBy: z.string(),
   }),
 };
 
 // Exporting types for each schema
 export type ResourceQueryGetAll = z.infer<typeof ResourceQuery.getAll>;
+export type ResourceQueryIdentifying = z.infer<
+  typeof ResourceQuery.identifying
+>;
 
 export type ResourceCreate = z.infer<typeof ResourceSchema.create>;
 export type ResourceUpdate = z.infer<typeof ResourceSchema.update>;
