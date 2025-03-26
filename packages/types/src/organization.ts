@@ -1,27 +1,10 @@
 import { z } from "zod";
 
-export const OrganizationSchema = {
-  create: z.object({
-    name: z.string(),
-    slug: z.string(),
-  }),
-  update: z.object({
-    id: z.string(),
-    name: z.string().optional(),
-    slug: z.string().optional(),
-  }),
-  get: z.object({
-    id: z.string(),
-    name: z.string(),
-    slug: z.string(),
-    members: z.array(
-      z.object({
-        id: z.string(),
-        name: z.string(),
-      }),
-    ),
-  }),
-};
+export const OrganizationSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  slug: z.string(),
+});
 
 export const OrganizationMemberQuery = {
   getMembers: z.object({
@@ -52,9 +35,21 @@ export const OrganizationMemberSchema = {
   }),
 };
 
-export type OrganizationCreate = z.infer<typeof OrganizationSchema.create>;
-export type OrganizationUpdate = z.infer<typeof OrganizationSchema.update>;
-export type OrganizationGet = z.infer<typeof OrganizationSchema.get>;
+const organizationCreate = OrganizationSchema.omit({ id: true });
+export type OrganizationCreate = z.infer<typeof organizationCreate>;
+
+const organizationUpdate = OrganizationSchema.partial({
+  name: true,
+  slug: true,
+});
+export type OrganizationUpdate = z.infer<typeof organizationUpdate>;
+
+const organizationGet = OrganizationSchema.merge(
+  z.object({
+    members: z.array(OrganizationMemberSchema.get),
+  }),
+);
+export type OrganizationGet = z.infer<typeof organizationGet>;
 
 export type OrganizationMemberQueryGetMembers = z.infer<
   typeof OrganizationMemberQuery.getMembers

@@ -102,6 +102,8 @@ export class OrganizationBetterAuthImplV2 implements OrganizationRepository {
         members: organizationResult.members.map((member) => ({
           id: member.user.id,
           name: member.user.name,
+          email: member.user.email,
+          role: member.role,
         })),
       };
     } catch (err) {

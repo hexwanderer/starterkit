@@ -33,10 +33,10 @@ export function addOrganizationRoutes({
 }: OrganizationControllerProps) {
   return router({
     create: organizationProcedure
-      .input(OrganizationSchema.create)
+      .input(OrganizationSchema.omit({ id: true }))
       .output(
         z.object({
-          organization: OrganizationSchema.get,
+          organization: OrganizationSchema,
           team: TeamSchema.get,
         }),
       )
@@ -57,14 +57,14 @@ export function addOrganizationRoutes({
         };
       }),
     edit: organizationProcedure
-      .input(OrganizationSchema.update)
-      .output(OrganizationSchema.get)
+      .input(OrganizationSchema.partial({ name: true, slug: true }))
+      .output(OrganizationSchema)
       .mutation(async ({ input, ctx }) => {
         const response = await ctx.orgRepository.update(input);
         return response;
       }),
     delete: organizationProcedure
-      .input(z.object({ id: z.string() }))
+      .input(OrganizationSchema.pick({ id: true }))
       .mutation(async ({ input, ctx }) => {
         await ctx.orgRepository.delete(input.id);
         return;
