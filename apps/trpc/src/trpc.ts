@@ -6,10 +6,12 @@ import type { OrganizationRepository } from "./organization/organization.reposit
 import { RoleMappings, type RequestorContext } from "@repo/types";
 import { db, members, organizations, teamMembers, teams } from "@repo/database";
 import { eq } from "drizzle-orm";
+import type { ResourceRepository } from "./resource/resource.repository";
 
 type Context = {
   user?: RequestorContext;
   orgRepository?: OrganizationRepository;
+  resourceRepository?: ResourceRepository;
   headers: Headers;
 };
 

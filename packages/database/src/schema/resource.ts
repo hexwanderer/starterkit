@@ -1,12 +1,13 @@
-import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { v7 } from "uuid";
 import { teams } from "./team";
-import { organizations } from "./auth";
+import { organizations, users } from "./auth";
 
 export const resources = pgTable("resources", {
-  id: text()
+  id: uuid()
     .primaryKey()
     .$defaultFn(() => v7()),
+  slug: text().notNull(),
   title: text().notNull(),
   description: text().notNull(),
   teamId: text("team_id")
@@ -15,8 +16,15 @@ export const resources = pgTable("resources", {
   organizationId: text("organization_id")
     .notNull()
     .references(() => organizations.id),
-  createdAt: timestamp("created_at", { withTimezone: true }),
-  updatedAt: timestamp("updated_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  createdBy: text("created_by")
+    .notNull()
+    .references(() => users.id),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
 export const resourceTags = pgTable("resource_tags", {

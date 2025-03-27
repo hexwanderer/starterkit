@@ -1,4 +1,3 @@
-import { TeamQuery, TeamSchema } from "@repo/types";
 import { publicProcedure, router } from "../trpc";
 import type { TeamRepository } from "./team.repository";
 import { TRPCError } from "@trpc/server";

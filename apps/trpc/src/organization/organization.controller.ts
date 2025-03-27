@@ -1,7 +1,7 @@
 import {
   organizationMemberSchema,
   organizationSchema,
-  TeamSchema,
+  teamSchema,
 } from "@repo/types";
 import { publicProcedure, router } from "../trpc";
 import { TRPCError } from "@trpc/server";
@@ -37,7 +37,7 @@ export function addOrganizationRoutes({
       .output(
         z.object({
           organization: organizationSchema,
-          team: TeamSchema.get,
+          team: teamSchema,
         }),
       )
       .mutation(async ({ input, ctx }) => {

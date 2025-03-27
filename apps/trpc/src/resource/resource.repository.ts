@@ -1,6 +1,7 @@
 import {
   type DatabaseHandler,
   type db,
+  organizations,
   resources,
   resourceTagPairs,
   resourceTags,
@@ -9,25 +10,33 @@ import {
   users,
 } from "@repo/database";
 import { and, eq, sql } from "drizzle-orm";
-import type {
-  ResourceGet,
-  ResourceCreate,
-  ResourceUpdate,
-  ResourceQueryGetAll,
-} from "@repo/types";
+import type { resourceOps } from "./resource.controller";
+import type { z } from "zod";
 
 type DrizzlePgTx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 export interface ResourceRepository {
-  getAll(options: ResourceQueryGetAll): Promise<ResourceGet[]>;
-  getById(id: string): Promise<ResourceGet | null>;
+  getAll(
+    params: z.infer<typeof resourceOps.list.input>,
+  ): Promise<z.infer<typeof resourceOps.list.output>>;
+  getById(
+    params: z.infer<typeof resourceOps.getById.input>,
+  ): Promise<z.infer<typeof resourceOps.getById.output>>;
+  getBySlug(
+    params: z.infer<typeof resourceOps.getBySlug.input>,
+  ): Promise<z.infer<typeof resourceOps.getBySlug.output>>;
   create(
-    resource: ResourceCreate,
+    resource: z.infer<typeof resourceOps.create.input>,
     transaction?: DrizzlePgTx,
-  ): Promise<ResourceGet>;
-  update(resource: ResourceUpdate): Promise<ResourceGet>;
-  delete(id: string): Promise<void>;
-  getTransaction<T>(callback: (tx: DrizzlePgTx) => Promise<T>): Promise<T>;
+  ): Promise<z.infer<typeof resourceOps.create.output>>;
+  update(
+    resource: z.infer<typeof resourceOps.update.input>,
+    transaction?: DrizzlePgTx,
+  ): Promise<z.infer<typeof resourceOps.update.output>>;
+  delete(
+    id: z.infer<typeof resourceOps.delete.input>,
+    transaction?: DrizzlePgTx,
+  ): Promise<z.infer<typeof resourceOps.delete.output>>;
 }
 
 export class ResourcePostgresImpl implements ResourceRepository {
@@ -37,132 +46,133 @@ export class ResourcePostgresImpl implements ResourceRepository {
     this.db = db;
   }
 
-  getTransaction<T>(callback: (tx: DrizzlePgTx) => Promise<T>): Promise<T> {
-    return this.db.transaction(callback);
-  }
-
-  async getAll(options: ResourceQueryGetAll): Promise<ResourceGet[]> {
-    const teamSlug = options?.filter?.teamSlug ?? null;
-    const organizationId = options?.filter?.organizationId ?? null;
-    const resourcesList = await this.db
+  async getAll(
+    params: z.infer<typeof resourceOps.list.input>,
+  ): Promise<z.infer<typeof resourceOps.list.output>> {
+    const result = await this.db
       .select({
         id: resources.id,
         title: resources.title,
         description: resources.description,
         teamId: resources.teamId,
+        organizationId: resources.organizationId,
         tags: sql<
           { id: string; name: string }[]
         >`COALESCE(json_agg(json_build_object('id', ${resourceTags.id}, 'name', ${resourceTags.tag})), '[]')`.as(
           "tags",
         ),
+        createdAt: resources.createdAt,
+        updatedAt: resources.updatedAt,
       })
       .from(resources)
       .leftJoin(resourceTagPairs, eq(resources.id, resourceTagPairs.resourceId))
       .leftJoin(resourceTags, eq(resourceTagPairs.tagId, resourceTags.id))
       .leftJoin(teams, eq(resources.teamId, teams.id))
-      .leftJoin(teamMembers, eq(teams.id, teamMembers.teamId))
+      .leftJoin(organizations, eq(resources.organizationId, organizations.id))
       .where(
         and(
-          teamSlug
-            ? eq(teams.slug, teamSlug)
-            : organizationId
-              ? eq(teams.organizationId, organizationId)
-              : undefined,
-          eq(teamMembers.userId, options?.userId),
+          params.filter?.organizationId
+            ? eq(organizations.id, params.filter.organizationId)
+            : undefined,
+          params.filter?.teamId
+            ? eq(teams.id, params.filter.teamId)
+            : undefined,
         ),
       )
-      .groupBy(resources.id)
-      .orderBy(resources.title);
+      .execute();
 
-    return resourcesList.map((r) => ({
-      id: r.id,
-      title: r.title,
-      description: r.description,
-      teamId: r.teamId,
-      tags: r.tags ?? [], // Ensure it's an array
+    if (result.length === 0) return [];
+    return result.map((row) => ({
+      id: row.id,
+      slug: "TODO",
+      title: row.title,
+      description: row.description,
+      teamId: row.teamId,
+      organizationId: row.organizationId,
+      tagIds: row.tags.map((tag) => tag.id),
+      tags: row.tags ?? [], // Ensure it's an array
+      createdAt: row.createdAt.toISOString(),
+      createdBy: "",
+      updatedAt: row.updatedAt.toISOString(),
     }));
   }
 
-  async getById(id: string): Promise<ResourceGet | null> {
+  getBySlug(
+    params: z.infer<typeof resourceOps.getBySlug.input>,
+  ): Promise<z.infer<typeof resourceOps.getBySlug.output>> {
+    throw new Error("Method not implemented.");
+  }
+
+  getTransaction<T>(callback: (tx: DrizzlePgTx) => Promise<T>): Promise<T> {
+    return this.db.transaction(callback);
+  }
+
+  async getById(
+    params: z.infer<typeof resourceOps.getById.input>,
+  ): Promise<z.infer<typeof resourceOps.getById.output>> {
     const [result] = await this.db
       .select({
         id: resources.id,
+        slug: resources.slug,
         title: resources.title,
         description: resources.description,
         teamId: resources.teamId,
+        organizationId: resources.organizationId,
         tags: sql<
           { id: string; name: string }[]
         >`COALESCE(json_agg(json_build_object('id', ${resourceTags.id}, 'name', ${resourceTags.tag})), '[]')`.as(
           "tags",
         ),
+        createdAt: resources.createdAt,
+        createdBy: resources.createdBy,
+        updatedAt: resources.updatedAt,
       })
       .from(resources)
       .leftJoin(resourceTagPairs, eq(resources.id, resourceTagPairs.resourceId))
       .leftJoin(resourceTags, eq(resourceTagPairs.tagId, resourceTags.id))
-      .where(eq(resources.id, id))
+      .where(eq(resources.id, params))
       .limit(1);
 
     if (!result) return null;
 
     return {
-      id: result.id,
-      title: result.title,
-      description: result.description,
-      teamId: result.teamId,
-      tags: result.tags ?? [], // Ensure it's an array
+      ...result,
+      tagIds: result.tags.map((tag) => tag.id),
+      createdAt: new Date(result.createdAt).toISOString(),
+      updatedAt: new Date(result.updatedAt).toISOString(),
     };
   }
 
   async create(
-    resource: ResourceCreate,
+    params: z.infer<typeof resourceOps.create.input>,
     transaction?: DrizzlePgTx,
-  ): Promise<ResourceGet> {
+  ): Promise<z.infer<typeof resourceOps.create.output>> {
     const createLogic = async (tx: DrizzlePgTx) => {
       const [result] = await tx
         .insert(resources)
         .values({
-          title: resource.title,
-          description: resource.description,
-          teamId: resource.teamId,
+          slug: params.slug,
+          title: params.title,
+          description: params.description,
+          teamId: params.teamId,
+          organizationId: params.organizationId,
+          createdBy: params.createdBy,
         })
         .returning();
-      if (!result) throw new Error("Failed to create resource");
 
-      const existingTags = resource.tags.filter(
-        (tag) => typeof tag !== "string",
-      );
-      for (const tag of existingTags) {
-        if (!tag.id) throw new Error("Tag id is missing");
+      for (const tag of params.tagIds) {
         await tx.insert(resourceTagPairs).values({
           resourceId: result.id,
-          tagId: tag.id,
+          tagId: tag,
         });
       }
-
-      const newTagsWithIds: { id: string; name: string }[] = [];
-      const newTags = resource.tags.filter((tag) => typeof tag === "string");
-      for (const tag of newTags) {
-        const [tagResult] = await tx
-          .insert(resourceTags)
-          .values({
-            tag: tag,
-          })
-          .returning();
-        if (!tagResult) throw new Error("Failed to create tag");
-
-        await tx.insert(resourceTagPairs).values({
-          resourceId: result.id,
-          tagId: tagResult.id,
-        });
-        newTagsWithIds.push({
-          id: tagResult.id,
-          name: tag,
-        });
-      }
+      if (!result || !result.id) throw new Error("Failed to create resource");
 
       return {
         ...result,
-        tags: newTagsWithIds,
+        createdAt: new Date(result.createdAt).toISOString(),
+        updatedAt: new Date(result.updatedAt).toISOString(),
+        tagIds: params.tagIds,
       };
     };
 
@@ -171,13 +181,17 @@ export class ResourcePostgresImpl implements ResourceRepository {
       : this.getTransaction(createLogic);
   }
 
-  update(resource: ResourceUpdate): Promise<ResourceGet> {
-    console.log("update", resource);
+  async update(
+    params: z.infer<typeof resourceOps.update.input>,
+    transaction?: DrizzlePgTx,
+  ): Promise<z.infer<typeof resourceOps.update.output>> {
     throw new Error("Method not implemented.");
   }
 
-  delete(id: string): Promise<void> {
-    console.log("delete", id);
+  async delete(
+    id: z.infer<typeof resourceOps.delete.input>,
+    transaction?: DrizzlePgTx,
+  ): Promise<z.infer<typeof resourceOps.delete.output>> {
     throw new Error("Method not implemented.");
   }
 }
