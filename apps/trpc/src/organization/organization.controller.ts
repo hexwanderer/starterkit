@@ -1,6 +1,6 @@
 import {
-  OrganizationMemberSchema,
-  OrganizationSchema,
+  organizationMemberSchema,
+  organizationSchema,
   TeamSchema,
 } from "@repo/types";
 import { publicProcedure, router } from "../trpc";
@@ -33,10 +33,10 @@ export function addOrganizationRoutes({
 }: OrganizationControllerProps) {
   return router({
     create: organizationProcedure
-      .input(OrganizationSchema.omit({ id: true }))
+      .input(organizationSchema.omit({ id: true }))
       .output(
         z.object({
-          organization: OrganizationSchema,
+          organization: organizationSchema,
           team: TeamSchema.get,
         }),
       )
@@ -57,47 +57,49 @@ export function addOrganizationRoutes({
         };
       }),
     edit: organizationProcedure
-      .input(OrganizationSchema.partial({ name: true, slug: true }))
-      .output(OrganizationSchema)
+      .input(organizationSchema.partial({ name: true, slug: true }))
+      .output(organizationSchema)
       .mutation(async ({ input, ctx }) => {
         const response = await ctx.orgRepository.update(input);
         return response;
       }),
     delete: organizationProcedure
-      .input(OrganizationSchema.pick({ id: true }))
+      .input(organizationSchema.pick({ id: true }))
       .mutation(async ({ input, ctx }) => {
         await ctx.orgRepository.delete(input.id);
         return;
       }),
     addMember: organizationProcedure
-      .input(OrganizationMemberSchema.addMember)
+      .input(
+        z.object({
+          organizationId: z.string(),
+          email: z.string(),
+        }),
+      )
       .mutation(async ({ input, ctx }) => {
         await ctx.orgRepository.addMember(input);
         return;
       }),
     changeMemberRole: organizationProcedure
-      .input(OrganizationMemberSchema.changeRole)
+      .input(z.object({ memberId: z.string(), role: z.string() }))
       .mutation(async ({ input, ctx }) => {
         await ctx.orgRepository.changeMemberRole(input);
         return;
       }),
     getMembers: organizationProcedure
       .input(z.object({ organizationId: z.string() }))
-      .output(
-        z.object({
-          organizationId: z.string(),
-          users: z.array(OrganizationMemberSchema.get),
-        }),
-      )
+      .output(z.array(organizationMemberSchema))
       .query(async ({ input, ctx }) => {
-        const result = await ctx.orgRepository.getMembers(input);
-        return {
-          organizationId: input.organizationId,
-          users: result,
-        };
+        const result = await ctx.orgRepository.getMembers(input.organizationId);
+        return result;
       }),
     removeMember: organizationProcedure
-      .input(OrganizationMemberSchema.removeMember)
+      .input(
+        z.object({
+          organizationId: z.string().min(1),
+          userId: z.string().min(1),
+        }),
+      )
       .mutation(async ({ input, ctx }) => {
         await ctx.orgRepository.removeMember(input);
         return;

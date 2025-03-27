@@ -14,7 +14,7 @@ import { Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useOrganizationManagementMutations } from "../api/mutations";
 import { authClient, useAppForm, useTRPC } from "@/main";
-import { OrganizationSchema } from "@repo/types";
+import { organizationSchema } from "@repo/types";
 
 interface Organization {
   id: string;
@@ -52,7 +52,7 @@ export function OrganizationSelect() {
       slug: "",
     },
     validators: {
-      onBlur: OrganizationSchema.create,
+      onBlur: organizationSchema.create,
     },
     onSubmit: async ({ value }) => {
       createOrgMutation.mutate(value);

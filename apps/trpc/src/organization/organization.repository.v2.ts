@@ -1,24 +1,40 @@
 import type { auth } from "../auth";
-import type {
-  OrganizationCreate,
-  OrganizationGet,
-  OrganizationMemberAdd,
-  OrganizationMemberChangeRole,
-  OrganizationMemberGet,
-  OrganizationMemberQueryGetMembers,
-  OrganizationMemberRemove,
-  OrganizationUpdate,
-} from "@repo/types";
 import { TRPCError } from "@trpc/server";
+import type { z } from "zod";
+import type { organizationMemberOps, organizationOps } from "@repo/types";
 
 export interface OrganizationRepository {
-  create(organization: OrganizationCreate): Promise<OrganizationGet>;
-  update(organization: OrganizationUpdate): Promise<OrganizationGet>;
-  changeMemberRole(params: OrganizationMemberChangeRole): Promise<void>;
+  get(
+    params: z.infer<typeof organizationOps.get.input>,
+  ): Promise<z.infer<typeof organizationOps.get.output>>;
+
+  create(
+    organization: z.infer<typeof organizationOps.create.input>,
+  ): Promise<z.infer<typeof organizationOps.create.output>>;
+
+  update(
+    organization: z.infer<typeof organizationOps.update.input>,
+  ): Promise<z.infer<typeof organizationOps.update.output>>;
+
+  delete(
+    organization: z.infer<typeof organizationOps.delete.input>,
+  ): Promise<z.infer<typeof organizationOps.delete.output>>;
+
+  addMember(
+    params: z.infer<typeof organizationMemberOps.add.input>,
+  ): Promise<z.infer<typeof organizationMemberOps.add.output>>;
+
+  removeMember(
+    params: z.infer<typeof organizationMemberOps.remove.input>,
+  ): Promise<z.infer<typeof organizationMemberOps.remove.output>>;
+
   getMembers(
-    params: OrganizationMemberQueryGetMembers,
-  ): Promise<OrganizationMemberGet[]>;
-  removeMember(params: OrganizationMemberRemove): Promise<void>;
+    params: z.infer<typeof organizationMemberOps.get.input>,
+  ): Promise<z.infer<typeof organizationMemberOps.get.output>>;
+
+  changeMemberRole(
+    params: z.infer<typeof organizationMemberOps.changeRole.input>,
+  ): Promise<z.infer<typeof organizationMemberOps.changeRole.output>>;
 }
 
 export class OrganizationBetterAuthImplV2 implements OrganizationRepository {
@@ -30,59 +46,21 @@ export class OrganizationBetterAuthImplV2 implements OrganizationRepository {
     this.headers = headers;
   }
 
-  async changeMemberRole(params: OrganizationMemberChangeRole): Promise<void> {
-    if (!params.role || !["owner", "admin", "member"].includes(params.role)) {
-      throw new Error("Invalid role");
-    }
-    await this.client.api.updateMemberRole({
+  async delete(
+    organization: z.infer<typeof organizationOps.delete.input>,
+  ): Promise<z.infer<typeof organizationOps.delete.output>> {
+    await this.client.api.deleteOrganization({
       body: {
-        memberId: params.memberId,
-        role: params.role as "owner" | "admin" | "member",
-      },
-    });
-  }
-
-  async getMembers(
-    params: OrganizationMemberQueryGetMembers,
-  ): Promise<OrganizationMemberGet[]> {
-    const org = await this.client.api.getFullOrganization({
-      query: {
-        organizationId: params.organizationId,
-      },
-      headers: this.headers,
-    });
-    if (!org) throw new TRPCError({ code: "NOT_FOUND" });
-    return org.members.map((member) => ({
-      id: member.userId,
-      name: member.user.name,
-      email: member.user.email,
-      role: member.role,
-    }));
-  }
-
-  async addMember(params: OrganizationMemberAdd): Promise<void> {
-    const x = await this.client.api.createInvitation({
-      body: {
-        organizationId: params.organizationId,
-        role: "member",
-        email: params.email,
+        organizationId: organization,
       },
       headers: this.headers,
     });
     return;
   }
 
-  async removeMember(params: OrganizationMemberRemove): Promise<void> {
-    await this.client.api.removeMember({
-      body: {
-        organizationId: params.organizationId,
-        memberIdOrEmail: params.userId,
-      },
-    });
-    return;
-  }
-
-  async create(organization: OrganizationCreate): Promise<OrganizationGet> {
+  async create(
+    organization: z.infer<typeof organizationOps.create.input>,
+  ): Promise<z.infer<typeof organizationOps.create.output>> {
     try {
       const organizationResult = await this.client.api.createOrganization({
         body: {
@@ -100,9 +78,8 @@ export class OrganizationBetterAuthImplV2 implements OrganizationRepository {
         name: organizationResult.name,
         slug: organizationResult.slug,
         members: organizationResult.members.map((member) => ({
-          id: member.user.id,
-          name: member.user.name,
-          email: member.user.email,
+          id: member.id ?? "",
+          userId: member.userId,
           role: member.role,
         })),
       };
@@ -111,7 +88,20 @@ export class OrganizationBetterAuthImplV2 implements OrganizationRepository {
     }
   }
 
-  async update(organization: OrganizationUpdate): Promise<OrganizationGet> {
+  async get(
+    params: z.infer<typeof organizationOps.get.input>,
+  ): Promise<z.infer<typeof organizationOps.get.output>> {
+    return this.client.api.getFullOrganization({
+      query: {
+        organizationId: params,
+      },
+      headers: this.headers,
+    });
+  }
+
+  async update(
+    organization: z.infer<typeof organizationOps.update.input>,
+  ): Promise<z.infer<typeof organizationOps.update.output>> {
     try {
       const organizationResult = await this.client.api.updateOrganization({
         body: {
@@ -130,20 +120,73 @@ export class OrganizationBetterAuthImplV2 implements OrganizationRepository {
         id: organizationResult.id,
         name: organizationResult.name,
         slug: organizationResult.slug,
-        members: [],
       };
     } catch (err) {
       throw new Error("Failed to update organization");
     }
   }
 
-  async delete(id: string): Promise<void> {
-    await this.client.api.deleteOrganization({
+  async addMember(
+    params: z.infer<typeof organizationMemberOps.add.input>,
+  ): Promise<z.infer<typeof organizationMemberOps.add.output>> {
+    await this.client.api.createInvitation({
       body: {
-        organizationId: id,
+        organizationId: params.organizationId,
+        role: "member",
+        email: params.email,
       },
       headers: this.headers,
     });
     return;
+  }
+
+  async removeMember(
+    params: z.infer<typeof organizationMemberOps.remove.input>,
+  ): Promise<z.infer<typeof organizationMemberOps.remove.output>> {
+    await this.client.api.removeMember({
+      body: {
+        organizationId: params.organizationId,
+        memberIdOrEmail: params.userId,
+      },
+    });
+    return;
+  }
+
+  async getMembers(
+    params: z.infer<typeof organizationMemberOps.get.input>,
+  ): Promise<z.infer<typeof organizationMemberOps.get.output>> {
+    const org = await this.client.api.getFullOrganization({
+      query: {
+        organizationId: params,
+      },
+      headers: this.headers,
+    });
+    if (!org) throw new TRPCError({ code: "NOT_FOUND" });
+    return org.members.map((member) => ({
+      id: member.id,
+      organizationId: member.organizationId,
+      organization: {
+        name: org.name,
+        slug: org.slug,
+      },
+      userId: member.userId,
+      user: {
+        name: member.user.name,
+        email: member.user.email,
+      },
+      role: member.role,
+      createdAt: member.createdAt.toISOString(),
+    }));
+  }
+
+  async changeMemberRole(
+    params: z.infer<typeof organizationMemberOps.changeRole.input>,
+  ): Promise<z.infer<typeof organizationMemberOps.changeRole.output>> {
+    await this.client.api.updateMemberRole({
+      body: {
+        memberId: params.memberId,
+        role: params.role as "owner" | "admin" | "member",
+      },
+    });
   }
 }

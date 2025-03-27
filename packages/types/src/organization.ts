@@ -1,69 +1,74 @@
 import { z } from "zod";
 
-export const OrganizationSchema = z.object({
+export const organizationSchema = z.object({
   id: z.string(),
   name: z.string(),
   slug: z.string(),
 });
 
-export const OrganizationMemberQuery = {
-  getMembers: z.object({
-    organizationId: z.string(),
-    userId: z.string().optional(),
-  }),
-};
+function inferSchema<I extends z.ZodTypeAny, O extends z.ZodTypeAny>(
+  input: I,
+  output: O,
+): { input: I; output: O } {
+  return {
+    input: input as I,
+    output: output as O,
+  };
+}
 
-export const OrganizationMemberSchema = {
-  addMember: z.object({
-    organizationId: z.string(),
-    email: z.string(),
-    teamId: z.string().optional(),
+export const organizationMemberSchema = z.object({
+  id: z.string().min(1),
+  organizationId: z.string(),
+  organization: z.object({
+    name: z.string(),
+    slug: z.string(),
   }),
-  changeRole: z.object({
-    memberId: z.string(),
-    role: z.string(),
-  }),
-  get: z.object({
-    id: z.string(),
+  userId: z.string(),
+  user: z.object({
     name: z.string(),
     email: z.string(),
-    role: z.string(),
   }),
-  removeMember: z.object({
-    organizationId: z.string(),
-    userId: z.string(),
-  }),
+  role: z.string(),
+  createdAt: z.string().datetime(),
+});
+
+export const organizationOps = {
+  get: inferSchema(z.string(), z.nullable(organizationSchema)),
+  create: inferSchema(
+    organizationSchema.omit({ id: true }),
+    organizationSchema.merge(
+      z.object({
+        members: z.array(
+          organizationMemberSchema.pick({ id: true, userId: true, role: true }),
+        ),
+      }),
+    ),
+  ),
+  update: inferSchema(
+    organizationSchema.partial({ name: true, slug: true }),
+    organizationSchema,
+  ),
+  delete: inferSchema(z.string(), z.void()),
 };
 
-const organizationCreate = OrganizationSchema.omit({ id: true });
-export type OrganizationCreate = z.infer<typeof organizationCreate>;
-
-const organizationUpdate = OrganizationSchema.partial({
-  name: true,
-  slug: true,
-});
-export type OrganizationUpdate = z.infer<typeof organizationUpdate>;
-
-const organizationGet = OrganizationSchema.merge(
-  z.object({
-    members: z.array(OrganizationMemberSchema.get),
-  }),
-);
-export type OrganizationGet = z.infer<typeof organizationGet>;
-
-export type OrganizationMemberQueryGetMembers = z.infer<
-  typeof OrganizationMemberQuery.getMembers
->;
-
-export type OrganizationMemberAdd = z.infer<
-  typeof OrganizationMemberSchema.addMember
->;
-export type OrganizationMemberGet = z.infer<
-  typeof OrganizationMemberSchema.get
->;
-export type OrganizationMemberChangeRole = z.infer<
-  typeof OrganizationMemberSchema.changeRole
->;
-export type OrganizationMemberRemove = z.infer<
-  typeof OrganizationMemberSchema.removeMember
->;
+export const organizationMemberOps = {
+  add: inferSchema(
+    z.object({
+      organizationId: z.string(),
+      email: z.string(),
+    }),
+    z.void(),
+  ),
+  remove: inferSchema(
+    z.object({
+      organizationId: z.string().min(1),
+      userId: z.string().min(1),
+    }),
+    z.void(),
+  ),
+  get: inferSchema(z.string(), z.array(organizationMemberSchema)),
+  changeRole: inferSchema(
+    z.object({ memberId: z.string(), role: z.string() }),
+    z.void(),
+  ),
+};

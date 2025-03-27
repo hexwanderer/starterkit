@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { SettingsCard } from "../../settings-card";
 import { useAppForm, useTRPC } from "@/main";
-import { OrganizationSchema, type OrganizationUpdate } from "@repo/types";
+import { organizationSchema, type OrganizationUpdate } from "@repo/types";
 
 interface Organization {
   id: string;
@@ -35,7 +35,7 @@ export function OrganizationManage({ organization }: OrganizationManageProps) {
       slug: organization.slug ?? "",
     } as OrganizationUpdate,
     validators: {
-      onBlur: OrganizationSchema.update,
+      onBlur: organizationSchema.update,
     },
     onSubmit: async ({ value }) => {
       updateOrgMutation.mutate(value);
